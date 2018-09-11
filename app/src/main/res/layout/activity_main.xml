@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <com.google.android.exoplayer2.ui.PlayerView
+        android:id="@+id/player_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:surface_type="texture_view">
+
+    </com.google.android.exoplayer2.ui.PlayerView>
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="60dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+    </android.support.v7.widget.RecyclerView>
+
+    <com.spx.videoclipeditviewtest.ClipFrameLayout
+        android:id="@+id/clipframe"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="60dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <RelativeLayout
+            android:id="@+id/frame_left"
+            android:layout_width="14dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="left"
+            android:background="@drawable/left_frame">
+
+            <ImageView
+                android:id="@+id/left_iv"
+                android:layout_width="6dp"
+                android:layout_height="10dp"
+                android:layout_centerInParent="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/triangle" />
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/frame_right"
+            android:layout_width="14dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"
+            android:background="@drawable/right_frame">
+
+            <ImageView
+                android:layout_width="6dp"
+                android:layout_height="10dp"
+                android:layout_centerInParent="true"
+                android:rotation="180"
+                android:scaleType="fitCenter"
+                android:src="@drawable/triangle" />
+        </RelativeLayout>
+
+    </com.spx.videoclipeditviewtest.ClipFrameLayout>
+
+</android.support.constraint.ConstraintLayout>
