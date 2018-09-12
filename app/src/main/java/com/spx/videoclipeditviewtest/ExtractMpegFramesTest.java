@@ -197,6 +197,8 @@ public class ExtractMpegFramesTest {
 
         boolean outputDone = false;
         boolean inputDone = false;
+        int secIndex = -1;
+        int count = 0;
         while (!outputDone) {
             if (VERBOSE) Log.d(TAG, "loop");
 
@@ -227,9 +229,14 @@ public class ExtractMpegFramesTest {
                                     extractor.getSampleTrackIndex() + ", expected " + trackIndex);
                         }
                         long presentationTimeUs = extractor.getSampleTime();
-                        Log.d(TAG, "doExtract: presentationTimeUs:" + presentationTimeUs);
+
+                        long sec = presentationTimeUs / 1000_000;
+                        Log.d(TAG, "doExtract: presentationTimeUs:" + presentationTimeUs+", sec:"+sec);
+
+
                         decoder.queueInputBuffer(inputBufIndex, 0, chunkSize,
                                 presentationTimeUs, 0 /*flags*/);
+
                         if (VERBOSE) {
                             Log.d(TAG, "submitted frame " + inputChunk + " to dec, size=" +
                                     chunkSize);
@@ -271,26 +278,28 @@ public class ExtractMpegFramesTest {
                     // need to wait for the onFrameAvailable callback to fire.
                     decoder.releaseOutputBuffer(decoderStatus, doRender);
                     if (doRender) {
-                        if (VERBOSE) Log.d(TAG, "awaiting decode of frame " + decodeCount);
+                        if (VERBOSE) Log.d(TAG, "awaiting decode of frame " + decodeCount +", the count:"+count);
                         outputSurface.awaitNewImage();
                         outputSurface.drawImage(true);
 
-                        if (decodeCount < MAX_FRAMES) {
+                        if (decodeCount < MAX_FRAMES && count%10==0) {
                             File outputFile = new File(FILES_DIR,
                                     String.format("frame-%02d.png", decodeCount));
                             long startWhen = System.nanoTime();
                             outputSurface.saveFrame(outputFile.toString());
                             frameSaveTime += System.nanoTime() - startWhen;
+                            decodeCount++;
                         }
-                        decodeCount++;
+                        count++;
+
                     }
                 }
             }
         }
 
         int numSaved = (MAX_FRAMES < decodeCount) ? MAX_FRAMES : decodeCount;
-        Log.d(TAG, "Saving " + numSaved + " frames took " +
-                (frameSaveTime / numSaved / 1000) + " us per frame");
+//        Log.d(TAG, "Saving " + numSaved + " frames took " +
+//                (frameSaveTime / numSaved / 1000) + " us per frame");
     }
 
     private static void fail(String s) {
