@@ -7,6 +7,7 @@
     tools:context=".MainActivity">
 
 
+
     <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/player_view"
         android:layout_width="match_parent"
@@ -14,6 +15,17 @@
         app:surface_type="texture_view">
 
     </com.google.android.exoplayer2.ui.PlayerView>
+
+    <TextView
+        android:id="@+id/start_decode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="start video decode"
+        android:textColor="#ffffff"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="64dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 
 
     <android.support.v7.widget.RecyclerView

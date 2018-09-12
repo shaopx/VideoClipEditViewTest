@@ -1,5 +1,6 @@
 package com.spx.videoclipeditviewtest
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -23,12 +24,15 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     val TAG = "MainActivity"
-    //    var videoPlayUrl = "http://txmov3.a.yximgs.com/upic/2018/09/10/20/BMjAxODA5MTAyMDM1MjlfNDgyNzU2NDk2Xzc5ODIzNzg1MjRfMV8z_hd3_B51179e16d3f43d357ced655f4de8205c.mp4?tag=1-1536671136-h-0-izegggevxm-dd2b6620d0362730"
+    var userAgent = "spx"
+//    var videoPlayUrl = "http://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0"
+    //    var referer = "https://www.bilibili.com/video/av31055163/?spm_id_from=333.334.bili_dance.9"
     var videoPlayUrl = "rawresource:///" + R.raw.video
     lateinit var player: SimpleExoPlayer
     var bitmapList = mutableListOf<Bitmap>()
     lateinit var adapter: MyAdapter
     var handler = Handler()
+    var playEndOnece = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +44,18 @@ class MainActivity : AppCompatActivity() {
             orientation = LinearLayoutManager.HORIZONTAL
         }
 
-        initPlayer()
+//        initPlayer()
+
+        Thread({
+            var test = ExtractMpegFramesTest()
+            test.extractMpegFrames()
+        }).start()
+
+
+        start_decode.setOnClickListener {
+            var intent = Intent(this@MainActivity, DecodeActivity::class.java)
+            startActivity(intent)
+        }
     }
 
 
@@ -48,13 +63,14 @@ class MainActivity : AppCompatActivity() {
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             if (playbackState == Player.STATE_READY) {
                 Log.d(TAG, "player started!")
-                if (bitmapList.size == 0) {
+                if (bitmapList.size == 0 && !isDestroyed) {
                     getBitmap()
                 }
 
 
             } else if (playbackState == Player.STATE_ENDED) {
                 Log.d(TAG, "player end!")
+                playEndOnece = true
                 handler.removeCallbacksAndMessages(null)
             }
         }
@@ -63,11 +79,18 @@ class MainActivity : AppCompatActivity() {
     fun getBitmap() {
         val videoSurfaceView = player_view.videoSurfaceView as TextureView
         val bitmap = videoSurfaceView.bitmap
-        Log.d(TAG, "bitmap:" + bitmap)
+//        Log.d(TAG, "bitmap:" + bitmap)
         bitmapList.add(bitmap)
         adapter.notifyDataSetChanged()
 
-        handler.postDelayed({ getBitmap() }, 500)
+        if (!playEndOnece) {
+            handler.postDelayed({ getBitmap() }, 500)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        handler.removeCallbacksAndMessages(null)
     }
 
     private fun initPlayer() {
@@ -82,13 +105,14 @@ class MainActivity : AppCompatActivity() {
         player_view.visibility = View.VISIBLE
         player_view.player = player
         player.addListener(listener)
-        player.repeatMode = Player.REPEAT_MODE_ALL
+//        player.repeatMode = Player.REPEAT_MODE_ALL
+        player.repeatMode = Player.REPEAT_MODE_OFF
         player.playWhenReady = true
 
         var videoUrl = videoPlayUrl
 
 
-        var mVideoSource = ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, "spx")).createMediaSource(Uri.parse(videoUrl)!!)
+        var mVideoSource = ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, userAgent)).createMediaSource(Uri.parse(videoUrl)!!)
         player.prepare(mVideoSource)
 
     }
