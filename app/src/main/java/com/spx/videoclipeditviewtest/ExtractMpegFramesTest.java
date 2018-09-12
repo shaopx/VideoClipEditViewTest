@@ -282,7 +282,7 @@ public class ExtractMpegFramesTest {
                         outputSurface.awaitNewImage();
                         outputSurface.drawImage(true);
 
-                        if (decodeCount < MAX_FRAMES && count%10==0) {
+                        if (decodeCount < MAX_FRAMES && count%30==0) {
                             File outputFile = new File(FILES_DIR,
                                     String.format("frame-%02d.png", decodeCount));
                             long startWhen = System.nanoTime();

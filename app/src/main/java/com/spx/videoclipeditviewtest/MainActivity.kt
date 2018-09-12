@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
             orientation = LinearLayoutManager.HORIZONTAL
         }
 
-//        initPlayer()
+        initPlayer()
 
         Thread({
             var test = ExtractMpegFramesTest()
