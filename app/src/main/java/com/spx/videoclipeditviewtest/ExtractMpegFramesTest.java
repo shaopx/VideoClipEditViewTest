@@ -53,6 +53,7 @@ public class ExtractMpegFramesTest {
     private static final String INPUT_FILE = "video.mp4";
     private static final int MAX_FRAMES = 10;       // stop extracting after this many
 
+    private static int frameRate = 30;
 
     /**
      * Wraps extractMpegFrames().  This is necessary because SurfaceTexture will try to use
@@ -169,12 +170,21 @@ public class ExtractMpegFramesTest {
     private int selectTrack(MediaExtractor extractor) {
         // Select the first video track we find, ignore the rest.
         int numTracks = extractor.getTrackCount();
+        Log.d(TAG, "selectTrack: numTracks:" + numTracks);
+        for (int i = 0; i < numTracks; i++) {
+            MediaFormat format = extractor.getTrackFormat(i);
+            String mime = format.getString(MediaFormat.KEY_MIME);
+            Log.d(TAG, "selectTrack: track " + i + " (" + mime + "): " + format);
+        }
+
         for (int i = 0; i < numTracks; i++) {
             MediaFormat format = extractor.getTrackFormat(i);
             String mime = format.getString(MediaFormat.KEY_MIME);
             if (mime.startsWith("video/")) {
+                frameRate = format.getInteger("frame-rate");
                 if (VERBOSE) {
                     Log.d(TAG, "Extractor selected track " + i + " (" + mime + "): " + format);
+                    Log.d(TAG, "Extractor selected track " + i + " (" + mime + "): frameRate:" + frameRate);
                 }
                 return i;
             }
@@ -189,6 +199,7 @@ public class ExtractMpegFramesTest {
     static void doExtract(MediaExtractor extractor, int trackIndex, MediaCodec decoder,
                           CodecOutputSurface outputSurface) throws IOException {
         final int TIMEOUT_USEC = 10000;
+//        decoder.getInputBuffer(0);
         ByteBuffer[] decoderInputBuffers = decoder.getInputBuffers();
         MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
         int inputChunk = 0;
@@ -209,11 +220,6 @@ public class ExtractMpegFramesTest {
                     ByteBuffer inputBuf = decoderInputBuffers[inputBufIndex];
                     // Read the sample data into the ByteBuffer.  This neither respects nor
                     // updates inputBuf's position, limit, etc.
-//                    if (inputChunk < 10) {
-//                        Log.e(TAG, "doExtract: seekTo:" + inputChunk);
-//                        extractor.seekTo(inputChunk * 1000 * 1000, SEEK_TO_NEXT_SYNC);
-//                    }
-//                    extractor.advance()
 
                     int chunkSize = extractor.readSampleData(inputBuf, 0);
                     Log.d(TAG, "doExtract: chunkSize:" + chunkSize);
@@ -229,9 +235,6 @@ public class ExtractMpegFramesTest {
                                     extractor.getSampleTrackIndex() + ", expected " + trackIndex);
                         }
                         long presentationTimeUs = extractor.getSampleTime();
-
-                        long sec = presentationTimeUs / 1000_000;
-                        Log.d(TAG, "doExtract: presentationTimeUs:" + presentationTimeUs+", sec:"+sec);
 
 
                         decoder.queueInputBuffer(inputBufIndex, 0, chunkSize,
@@ -278,11 +281,12 @@ public class ExtractMpegFramesTest {
                     // need to wait for the onFrameAvailable callback to fire.
                     decoder.releaseOutputBuffer(decoderStatus, doRender);
                     if (doRender) {
-                        if (VERBOSE) Log.d(TAG, "awaiting decode of frame " + decodeCount +", the count:"+count);
+                        if (VERBOSE)
+                            Log.d(TAG, "awaiting decode of frame " + decodeCount + ", the count:" + count);
                         outputSurface.awaitNewImage();
                         outputSurface.drawImage(true);
 
-                        if (decodeCount < MAX_FRAMES && count%30==0) {
+                        if (decodeCount < MAX_FRAMES && count % frameRate == 0) {
                             File outputFile = new File(FILES_DIR,
                                     String.format("frame-%02d.png", decodeCount));
                             long startWhen = System.nanoTime();

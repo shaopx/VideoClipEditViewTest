@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.os.HandlerThread
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
@@ -20,12 +21,13 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import kotlinx.android.synthetic.main.activity_main.*
+import com.google.android.exoplayer2.PlaybackParameters
 
 
 class MainActivity : AppCompatActivity() {
     val TAG = "MainActivity"
     var userAgent = "spx"
-//    var videoPlayUrl = "http://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0"
+    //    var videoPlayUrl = "http://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0"
     //    var referer = "https://www.bilibili.com/video/av31055163/?spm_id_from=333.334.bili_dance.9"
     var videoPlayUrl = "rawresource:///" + R.raw.video
     lateinit var player: SimpleExoPlayer
@@ -33,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var adapter: MyAdapter
     var handler = Handler()
     var playEndOnece = false
+    var delay = 980  //ms  之所以不是1000, 是因为每次生成一帧的bitmap大约需要20ms
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,18 +47,8 @@ class MainActivity : AppCompatActivity() {
             orientation = LinearLayoutManager.HORIZONTAL
         }
 
+
         initPlayer()
-
-        Thread({
-            var test = ExtractMpegFramesTest()
-            test.extractMpegFrames()
-        }).start()
-
-
-        start_decode.setOnClickListener {
-            var intent = Intent(this@MainActivity, DecodeActivity::class.java)
-            startActivity(intent)
-        }
     }
 
 
@@ -77,14 +70,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun getBitmap() {
+        var start = System.currentTimeMillis()
         val videoSurfaceView = player_view.videoSurfaceView as TextureView
         val bitmap = videoSurfaceView.bitmap
-//        Log.d(TAG, "bitmap:" + bitmap)
+        var end = System.currentTimeMillis()
+        Log.d(TAG, "create new bitmap use ${(end - start)}ms")
         bitmapList.add(bitmap)
         adapter.notifyDataSetChanged()
 
         if (!playEndOnece) {
-            handler.postDelayed({ getBitmap() }, 500)
+            handler.postDelayed({ getBitmap() }, delay.toLong())
         }
     }
 
@@ -108,6 +103,9 @@ class MainActivity : AppCompatActivity() {
 //        player.repeatMode = Player.REPEAT_MODE_ALL
         player.repeatMode = Player.REPEAT_MODE_OFF
         player.playWhenReady = true
+        val param = PlaybackParameters(1f)
+        player.playbackParameters = (param)
+        player.volume = 0f
 
         var videoUrl = videoPlayUrl
 
