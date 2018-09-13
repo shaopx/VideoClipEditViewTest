@@ -5,9 +5,11 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 public class ClipFrameLayout extends FrameLayout {
 
@@ -26,6 +28,19 @@ public class ClipFrameLayout extends FrameLayout {
 
     private int progressStart = (int) leftFrameLeft;
     private int progressWidth = 10;
+
+    private int minSelection = 3000; // 最短3s
+    private int maxSelection = 30000; // 最长30s
+
+    private int mediaDutaion = 0; // 媒体文件时长  ms
+
+
+    interface Callback {
+        void onSelectionChanged(float offsetRatio,  float endRatio, float selectionRatio);
+    }
+
+    private Callback callback;
+
 
     public ClipFrameLayout(Context context) {
         super(context);
@@ -61,6 +76,18 @@ public class ClipFrameLayout extends FrameLayout {
         progressWidth = context.getResources().getDimensionPixelSize(R.dimen.progressbar_width);
     }
 
+    public void setCallback(Callback callback) {
+        this.callback = callback;
+    }
+
+    public void updateInfo(int mediaDutaion) {
+        this.mediaDutaion = mediaDutaion;
+        int total = getWidth() - frameLeftBar.getWidth() - frameRightBar.getWidth();
+        int selection = Math.min(maxSelection, mediaDutaion);
+        Log.d(TAG, "updateInfo: total:" + total);
+        minDistance = total * (minSelection * 1f / selection);
+    }
+
 
     private View.OnTouchListener LeftTouchListener = new View.OnTouchListener() {
         private float downX;
@@ -85,6 +112,7 @@ public class ClipFrameLayout extends FrameLayout {
                         v.setTranslationX(newTransx);
                         leftFrameLeft = newTransx;
                         progressStart = (int) (leftFrameLeft + v.getWidth());
+                        onFrameMoved();
                         invalidate();
                     }
                     break;
@@ -116,6 +144,7 @@ public class ClipFrameLayout extends FrameLayout {
 
                         v.setTranslationX(newTransx);
                         rightFrameLeft = getWidth() - v.getWidth() + newTransx;
+                        onFrameMoved();
                         invalidate();
                     }
                     break;
@@ -124,6 +153,31 @@ public class ClipFrameLayout extends FrameLayout {
         }
 
     };
+
+    public void updateSelection() {
+        onFrameMoved();
+    }
+
+    private void onFrameMoved() {
+        Log.d(TAG, "onFrameMoved: leftFrameLeft:" + leftFrameLeft + ", rightFrameLeft:" + rightFrameLeft);
+        int start = (int) (leftFrameLeft + frameLeftBar.getWidth());
+        int end = (int) rightFrameLeft;
+        int distance = end - start;
+        int startTotal = frameLeftBar.getWidth();
+        int endTotal = getWidth() - frameRightBar.getWidth();
+        int total = endTotal - startTotal;
+        Log.d(TAG, "onFrameMoved: new distance is :" + distance + ", total width:" + total);
+
+        int offset = start - startTotal;
+        float offsetRatio = offset * 1f / total;
+        float selRatio = distance * 1f / total;
+        int endOffset = end - startTotal;
+        float endOffsetRatio = endOffset * 1f / total;
+        Log.d(TAG, "onFrameMoved: offsetRatio:" + offsetRatio + ", selRatio:" + selRatio);
+        if (callback != null) {
+            callback.onSelectionChanged(offsetRatio, endOffsetRatio, selRatio);
+        }
+    }
 
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
@@ -172,8 +226,8 @@ public class ClipFrameLayout extends FrameLayout {
 
         canvas.drawRect(new Rect(progressStart, 10, progressStart + progressWidth, getHeight() - 10), progressPaint);
 
-        canvas.drawRect(new Rect(0, 5, (int) leftFrameLeft + DELTA, getHeight() - 5), shadowPaint);
-        canvas.drawRect(new Rect((int) (rightFrameLeft + frameRightBar.getWidth()) - DELTA, 5, getWidth(), getHeight() - 5), shadowPaint);
+        canvas.drawRect(new Rect(DELTA, 5, (int) leftFrameLeft + DELTA, getHeight() - 5), shadowPaint);
+        canvas.drawRect(new Rect((int) (rightFrameLeft + frameRightBar.getWidth()) - DELTA, 5, getWidth() - DELTA, getHeight() - 5), shadowPaint);
     }
 
 
