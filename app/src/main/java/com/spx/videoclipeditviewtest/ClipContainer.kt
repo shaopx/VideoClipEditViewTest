@@ -18,6 +18,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.view.*
+import java.lang.RuntimeException
 
 class ClipContainer : FrameLayout {
     lateinit var recyclerView: RecyclerView
@@ -26,14 +27,21 @@ class ClipContainer : FrameLayout {
     var recyclerViewPadding: Int = 0
     var itemCount: Int = 0
     var itemWidth: Int = 0
+    var totalItemsWidth = 0
     var itemCountInFrame = 10
     private var mediaDutaion = 0 // 媒体文件时长  ms
     var frameWidth = 900
+    var realProgressBarWidth = 6
+    var minProgressBarX = 120
+    var maxProgressBarX = 900
 
     private var paint: Paint? = null
     private var progressPaint: Paint? = null
     lateinit var leftFrameBar: View
     lateinit var rightFrameBar: View
+    lateinit var playProgressBar: View
+
+    var list: MutableList<Bitmap> = mutableListOf()
 
 
     var startMillSec: Float = 0f
@@ -129,9 +137,91 @@ class ClipContainer : FrameLayout {
 
     }
 
+    private val progressBarTouchListener = object : View.OnTouchListener {
+        private var downX: Float = 0.toFloat()
+
+        override fun onTouch(v: View, event: MotionEvent): Boolean {
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> downX = event.x
+                MotionEvent.ACTION_MOVE -> {
+                    val xDistance = event.x - downX
+                    if (xDistance != 0f) {
+                        var newTransx = v.translationX + xDistance
+                        adjustProgressBar(v, newTransx)
+                        onPreviewChange(false)
+                    }
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    onPreviewChange(true)
+                }
+            }
+            return false
+        }
+
+    }
+
+    fun onPreviewChange(finished: Boolean){
+        var previewPosition = playProgressBar.translationX
+
+        startMillSec = (previewPosition - getFrameFixLeftX()) * 1f / frameWidth * millSecInFrame
+        Log.d(TAG, "onPreviewChange: previewPosition:${previewPosition}, startMillSec:${startMillSec}")
+
+        if (mediaDutaion <= maxSelection) {
+
+            if (callback != null) {
+                callback!!.onPreviewChang(startMillSec.toLong(), finished)
+            }
+            invalidate()
+            return
+        }
+
+        val (position, itemLeft, scrollX) = recyclerView.getScollXDistance()
+        Log.d(TAG, "onPreviewChange: position:$position, itemLeft:$itemLeft,  scrollX:$scrollX")
+
+        var scrollXTotal = scrollX + getFrameFixLeftX()
+
+
+        var scrollMillSec = scrollXTotal * 1f / totalItemsWidth * mediaDutaion
+        Log.d(TAG, "onPreviewChange: totalItemsWidth:$totalItemsWidth, scrollXTotal:$scrollXTotal, scrollMillSec:$scrollMillSec")
+
+        startMillSec += scrollMillSec
+        Log.e(TAG, "onPreviewChange: final startMillSec:$startMillSec, endMillSec:$endMillSec, range:${endMillSec - startMillSec}")
+
+        if (callback != null) {
+            callback!!.onPreviewChang(startMillSec.toLong(), finished)
+        }
+        invalidate()
+        return
+    }
+
+    fun adjustProgressBar(v:View, transX_: Float){
+        var transX = transX_
+
+        if (transX + realProgressBarWidth > getCutRightX()) {
+            transX = getCutRightX() - realProgressBarWidth
+        }
+
+        if (transX < getCutLeftX()) {
+            transX = getCutLeftX()
+        }
+
+        if (transX < minProgressBarX) {
+            transX = minProgressBarX.toFloat()
+        }
+//        if (transX > maxProgressBarX) {
+//            transX = maxProgressBarX.toFloat()
+//        }
+
+        Log.d(TAG, "adjustProgressBar  minProgressBarX:$minProgressBarX, maxProgressBarX: $maxProgressBarX")
+        Log.d(TAG, "adjustProgressBar  transX_:$transX_, transX: $transX")
+
+        v.translationX = transX
+    }
+
 
     interface Callback {
         fun onSelectionChang(totalCount: Int, startMillSec: Long, endMillSec: Long, finished: Boolean)
+        fun onPreviewChang(startMillSec: Long, finished: Boolean)
     }
 
 
@@ -173,6 +263,8 @@ class ClipContainer : FrameLayout {
             itemWidth = getDimensionPixelSize(R.dimen.clip_frame_item_width)
             framebarPadding = getDimensionPixelSize(R.dimen.clip_frame_bar_width_outer) - getDimensionPixelSize(R.dimen.clip_frame_bar_width)
             framebarImageWidth = getDimensionPixelSize(R.dimen.clip_frame_bar_width)
+            realProgressBarWidth = getDimensionPixelSize(R.dimen.clip_frame_progressbar_width)
+            minProgressBarX = getDimensionPixelSize(R.dimen.clip_recyclerview_paddingleft)
         }
 
     }
@@ -184,27 +276,57 @@ class ClipContainer : FrameLayout {
 
         leftFrameBar = findViewById(R.id.frame_left)
         rightFrameBar = findViewById(R.id.frame_right)
+        playProgressBar = findViewById(R.id.clip_play_progress_ll)
 
 
-        leftFrameBar!!.setOnClickListener {
-            //                Log.d(TAG, "onClick: ...");
+        View.OnClickListener { }.run {
+            leftFrameBar.setOnClickListener(this)
+            rightFrameBar.setOnClickListener(this)
+            playProgressBar.setOnClickListener(this)
         }
 
-        rightFrameBar!!.setOnClickListener {
-            //                Log.d(TAG, "onClick: ...");
+
+
+        leftFrameBar.setOnTouchListener(LeftTouchListener)
+        rightFrameBar.setOnTouchListener(rightTouchListener)
+        playProgressBar.setOnTouchListener(progressBarTouchListener)
+
+        adapter = MyAdapter()
+        recyclerview.adapter = adapter
+        recyclerview.layoutManager = LinearLayoutManager(context).apply {
+            orientation = LinearLayoutManager.HORIZONTAL
         }
 
-        leftFrameBar!!.setOnTouchListener(LeftTouchListener)
-        rightFrameBar!!.setOnTouchListener(rightTouchListener)
+        recyclerview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                Log.d(TAG, "onScrolled  dx:$dx, dy:$dy")
+                if(dx>0){
+                    clipContainer.updateSelection()
+                }
+
+            }
+        })
+
+//        maxProgressBarX = width - resources.getDimensionPixelSize(R.dimen.clip_recyclerview_paddingleft)
+//        frameWidth = width - leftFrameBar!!.width - rightFrameBar!!.width
+//        Log.d(TAG, "onFinishInflate()  frameWidth:$frameWidth")
     }
 
 
-    fun updateInfo(mediaDutaion: Long, bitmapList: MutableList<Bitmap>) {
-        Log.d(TAG, "updateInfo()  mediaDutaion:$mediaDutaion, width:$width, leftFrameBar.width:${leftFrameBar.width}, rightFrameBar.width:${rightFrameBar.width}")
-        this.itemCount = bitmapList.size
+
+    fun updateInfo(mediaDutaion: Long, itemCount: Int) {
+        Log.d(TAG, "updateInfo()  mediaDutaion:$mediaDutaion, width:$width, itemCount:${itemCount}, list.size:${list.size}, width:$width")
+        this.itemCount = itemCount
         this.mediaDutaion = mediaDutaion.toInt()
+
+        if(rightFrameLeft==0f){
+            initUiValues()
+        }
+
         frameWidth = width - leftFrameBar!!.width - rightFrameBar!!.width
+
         itemWidth = (frameWidth * 1f / itemCountInFrame).toInt()
+        totalItemsWidth = itemCount * itemWidth
 
         val selection = Math.min(maxSelection, mediaDutaion)
 
@@ -218,17 +340,30 @@ class ClipContainer : FrameLayout {
         }
         Log.d(TAG, "updateInfo: millSecInFrame:$millSecInFrame")
 
-        adapter = MyAdapter(bitmapList)
-        recyclerview.adapter = adapter
-        recyclerview.layoutManager = LinearLayoutManager(context).apply {
-            orientation = LinearLayoutManager.HORIZONTAL
+        adapter.notifyDataSetChanged()
+
+        adjustProgressBar(playProgressBar, playProgressBar.translationX)
+
+        if (mediaDutaion > maxSelection) {
+
+            rightShadowStart = (rightFrameLeft + framebarImageWidth).toInt() - SHADOW_DELTA
+            Log.d(TAG, "updateInfo: rightFrameLeft:$rightFrameLeft, framebarImageWidth:$framebarImageWidth, rightShadowStart:$rightShadowStart")
+            rightShadowEnd = getFrameFixLeftX() + totalItemsWidth
+            if (rightShadowEnd > width) {
+                rightShadowEnd = width
+            }
         }
 
-        recyclerview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                clipContainer.updateSelection()
-            }
-        })
+        invalidate()
+    }
+
+    private fun initUiValues() {
+        rightFrameLeft = (width - rightFrameBar!!.width).toFloat()
+        progressStart = (leftFrameLeft + leftFrameBar!!.width).toInt()
+
+//        rightFrameLeft = rightFrameBar.translationX
+        maxProgressBarX = width - resources.getDimensionPixelSize(R.dimen.clip_recyclerview_paddingleft)
+        frameWidth = width - leftFrameBar!!.width - rightFrameBar!!.width
     }
 
     fun getCutLeftX(): Float {
@@ -271,20 +406,24 @@ class ClipContainer : FrameLayout {
         if (progressStart > getCutRightX()) {
             progressStart = getCutRightX().toInt()
         }
+        Log.d(TAG, "setProgress: currentPosition:$currentPosition, progressStart:$progressStart")
+        adjustProgressBar(playProgressBar, progressStart.toFloat())
 
         invalidate()
     }
 
 
     private fun onFrameMoved(finished: Boolean) {
-        Log.d(TAG, "onFrameMoved: leftFrameLeft:$leftFrameLeft, rightFrameLeft:$rightFrameLeft,  finished:$finished")
+        Log.w(TAG, "onFrameMoved: leftFrameLeft:$leftFrameLeft, rightFrameLeft:$rightFrameLeft,  finished:$finished")
 
         Log.d(TAG, "onFrameMoved: getCutLeftX:${getCutLeftX()}, getCutRightX:${getCutRightX()}")
-        var selectionWidth = getCutRightX() - getCutLeftX()
-        var totalItemsWidth = itemCount * itemWidth
+
+        adjustProgressBar(playProgressBar, playProgressBar.translationX)
+
 
         startMillSec = (getCutLeftX() - getFrameFixLeftX()) * 1f / frameWidth * millSecInFrame
         endMillSec = (getCutRightX() - getFrameFixLeftX()) * 1f / frameWidth * millSecInFrame
+        Log.d(TAG, "onFrameMoved: getFrameFixLeftX:${getFrameFixLeftX()}, getCutRightX:${getCutRightX()}, frameWidth:$frameWidth, millSecInFrame:$millSecInFrame")
         Log.w(TAG, "onFrameMoved: startMillSec:${startMillSec}, endMillSec:${endMillSec}, range:${endMillSec - startMillSec}")
 
         if (mediaDutaion <= maxSelection) {
@@ -294,14 +433,14 @@ class ClipContainer : FrameLayout {
                 leftShadowStart = 0
             }
             leftShadowEnd = leftFrameLeft.toInt() + framebarPadding + SHADOW_DELTA
-            Log.d(TAG, "onFrameMoved: leftShadowStart:$leftShadowStart, leftShadowEnd:$leftShadowEnd")
+//            Log.d(TAG, "onFrameMoved: leftShadowStart:$leftShadowStart, leftShadowEnd:$leftShadowEnd")
 
-            rightShadowStart = (rightFrameLeft + framebarImageWidth).toInt() - + SHADOW_DELTA
+            rightShadowStart = (rightFrameLeft + framebarImageWidth).toInt() - +SHADOW_DELTA
             rightShadowEnd = getFrameFixLeftX() + totalItemsWidth
             if (rightShadowEnd > width) {
                 rightShadowEnd = width
             }
-            Log.d(TAG, "onFrameMoved: rightShadowStart:$rightShadowStart, rightShadowEnd:$rightShadowEnd")
+//            Log.d(TAG, "onFrameMoved: rightShadowStart:$rightShadowStart, rightShadowEnd:$rightShadowEnd")
 
             if (callback != null) {
                 callback!!.onSelectionChang(itemCount, startMillSec.toLong(), endMillSec.toLong(), finished)
@@ -320,14 +459,14 @@ class ClipContainer : FrameLayout {
             leftShadowStart = 0
         }
         leftShadowEnd = leftFrameLeft.toInt() + framebarPadding + SHADOW_DELTA
-        Log.d(TAG, "onFrameMoved: leftShadowStart:$leftShadowStart, leftShadowEnd:$leftShadowEnd")
+//        Log.d(TAG, "onFrameMoved: leftShadowStart:$leftShadowStart, leftShadowEnd:$leftShadowEnd")
 
-        rightShadowStart = (rightFrameLeft + framebarImageWidth).toInt() - + SHADOW_DELTA
+        rightShadowStart = (rightFrameLeft + framebarImageWidth).toInt() - SHADOW_DELTA
         rightShadowEnd = getFrameFixLeftX() + totalItemsWidth
         if (rightShadowEnd > width) {
             rightShadowEnd = width
         }
-        Log.d(TAG, "onFrameMoved: rightShadowStart:$rightShadowStart, rightShadowEnd:$rightShadowEnd")
+//        Log.d(TAG, "onFrameMoved: rightShadowStart:$rightShadowStart, rightShadowEnd:$rightShadowEnd")
 //        leftShadowStart = scrollXTotal
 
         var scrollMillSec = scrollXTotal * 1f / totalItemsWidth * mediaDutaion
@@ -335,7 +474,7 @@ class ClipContainer : FrameLayout {
 
         startMillSec += scrollMillSec
         endMillSec += scrollMillSec
-        Log.d(TAG, "onFrameMoved: final startMillSec:$startMillSec, endMillSec:$endMillSec, range:${endMillSec - startMillSec}")
+        Log.e(TAG, "onFrameMoved: final startMillSec:$startMillSec, endMillSec:$endMillSec, range:${endMillSec - startMillSec}")
 
         if (callback != null) {
             callback!!.onSelectionChang(itemCount, startMillSec.toLong(), endMillSec.toLong(), finished)
@@ -347,8 +486,8 @@ class ClipContainer : FrameLayout {
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
         if (hasWindowFocus && rightFrameLeft == 0f) {
-            rightFrameLeft = (width - rightFrameBar!!.width).toFloat()
-            progressStart = (leftFrameLeft + leftFrameBar!!.width).toInt()
+            initUiValues()
+            Log.d(TAG, "onWindowFocusChanged()  frameWidth:$frameWidth, rightFrameLeft:$rightFrameLeft")
         }
     }
 
@@ -356,13 +495,18 @@ class ClipContainer : FrameLayout {
     override fun dispatchDraw(canvas: Canvas) {
         super.dispatchDraw(canvas)
 
-//        Log.d(TAG, "onDraw()  width:${width}, leftFrameLeft:${leftFrameLeft}, leftFrameBar.left:${leftFrameBar.left},  " +
-//                "leftFrameBar.right:${leftFrameBar.right}")
-//        Log.d(TAG, "onDraw()  width:${width}, rightFrameLeft:${rightFrameLeft}, rightFrameBar.left:${rightFrameBar.left}, rightFrameBar.right:${rightFrameBar.right}, " +
-//                "rightFrameBar.x:${rightFrameBar.x} ")
+        Log.d(TAG, "onDraw()  width:${width}, leftFrameLeft:${leftFrameLeft}, leftFrameBar.left:${leftFrameBar.left},  " +
+                "leftFrameBar.right:${leftFrameBar.right}")
+        Log.d(TAG, "onDraw()  width:${width}, rightFrameLeft:${rightFrameLeft}, rightFrameBar.left:${rightFrameBar.left}, rightFrameBar.right:${rightFrameBar.right}, " +
+                "rightFrameBar.x:${rightFrameBar.x} ")
 
         if (leftShadowEnd > leftShadowStart) {
             canvas.drawRect(Rect(leftShadowStart, 0, leftShadowEnd, height), shadowPaint)
+        }
+
+        Log.d(TAG, "onDraw()  itemCount:${itemCount}")
+        if(itemCount>itemCountInFrame){
+
         }
 
         if (rightShadowEnd > rightShadowStart) {
@@ -375,19 +519,18 @@ class ClipContainer : FrameLayout {
                 0, (rightFrameLeft + DELTA).toInt(), framebarHeight), paint!!)
         canvas.drawRect(Rect((leftFrameLeft + leftFrameBar.width).toInt(),
                 height - framebarHeight, (rightFrameLeft + DELTA).toInt(), height), paint!!)
-
-//        Log.d(TAG, "onDraw()  progressStart:$progressStart,  progressWidth:$progressWidth")
-        canvas.drawRect(Rect(progressStart, framebarHeight, progressStart + progressWidth, height - framebarHeight), progressPaint!!)
-
-//        val (position, itemLeft, scrollX) = recyclerView.getScollXDistance()
-//        Log.d(TAG, "onDraw()  recyclerView.scrollX:$scrollX,  recyclerViewPadding:$recyclerViewPadding")
-
-
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
+    }
+
+    fun updateBitmapList(toList: List<Bitmap>) {
+        list.clear()
+        list.addAll(toList)
+        adapter?.notifyDataSetChanged()
+        Log.d(TAG, "updateBitmapList()  clipContainer.list:${list.size}")
     }
 
 
@@ -410,7 +553,7 @@ class ClipContainer : FrameLayout {
     }
 
 
-    inner class MyAdapter(var list: MutableList<Bitmap>) : RecyclerView.Adapter<VH>() {
+    inner class MyAdapter() : RecyclerView.Adapter<VH>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
             val v = LayoutInflater.from(parent.context).inflate(R.layout.item_layout, parent, false)
@@ -423,7 +566,7 @@ class ClipContainer : FrameLayout {
             val layoutParams = viewholder.itemView.layoutParams
             layoutParams.width = itemWidth
             viewholder.itemView.layoutParams = layoutParams
-            viewholder.title.setText("$position")
+//            viewholder.title.setText("$position")
             viewholder.image.setImageBitmap(list[position])
         }
 

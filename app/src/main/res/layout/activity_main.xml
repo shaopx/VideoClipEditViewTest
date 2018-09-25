@@ -90,8 +90,9 @@
             android:paddingBottom="@dimen/clip_frame_bar_height">
             <ImageView
                 android:id="@+id/clip_play_progress_bar"
-                android:layout_width="2dp"
+                android:layout_width="@dimen/clip_frame_progressbar_width"
                 android:layout_height="match_parent"
+                android:layout_gravity="left"
                 android:background="@color/video_clip_progress_color"/>
         </LinearLayout>
 
