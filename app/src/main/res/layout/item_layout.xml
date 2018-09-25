@@ -5,9 +5,10 @@
 
     <ImageView
         android:id="@+id/image"
-        android:layout_width="32dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
+        android:scaleType="fitXY"
         android:src="@drawable/ic_launcher_background" />
 
     <TextView

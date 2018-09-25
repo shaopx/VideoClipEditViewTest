@@ -1,16 +1,13 @@
 package com.spx.videoclipeditviewtest
 
-import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import android.os.HandlerThread
+import android.os.Message
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
-import android.view.TextureView
 import android.view.View
 import android.view.ViewTreeObserver
 import com.google.android.exoplayer2.DefaultRenderersFactory
@@ -27,25 +24,36 @@ import com.google.android.exoplayer2.PlaybackParameters
 import java.text.DecimalFormat
 
 
-fun RecyclerView.getScollX(): Triple<Int, Int, Int> {
-    var layoutManager = getLayoutManager() as LinearLayoutManager
-    var position = layoutManager.findFirstVisibleItemPosition()
-    var firstVisiableChildView = layoutManager.findViewByPosition(position)
-    var itemwidth = firstVisiableChildView!!.width
-    return Triple(position, -firstVisiableChildView.left, (position) * itemwidth - firstVisiableChildView.left)
-}
+class MainActivity : AppCompatActivity(), ClipContainer.Callback {
+    override fun onSelectionChang(totalCount: Int, startMillSec: Long, endMillSec: Long, finished: Boolean) {
+        var selSec = (endMillSec - startMillSec) / 1000f
+        toast_msg_tv.text = "[$startMillSec - $endMillSec], 取${secFormat.format(selSec)}s"
+        toast_msg_tv.visibility = View.VISIBLE
+        updatePlayPosition()
+    }
 
-class MainActivity : AppCompatActivity(), ClipFrameLayout.Callback {
+    fun updatePlayPosition(){
+        val currentPosition = player.currentPosition
+        Log.d(TAG, "currentPosition:$currentPosition")
+        clipContainer.setProgress(currentPosition)
+        handler.removeMessages(MSG_UPDATE)
+        handler.sendEmptyMessageDelayed(MSG_UPDATE, 60)
+    }
 
     val TAG = "MainActivity"
     var userAgent = "spx"
     //    var videoPlayUrl = "http://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0"
     //    var referer = "https://www.bilibili.com/video/av31055163/?spm_id_from=333.334.bili_dance.9"
-    var videoPlayUrl = "rawresource:///" + R.raw.video
+    var videoPlayUrl = "rawresource:///" + R.raw.video2
     lateinit var player: SimpleExoPlayer
     var bitmapList = mutableListOf<Bitmap>()
-    lateinit var adapter: MyAdapter
-    var handler = Handler()
+
+    var MSG_UPDATE = 1
+    var handler = object :Handler(){
+        override fun handleMessage(msg: Message?) {
+            updatePlayPosition()
+        }
+    }
     var playEndOnece = false
     var delay = 980  //ms  之所以不是1000, 是因为每次生成一帧的bitmap大约需要20ms
     var secFormat = DecimalFormat("##0.0")
@@ -55,51 +63,52 @@ class MainActivity : AppCompatActivity(), ClipFrameLayout.Callback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        adapter = MyAdapter(bitmapList)
-        recyclerview.adapter = adapter
-        recyclerview.layoutManager = LinearLayoutManager(this).apply {
-            orientation = LinearLayoutManager.HORIZONTAL
+        for (i in (1..8)) {
+            bitmapList.add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_00))
+            bitmapList.add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_01))
+            bitmapList.add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_02))
+            bitmapList.add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_03))
+            bitmapList.add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_04))
+            bitmapList.add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_05))
+            bitmapList.add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_06))
+            bitmapList.add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_07))
+            bitmapList.add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_08))
+            bitmapList.add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_09))
         }
+        bitmapList.add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_09))
 
-        recyclerview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                clipframe.updateSelection()
-            }
-        })
 
 
         initPlayer()
 
-        clipframe.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        clipContainer.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                clipframe.updateInfo(11000)
-                clipframe.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                clipContainer.updateInfo(81000, bitmapList)
+                clipContainer.viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
         })
 
-        clipframe.setCallback(this)
+        clipContainer.callback = (this)
+
+//        Thread({
+//            ExtractMpegFramesTest().extractMpegFrames()
+//        }).start()
     }
 
     /**
      * 用户选择裁剪区域后的回调方法
      * offsetRatio 是开始位置距离整个区间的比例
-     * selectionRatio 是用户选择的区间占整个区间的比例.  注意这里的整个区间是指显示的区间, 并不是媒体文件总的时长. 媒体文件的整个时长可能是100s 但是整个显示裁剪区间可能只有30s
+     * selectionRatio 是用户选择的区间占可选择区间的比例.  注意这里的可选择区间是指屏幕上显示的区间(max_selectabe_length), 并不是媒体文件总的时长. 媒体文件的整个时长可能是100s 但是整个显示裁剪区间可能只有30s
      */
-    override fun onSelectionChanged(offsetRatio: Float, endRatio:Float, selectionRatio: Float) {
+    fun onSelectionChanged(totalCount: Int, offsetRatio: Float, endRatio: Float, selectionRatio: Float) {
         Log.d(TAG, "onSelectionChanged  offsetRatio:$offsetRatio, endRatio:$endRatio,  selectionRatio:$selectionRatio")
 
 
-        var selSec = 11000f * selectionRatio / 1000
-        toast_msg_tv.text = "已截取${secFormat.format(selSec)}s"
-        toast_msg_tv.visibility = View.VISIBLE
-
-        var itemCount = adapter.itemCount
+        var itemCount = totalCount
         var itemWidth = resources.getDimensionPixelSize(R.dimen.screencap_item_width)
         var totalWidth = itemCount * itemWidth
 
-        val density = resources.displayMetrics.density
-
-        val (position, itemLeft, scrollX) = recyclerview.getScollX()
+        val (position, itemLeft, scrollX) = recyclerview.getScollXDistance()
 
         var clipFrameBarWidth = resources.getDimensionPixelSize(R.dimen.clip_frame_bar_width)
 
@@ -107,7 +116,7 @@ class MainActivity : AppCompatActivity(), ClipFrameLayout.Callback {
 
         var scrollXRatio = (position * itemWidth + finalLeft) * 1f / totalWidth
 
-        var clipWidth = clipframe.width - clipFrameBarWidth * 2
+        var clipWidth = clipContainer.width - clipFrameBarWidth * 2
         var clipRatio = clipWidth * 1f / totalWidth
 
         Log.d(TAG, "onSelectionChanged  recyclerview. position:$position, finalLeft:$finalLeft, scrollX:$scrollX, itemCount:$itemCount, scrollXRatio:$scrollXRatio, clipRatio:$clipRatio")
@@ -129,11 +138,7 @@ class MainActivity : AppCompatActivity(), ClipFrameLayout.Callback {
     var listener: Player.DefaultEventListener = object : Player.DefaultEventListener() {
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             if (playbackState == Player.STATE_READY) {
-                Log.d(TAG, "player started!")
-                if (!hasStated && !isDestroyed) {
-                    hasStated = true
-                    getBitmap()
-                }
+                Log.d(TAG, "player started!  duration:" + player.duration)
 
 
             } else if (playbackState == Player.STATE_ENDED) {
@@ -144,19 +149,19 @@ class MainActivity : AppCompatActivity(), ClipFrameLayout.Callback {
         }
     }
 
-    fun getBitmap() {
-        var start = System.currentTimeMillis()
-        val videoSurfaceView = player_view.videoSurfaceView as TextureView
-        val bitmap = videoSurfaceView.bitmap
-        var end = System.currentTimeMillis()
-//        Log.d(TAG, "create new bitmap use ${(end - start)}ms")
-        bitmapList.add(bitmap)
-        adapter.notifyDataSetChanged()
-
-        if (!playEndOnece && bitmapList.size < 12) {
-            handler.postDelayed({ getBitmap() }, delay.toLong())
-        }
-    }
+//    fun getBitmap() {
+//        var start = System.currentTimeMillis()
+//        val videoSurfaceView = player_view.videoSurfaceView as TextureView
+//        val bitmap = videoSurfaceView.bitmap
+//        var end = System.currentTimeMillis()
+////        Log.d(TAG, "create new bitmap use ${(end - start)}ms")
+//        bitmapList.add(bitmap)
+//        adapter.notifyDataSetChanged()
+//
+//        if (!playEndOnece) {
+//            handler.postDelayed({ getBitmap() }, delay.toLong())
+//        }
+//    }
 
     override fun onPause() {
         super.onPause()
@@ -175,6 +180,7 @@ class MainActivity : AppCompatActivity(), ClipFrameLayout.Callback {
         player_view.visibility = View.VISIBLE
         player_view.player = player
         player.addListener(listener)
+
         player.repeatMode = Player.REPEAT_MODE_ALL
 //        player.repeatMode = Player.REPEAT_MODE_OFF
         player.playWhenReady = true

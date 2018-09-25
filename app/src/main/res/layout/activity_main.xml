@@ -29,62 +29,73 @@
     <!--app:layout_constraintRight_toRightOf="parent" />-->
 
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerview"
+    <com.spx.videoclipeditviewtest.ClipContainer
+        android:id="@+id/clipContainer"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="60dp"
-        android:paddingLeft="@dimen/clip_frame_bar_width"
-        android:clipToPadding="false"
+        android:layout_marginBottom="@dimen/clip_frame_marginbottom"
         app:layout_constraintBottom_toBottomOf="parent">
 
-    </android.support.v7.widget.RecyclerView>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:clipToPadding="false"
+            android:paddingLeft="@dimen/clip_recyclerview_paddingleft"
+            android:paddingRight="@dimen/clip_recyclerview_paddingleft">
 
-    <com.spx.videoclipeditviewtest.ClipFrameLayout
-        android:id="@+id/clipframe"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="60dp"
-        app:layout_constraintBottom_toBottomOf="parent">
+        </android.support.v7.widget.RecyclerView>
 
         <RelativeLayout
             android:id="@+id/frame_left"
-            android:layout_width="@dimen/clip_frame_bar_width"
+            android:layout_width="@dimen/clip_frame_bar_width_outer"
             android:layout_height="match_parent"
-            android:layout_gravity="left"
-            android:background="@drawable/left_frame">
+            android:layout_gravity="left">
 
             <ImageView
-                android:id="@+id/left_iv"
-                android:layout_width="6dp"
-                android:layout_height="10dp"
-                android:layout_centerInParent="true"
-                android:scaleType="fitCenter"
-                android:src="@drawable/triangle" />
+                android:id="@+id/frame_left_iv"
+                android:layout_width="@dimen/clip_frame_bar_width"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:background="@color/shadow_color"
+                android:src="@drawable/ic_video_clip_framebar_left" />
+
         </RelativeLayout>
 
 
         <RelativeLayout
             android:id="@+id/frame_right"
-            android:layout_width="@dimen/clip_frame_bar_width"
+            android:layout_width="@dimen/clip_frame_bar_width_outer"
             android:layout_height="match_parent"
-            android:layout_gravity="right"
-            android:background="@drawable/right_frame">
+            android:layout_gravity="right">
 
             <ImageView
-                android:layout_width="6dp"
-                android:layout_height="10dp"
-                android:layout_centerInParent="true"
-                android:rotation="180"
-                android:scaleType="fitCenter"
-                android:src="@drawable/triangle" />
+                android:id="@+id/frame_right_iv"
+                android:layout_width="@dimen/clip_frame_bar_width"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:background="@color/shadow_color"
+                android:src="@drawable/ic_video_clip_framebar_right" />
+
         </RelativeLayout>
 
-    </com.spx.videoclipeditviewtest.ClipFrameLayout>
+        <LinearLayout
+            android:id="@+id/clip_play_progress_ll"
+            android:layout_width="16dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/clip_frame_bar_height"
+            android:paddingBottom="@dimen/clip_frame_bar_height">
+            <ImageView
+                android:id="@+id/clip_play_progress_bar"
+                android:layout_width="2dp"
+                android:layout_height="match_parent"
+                android:background="@color/video_clip_progress_color"/>
+        </LinearLayout>
+
+    </com.spx.videoclipeditviewtest.ClipContainer>
 
 
     <TextView
@@ -93,12 +104,12 @@
         android:layout_height="30dp"
         android:layout_marginBottom="20dp"
         android:background="@drawable/round_bg"
-        app:layout_constraintBottom_toTopOf="@+id/clipframe"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        android:gravity="center"
         android:textColor="#ffffff"
         android:textSize="14sp"
-        android:gravity="center"
-        android:visibility="invisible"/>
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/clipContainer"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

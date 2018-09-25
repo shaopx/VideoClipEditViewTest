@@ -4,4 +4,13 @@
     <dimen name="progressbar_width">3dp</dimen>
     <dimen name="screencap_item_width">36dp</dimen>
     <dimen name="clip_frame_bar_width">14dp</dimen>
+    <dimen name="clip_frame_marginbottom">20dp</dimen>
+    <dimen name="clip_frame_bar_width_outer">40dp</dimen>
+    <dimen name="clip_recyclerview_paddingleft">40dp</dimen>
+    <dimen name="clip_frame_bar_height">4dp</dimen>
+    <dimen name="clip_frame_marginleft">12dp</dimen>
+    <dimen name="clip_frame_marginright">12dp</dimen>
+    <dimen name="video_clip_progressbar_width">3dp</dimen>
+    <dimen name="video_clip_min_length">48dp</dimen>
+    <dimen name="clip_frame_item_width">32dp</dimen>
 </resources>
