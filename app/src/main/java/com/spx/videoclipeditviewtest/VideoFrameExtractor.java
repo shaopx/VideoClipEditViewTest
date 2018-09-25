@@ -1,10 +1,12 @@
 package com.spx.videoclipeditviewtest;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
+import android.net.Uri;
 import android.opengl.EGL14;
 import android.opengl.EGLConfig;
 import android.opengl.EGLContext;
@@ -36,9 +38,11 @@ import java.util.Map;
 public class VideoFrameExtractor {
     private static final String TAG = "VideoFrameExtractor";
     private static final boolean VERBOSE = true;           // lots of logging
-    private String videoFilePath = "";
+    private Uri videoFilePath = null;
+    private Context context;
 
-    public VideoFrameExtractor(String path) {
+    public VideoFrameExtractor(Context context, Uri path) {
+        this.context = context;
         videoFilePath = path;
     }
 
@@ -106,7 +110,7 @@ public class VideoFrameExtractor {
         android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
 
         try {
-            mmr.setDataSource(videoFilePath);
+            mmr.setDataSource(context, videoFilePath);
             duration = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);
             long end = System.currentTimeMillis();
             Log.e(TAG, "duration " + duration + ", use:" + (end - start) + "ms");
@@ -136,20 +140,20 @@ public class VideoFrameExtractor {
 
 
         try {
-            File inputFile = new File(videoFilePath);   // must be an absolute path
-            Log.d(TAG, "extractMpegFrames: inputFile:" + inputFile.getAbsolutePath());
-            // The MediaExtractor error messages aren't very useful.  Check to see if the input
-            // file exists so we can throw a better one if it's not there.
-            if (!inputFile.canRead()) {
-                throw new FileNotFoundException("Unable to read " + inputFile);
-            }
+//            File inputFile = new File(videoFilePath);   // must be an absolute path
+//            Log.d(TAG, "extractMpegFrames: inputFile:" + inputFile.getAbsolutePath());
+//            // The MediaExtractor error messages aren't very useful.  Check to see if the input
+//            // file exists so we can throw a better one if it's not there.
+//            if (!inputFile.canRead()) {
+//                throw new FileNotFoundException("Unable to read " + inputFile);
+//            }
 
             extractor = new MediaExtractor();
-            extractor.setDataSource(inputFile.toString());
+            extractor.setDataSource(context, videoFilePath, null);
             int trackIndex = selectTrack(extractor);
             Log.d(TAG, "extractMpegFrames: trackIndex:" + trackIndex);
             if (trackIndex < 0) {
-                throw new RuntimeException("No video track found in " + inputFile);
+                throw new RuntimeException("No video track found in " + videoFilePath);
             }
             extractor.selectTrack(trackIndex);
 
