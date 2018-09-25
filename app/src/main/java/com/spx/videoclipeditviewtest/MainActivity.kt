@@ -1,7 +1,6 @@
 package com.spx.videoclipeditviewtest
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -26,62 +25,54 @@ import java.text.DecimalFormat
 
 class MainActivity : AppCompatActivity(), ClipContainer.Callback {
 
-
-
-    fun updatePlayPosition() {
-        val currentPosition = player.currentPosition
-//        Log.d(TAG, "currentPosition:$currentPosition")
-        clipContainer.setProgress(currentPosition)
-        handler.removeMessages(MSG_UPDATE)
-        handler.sendEmptyMessageDelayed(MSG_UPDATE, 60)
+    companion object {
+        val TAG = "MainActivity"
+        val videoPlayUrl = "/storage/emulated/0/DCIM/Camera/1111.mp4"
+        var MSG_UPDATE = 1
     }
 
-    val TAG = "MainActivity"
-    var userAgent = "spx"
-    //    var videoPlayUrl = "http://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0"
-    //    var referer = "https://www.bilibili.com/video/av31055163/?spm_id_from=333.334.bili_dance.9"
-    var videoPlayUrl = "rawresource:///" + R.raw.video
-    var mediaDuration:Long = 81000
+
 
     lateinit var player: SimpleExoPlayer
-    var bitmapList = mutableListOf<Bitmap>()
 
-    var MSG_UPDATE = 1
     var handler = object : Handler() {
         override fun handleMessage(msg: Message?) {
             updatePlayPosition()
         }
     }
+    private var millsecPerThumbnail = 1000
+    private var secFormat = DecimalFormat("##0.0")
+
     var playEndOnece = false
-    var delay = 980  //ms  之所以不是1000, 是因为每次生成一帧的bitmap大约需要20ms
-    var secFormat = DecimalFormat("##0.0")
-    var hasStated = false
+    var mediaDuration:Long = 0
+
+
+    private fun onNewThumbnail(bitmap: Bitmap, index:Int) {
+        Log.d(TAG, "onNewThumbnail  bitmap:$bitmap, index:$index")
+        clipContainer.addThumbnail(index, bitmap)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
 
+        var test = VideoFrameExtractor(videoPlayUrl)
 
+        mediaDuration  = test.videoDuration
+        Log.d(TAG, "onCreate mediaDuration:$mediaDuration")
+
+        clipContainer.initRecyclerList((mediaDuration/millsecPerThumbnail).toInt())
+
+
+        // 因为使用了egl, 必须在一个新线程中启动
+        Thread {
+            test.getThumbnail(millsecPerThumbnail) { bitmap, index -> handler.post { onNewThumbnail(bitmap, index) } }
+        }.start()
 
 
         initPlayer()
 
-        with(clipContainer.list) {
-            for (i in (1..8)) {
-                add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_00))
-                add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_01))
-                add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_02))
-                add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_03))
-                add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_04))
-                add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_05))
-                add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_06))
-                add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_07))
-                add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_08))
-                add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_09))
-            }
-            add(BitmapFactory.decodeResource(getResources(), R.drawable.frame_09))
-        }
 
 
         clipContainer.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -97,20 +88,22 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
 
     }
 
+
+
     override fun onPreviewChang(startMillSec: Long, finished: Boolean) {
         Log.d(TAG, "onPreviewChang   startMillSec:$startMillSec")
-        var selSec =  startMillSec / 1000f
+        var selSec = startMillSec / 1000f
         toast_msg_tv.text = "预览到${secFormat.format(selSec)}s"
         toast_msg_tv.visibility = View.VISIBLE
     }
 
     override fun onSelectionChang(totalCount: Int, startMillSec: Long, endMillSec: Long, finished: Boolean) {
-        Log.d(TAG, "onSelectionChang ...startMillSec:$startMillSec, endMillSec:$endMillSec" )
+        Log.d(TAG, "onSelectionChang ...startMillSec:$startMillSec, endMillSec:$endMillSec")
         var time = (endMillSec - startMillSec)
         if (time > mediaDuration) {
             time = mediaDuration
         }
-        var selSec =  time / 1000f
+        var selSec = time / 1000f
         toast_msg_tv.text = "已截取${secFormat.format(selSec)}s"
         toast_msg_tv.visibility = View.VISIBLE
 
@@ -119,8 +112,6 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
         }
 
     }
-
-
 
 
     var listener: Player.DefaultEventListener = object : Player.DefaultEventListener() {
@@ -137,23 +128,17 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
         }
     }
 
-//    fun getBitmap() {
-//        var start = System.currentTimeMillis()
-//        val videoSurfaceView = player_view.videoSurfaceView as TextureView
-//        val bitmap = videoSurfaceView.bitmap
-//        var end = System.currentTimeMillis()
-////        Log.d(TAG, "create new bitmap use ${(end - start)}ms")
-//        bitmapList.add(bitmap)
-//        adapter.notifyDataSetChanged()
-//
-//        if (!playEndOnece) {
-//            handler.postDelayed({ getBitmap() }, delay.toLong())
-//        }
-//    }
 
     override fun onPause() {
         super.onPause()
         handler.removeCallbacksAndMessages(null)
+    }
+
+    fun updatePlayPosition() {
+        val currentPosition = player.currentPosition
+        clipContainer.setProgress(currentPosition)
+        handler.removeMessages(MSG_UPDATE)
+        handler.sendEmptyMessageDelayed(MSG_UPDATE, 60)
     }
 
     private fun initPlayer() {
@@ -179,7 +164,7 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
         var videoUrl = videoPlayUrl
 
 
-        var mVideoSource = ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, userAgent)).createMediaSource(Uri.parse(videoUrl)!!)
+        var mVideoSource = ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, "spx")).createMediaSource(Uri.parse(videoUrl)!!)
         player.prepare(mVideoSource)
 
     }

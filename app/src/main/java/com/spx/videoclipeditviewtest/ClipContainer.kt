@@ -41,7 +41,7 @@ class ClipContainer : FrameLayout {
     lateinit var rightFrameBar: View
     lateinit var playProgressBar: View
 
-    var list: MutableList<Bitmap> = mutableListOf()
+    var list: MutableList<Bitmap?> = mutableListOf()
 
 
     var startMillSec: Float = 0f
@@ -163,32 +163,27 @@ class ClipContainer : FrameLayout {
     fun onPreviewChange(finished: Boolean){
         var previewPosition = playProgressBar.translationX
 
-        startMillSec = (previewPosition - getFrameFixLeftX()) * 1f / frameWidth * millSecInFrame
-        Log.d(TAG, "onPreviewChange: previewPosition:${previewPosition}, startMillSec:${startMillSec}")
+        var previewMillSec = (previewPosition - getFrameFixLeftX()) * 1f / frameWidth * millSecInFrame
+        Log.d(TAG, "onPreviewChange: previewPosition:${previewPosition}, previewMillSec:${previewMillSec}")
 
-        if (mediaDutaion <= maxSelection) {
+        if (mediaDutaion > maxSelection) {
 
-            if (callback != null) {
-                callback!!.onPreviewChang(startMillSec.toLong(), finished)
-            }
-            invalidate()
-            return
+            val (position, itemLeft, scrollX) = recyclerView.getScollXDistance()
+            Log.d(TAG, "onPreviewChange: position:$position, itemLeft:$itemLeft,  scrollX:$scrollX")
+
+            var scrollXTotal = scrollX + getFrameFixLeftX()
+
+
+            var scrollMillSec = scrollXTotal * 1f / totalItemsWidth * mediaDutaion
+            Log.d(TAG, "onPreviewChange: totalItemsWidth:$totalItemsWidth, scrollXTotal:$scrollXTotal, scrollMillSec:$scrollMillSec")
+
+            previewMillSec += scrollMillSec
+            Log.e(TAG, "onPreviewChange: final previewMillSec:$previewMillSec")
         }
 
-        val (position, itemLeft, scrollX) = recyclerView.getScollXDistance()
-        Log.d(TAG, "onPreviewChange: position:$position, itemLeft:$itemLeft,  scrollX:$scrollX")
-
-        var scrollXTotal = scrollX + getFrameFixLeftX()
-
-
-        var scrollMillSec = scrollXTotal * 1f / totalItemsWidth * mediaDutaion
-        Log.d(TAG, "onPreviewChange: totalItemsWidth:$totalItemsWidth, scrollXTotal:$scrollXTotal, scrollMillSec:$scrollMillSec")
-
-        startMillSec += scrollMillSec
-        Log.e(TAG, "onPreviewChange: final startMillSec:$startMillSec, endMillSec:$endMillSec, range:${endMillSec - startMillSec}")
 
         if (callback != null) {
-            callback!!.onPreviewChang(startMillSec.toLong(), finished)
+            callback!!.onPreviewChang(previewMillSec.toLong(), finished)
         }
         invalidate()
         return
@@ -533,6 +528,17 @@ class ClipContainer : FrameLayout {
         Log.d(TAG, "updateBitmapList()  clipContainer.list:${list.size}")
     }
 
+    fun initRecyclerList(count: Int) {
+        for (i in 0 until count){
+            list.add(null)
+        }
+    }
+
+    fun addThumbnail(index: Int, bitmap: Bitmap) {
+        list.set(index, bitmap)
+        adapter.notifyDataSetChanged()
+    }
+
 
     companion object {
 
@@ -553,7 +559,7 @@ class ClipContainer : FrameLayout {
     }
 
 
-    inner class MyAdapter() : RecyclerView.Adapter<VH>() {
+    inner class MyAdapter : RecyclerView.Adapter<VH>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
             val v = LayoutInflater.from(parent.context).inflate(R.layout.item_layout, parent, false)
@@ -567,7 +573,10 @@ class ClipContainer : FrameLayout {
             layoutParams.width = itemWidth
             viewholder.itemView.layoutParams = layoutParams
 //            viewholder.title.setText("$position")
-            viewholder.image.setImageBitmap(list[position])
+            if(list[position]!=null){
+                viewholder.image.setImageBitmap(list[position])
+            }
+
         }
 
     }
