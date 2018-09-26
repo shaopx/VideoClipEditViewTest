@@ -32,7 +32,7 @@
     <com.spx.videoclipeditviewtest.ClipContainer
         android:id="@+id/clipContainer"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="100dp"
         android:layout_marginBottom="@dimen/clip_frame_marginbottom"
         app:layout_constraintBottom_toBottomOf="parent">
 

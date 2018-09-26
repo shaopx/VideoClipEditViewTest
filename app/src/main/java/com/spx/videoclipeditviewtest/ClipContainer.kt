@@ -28,7 +28,7 @@ class ClipContainer : FrameLayout {
     var itemCount: Int = 0
     var itemWidth: Int = 0
     var totalItemsWidth = 0
-    var itemCountInFrame = 10
+    var itemCountInFrame = 5
     private var mediaDutaion = 0 // 媒体文件时长  ms
     var frameWidth = 900
     var realProgressBarWidth = 6
