@@ -6,6 +6,7 @@ import android.graphics.SurfaceTexture;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.opengl.EGL14;
 import android.opengl.EGLConfig;
@@ -87,8 +88,14 @@ public class VideoFrameExtractor {
         for (int i = 0; i < thumbnailCount; i++) {
             thumbnailMillSecList.add(millSec);
             Log.d(TAG, "getThumbnail()  [" + i + "] time:" + millSec);
+//            Bitmap thumbnailAtTime = createThumbnailAtTime(videoFilePath.getPath(), (int) millSec);
+//            if (callback != null) {
+//                callback.onFrameAvailable(thumbnailAtTime, i);
+//            }
             millSec += millsecsPerFrame;
         }
+
+
 
         try {
             extractMpegFrames();
@@ -99,6 +106,16 @@ public class VideoFrameExtractor {
         long end = System.currentTimeMillis();
         Log.e(TAG, "extract thumbnails use:" + (end - start) + "ms");
     }
+
+    /**
+     * 这是一种更快速的截图的办法, 但是却可能无法截取到正确的截图, 因为视频的关键帧不够完整
+     */
+//    private Bitmap createThumbnailAtTime(String filePath, int timeInSeconds){
+//        MediaMetadataRetriever mMMR = new MediaMetadataRetriever();
+//        mMMR.setDataSource(filePath);
+//        //api time unit is microseconds
+//        return mMMR.getFrameAtTime(timeInSeconds*1000000, MediaMetadataRetriever.OPTION_CLOSEST);
+//    }
 
     /**
      * 读取媒体文件的时长

@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
 
     companion object {
         val TAG = "MainActivity"
-        val videoPlayUrl = "/storage/emulated/0/DCIM/Camera/1111.mp4"
+        val videoPlayUrl = "/storage/emulated/0/1.mp4"
         var MSG_UPDATE = 1
     }
 
@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
             updatePlayPosition()
         }
     }
-    private var millsecPerThumbnail = 1000
+    private var millsecPerThumbnail =3000
     private var secFormat = DecimalFormat("##0.0")
 
     var playEndOnece = false
