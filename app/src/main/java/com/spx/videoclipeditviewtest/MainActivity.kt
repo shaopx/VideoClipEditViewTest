@@ -2,7 +2,9 @@ package com.spx.videoclipeditviewtest
 
 import android.graphics.Bitmap
 import android.media.MediaPlayer
+import android.media.MediaPlayer.SEEK_CLOSEST
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
@@ -42,6 +44,7 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
     var mediaDuration: Long = 0
     var startMillSec: Long = 0
     var endMillSec: Long = 0
+    var frozontime = 0L
 
     private fun onNewThumbnail(bitmap: Bitmap, index: Int) {
 //        Log.d(TAG, "onNewThumbnail  bitmap:$bitmap, index:$index")
@@ -103,15 +106,25 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
             player.pause()
         }
 
-        player.seekTo(startMillSec.toInt())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            player.seekTo(startMillSec, SEEK_CLOSEST)
+        } else {
+            player.seekTo(startMillSec.toInt())
+        }
 
         if (finished) {
+            frozontime = System.currentTimeMillis() + 500
             player.start()
+        }
+
+        handler.removeMessages(MSG_UPDATE)
+        if (finished) {
+            handler.sendEmptyMessageDelayed(MSG_UPDATE, 20)
         }
     }
 
     override fun onSelectionChang(totalCount: Int, startMillSec: Long, endMillSec: Long, finished: Boolean) {
-        Log.d(TAG, "onSelectionChang ...startMillSec:$startMillSec, endMillSec:$endMillSec")
+//        Log.d(TAG, "onSelectionChang ...startMillSec:$startMillSec, endMillSec:$endMillSec")
         this.startMillSec = startMillSec
         this.endMillSec = endMillSec
 
@@ -123,9 +136,9 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
         toast_msg_tv.text = "已截取${secFormat.format(selSec)}s"
         toast_msg_tv.visibility = View.VISIBLE
 
+        handler.removeMessages(MSG_UPDATE)
         if (finished) {
-            handler.removeMessages(MSG_UPDATE)
-            handler.sendEmptyMessageDelayed(MSG_UPDATE, 300)
+            handler.sendEmptyMessageDelayed(MSG_UPDATE, 20)
         }
 
         if (!finished) {
@@ -135,6 +148,7 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
         player.seekTo(startMillSec.toInt())
 
         if (finished) {
+            frozontime = System.currentTimeMillis() + 500
             player.start()
         }
     }
@@ -151,11 +165,11 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
         if (currentPosition > endMillSec) {
             player.seekTo(0)
         } else {
-            clipContainer.setProgress(currentPosition.toLong())
+            clipContainer.setProgress(currentPosition.toLong(), frozontime)
         }
 
         handler.removeMessages(MSG_UPDATE)
-        handler.sendEmptyMessageDelayed(MSG_UPDATE, 60)
+        handler.sendEmptyMessageDelayed(MSG_UPDATE, 20)
     }
 
     private fun initPlayer() {
