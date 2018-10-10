@@ -84,14 +84,26 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:paddingTop="@dimen/clip_frame_bar_height"
-            android:paddingBottom="@dimen/clip_frame_bar_height">
+            android:paddingBottom="@dimen/clip_frame_bar_height"
+            android:visibility="invisible">
             <ImageView
                 android:id="@+id/clip_play_progress_bar"
-                android:layout_width="@dimen/clip_frame_progressbar_width"
+                android:layout_width="2dp"
                 android:layout_height="match_parent"
-                android:layout_gravity="left"
                 android:background="@color/video_clip_progress_color"/>
         </LinearLayout>
+
+
+        <!--<FrameLayout-->
+        <!--android:id="@+id/clipframe"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_marginLeft="@dimen/clip_frame_marginleft"-->
+        <!--android:layout_marginRight="@dimen/clip_frame_marginright">-->
+
+        <!---->
+
+        <!--</FrameLayout>-->
 
     </com.spx.videoclipeditviewtest.ClipContainer>
 

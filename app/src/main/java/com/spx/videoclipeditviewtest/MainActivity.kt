@@ -12,13 +12,6 @@ import android.view.SurfaceHolder
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.Toast
-import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.DefaultLoadControl.*
-import com.google.android.exoplayer2.source.ExtractorMediaSource
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.text.DecimalFormat
@@ -43,14 +36,15 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
             updatePlayPosition()
         }
     }
-    private var millsecPerThumbnail = 1000
+    private var millsecPerThumbnail = 2000
     private var secFormat = DecimalFormat("##0.0")
 
     var mediaDuration: Long = 0
-
+    var startMillSec: Long = 0
+    var endMillSec: Long = 0
 
     private fun onNewThumbnail(bitmap: Bitmap, index: Int) {
-        Log.d(TAG, "onNewThumbnail  bitmap:$bitmap, index:$index")
+//        Log.d(TAG, "onNewThumbnail  bitmap:$bitmap, index:$index")
         clipContainer.addThumbnail(index, bitmap)
     }
 
@@ -67,6 +61,11 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
 
         mediaDuration = test.videoDuration
         Log.d(TAG, "onCreate mediaDuration:$mediaDuration")
+        endMillSec = if (mediaDuration > ClipContainer.maxSelection) {
+            ClipContainer.maxSelection
+        } else {
+            mediaDuration
+        }
 
         clipContainer.initRecyclerList((mediaDuration / millsecPerThumbnail).toInt())
 
@@ -113,6 +112,9 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
 
     override fun onSelectionChang(totalCount: Int, startMillSec: Long, endMillSec: Long, finished: Boolean) {
         Log.d(TAG, "onSelectionChang ...startMillSec:$startMillSec, endMillSec:$endMillSec")
+        this.startMillSec = startMillSec
+        this.endMillSec = endMillSec
+
         var time = (endMillSec - startMillSec)
         if (time > mediaDuration) {
             time = mediaDuration
@@ -121,9 +123,10 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
         toast_msg_tv.text = "已截取${secFormat.format(selSec)}s"
         toast_msg_tv.visibility = View.VISIBLE
 
-//        if (finished) {
-//            updatePlayPosition()
-//        }
+        if (finished) {
+            handler.removeMessages(MSG_UPDATE)
+            handler.sendEmptyMessageDelayed(MSG_UPDATE, 300)
+        }
 
         if (!finished) {
             player.pause()
@@ -143,8 +146,14 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
     }
 
     fun updatePlayPosition() {
-        val currentPosition = player.duration
-        clipContainer.setProgress(currentPosition.toLong())
+
+        val currentPosition = player.currentPosition
+        if (currentPosition > endMillSec) {
+            player.seekTo(0)
+        } else {
+            clipContainer.setProgress(currentPosition.toLong())
+        }
+
         handler.removeMessages(MSG_UPDATE)
         handler.sendEmptyMessageDelayed(MSG_UPDATE, 60)
     }

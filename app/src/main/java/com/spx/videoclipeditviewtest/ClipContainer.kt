@@ -15,7 +15,6 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.view.*
-import java.lang.RuntimeException
 
 class ClipContainer : FrameLayout {
     lateinit var recyclerView: RecyclerView
@@ -61,8 +60,6 @@ class ClipContainer : FrameLayout {
     var framebarImageWidth = 42
 
     private var minDistance = 120f
-    private val minSelection = 3000 // 最短3s
-    private val maxSelection: Long = 30000 // 最长30s
     var millSecInFrame = maxSelection
 
     var callback: Callback? = null
@@ -145,7 +142,9 @@ class ClipContainer : FrameLayout {
                 MotionEvent.ACTION_MOVE -> {
                     val xDistance = event.x - downX
                     if (xDistance != 0f) {
+
                         var newTransx = v.translationX + xDistance
+                        Log.d(TAG, "onTouch  xDistance:$xDistance, newTransx: $newTransx")
                         adjustProgressBar(v, newTransx)
                         onPreviewChange(false)
                     }
@@ -209,7 +208,7 @@ class ClipContainer : FrameLayout {
 //        }
 
 //        Log.d(TAG, "adjustProgressBar  minProgressBarX:$minProgressBarX, maxProgressBarX: $maxProgressBarX")
-//        Log.d(TAG, "adjustProgressBar  transX_:$transX_, transX: $transX")
+        Log.d(TAG, "adjustProgressBar  transX_:$transX_, transX: $transX")
 
         v.translationX = transX
     }
@@ -316,6 +315,8 @@ class ClipContainer : FrameLayout {
         this.itemCount = itemCount
         this.mediaDutaion = mediaDutaion.toInt()
 
+        playProgressBar.visibility = View.VISIBLE
+
         if (rightFrameLeft == 0f) {
             initUiValues()
         }
@@ -344,15 +345,18 @@ class ClipContainer : FrameLayout {
         if (mediaDutaion > maxSelection) {
 
             rightShadowStart = (rightFrameLeft + framebarImageWidth).toInt() - SHADOW_DELTA
-            Log.d(TAG, "updateInfo: rightFrameLeft:$rightFrameLeft, framebarImageWidth:$framebarImageWidth, rightShadowStart:$rightShadowStart")
+//            Log.d(TAG, "updateInfo: rightFrameLeft:$rightFrameLeft, framebarImageWidth:$framebarImageWidth, rightShadowStart:$rightShadowStart")
             rightShadowEnd = getFrameFixLeftX() + totalItemsWidth
             if (rightShadowEnd > width) {
                 rightShadowEnd = width
             }
-        } else {
-            leftFrameBarIv.setBackgroundColor(Color.TRANSPARENT)
-            rightFrameBarIv.setBackgroundColor(Color.TRANSPARENT)
         }
+//        else {
+//            leftFrameBarIv.setBackgroundColor(Color.TRANSPARENT)
+//            rightFrameBarIv.setBackgroundColor(Color.TRANSPARENT)
+//        }
+
+        updateFramebarBg()
 
         invalidate()
     }
@@ -383,7 +387,7 @@ class ClipContainer : FrameLayout {
 
 
     fun setProgress(currentPosition: Long) {
-//        Log.d(TAG, "setProgress: currentPosition:$currentPosition")
+        Log.d(TAG, "setProgress: currentPosition:$currentPosition")
         if (mediaDutaion <= maxSelection) {
             val ratio = currentPosition * 1f / mediaDutaion
             progressStart = (getFrameFixLeftX() + ratio * frameWidth).toInt()
@@ -406,7 +410,7 @@ class ClipContainer : FrameLayout {
         if (progressStart > getCutRightX()) {
             progressStart = getCutRightX().toInt()
         }
-//        Log.d(TAG, "setProgress: currentPosition:$currentPosition, progressStart:$progressStart")
+        Log.d(TAG, "setProgress: currentPosition:$currentPosition, progressStart:$progressStart")
         adjustProgressBar(playProgressBar, progressStart.toFloat())
 
         invalidate()
@@ -414,22 +418,19 @@ class ClipContainer : FrameLayout {
 
 
     private fun onFrameMoved(finished: Boolean) {
-        Log.w(TAG, "onFrameMoved: leftFrameLeft:$leftFrameLeft, rightFrameLeft:$rightFrameLeft,  finished:$finished")
+//        Log.w(TAG, "onFrameMoved: leftFrameLeft:$leftFrameLeft, rightFrameLeft:$rightFrameLeft,  finished:$finished")
 
-        Log.d(TAG, "onFrameMoved: getCutLeftX:${getCutLeftX()}, getCutRightX:${getCutRightX()}")
+//        Log.d(TAG, "onFrameMoved: getCutLeftX:${getCutLeftX()}, getCutRightX:${getCutRightX()}")
 
         adjustProgressBar(playProgressBar, playProgressBar.translationX)
 
 
         startMillSec = (getCutLeftX() - getFrameFixLeftX()) * 1f / frameWidth * millSecInFrame
         endMillSec = (getCutRightX() - getFrameFixLeftX()) * 1f / frameWidth * millSecInFrame
-        Log.d(TAG, "onFrameMoved: getFrameFixLeftX:${getFrameFixLeftX()}, getCutRightX:${getCutRightX()}, frameWidth:$frameWidth, millSecInFrame:$millSecInFrame")
-        Log.w(TAG, "onFrameMoved: startMillSec:${startMillSec}, endMillSec:${endMillSec}, range:${endMillSec - startMillSec}")
+//        Log.d(TAG, "onFrameMoved: getFrameFixLeftX:${getFrameFixLeftX()}, getCutRightX:${getCutRightX()}, frameWidth:$frameWidth, millSecInFrame:$millSecInFrame")
+//        Log.w(TAG, "onFrameMoved: startMillSec:${startMillSec}, endMillSec:${endMillSec}, range:${endMillSec - startMillSec}")
 
         if (mediaDutaion <= maxSelection) {
-
-            leftFrameBarIv.setBackgroundColor(Color.TRANSPARENT)
-            rightFrameBarIv.setBackgroundColor(Color.TRANSPARENT)
 
             leftShadowStart = getFrameFixLeftX()
             if (leftShadowStart < 0) {
@@ -443,7 +444,8 @@ class ClipContainer : FrameLayout {
             if (rightShadowEnd > width) {
                 rightShadowEnd = width
             }
-//            Log.d(TAG, "onFrameMoved: rightShadowStart:$rightShadowStart, rightShadowEnd:$rightShadowEnd")
+            updateFramebarBg()
+            Log.d(TAG, "onFrameMoved: rightShadowStart:$rightShadowStart, rightShadowEnd:$rightShadowEnd")
 
             if (callback != null) {
                 callback!!.onSelectionChang(itemCount, startMillSec.toLong(), endMillSec.toLong(), finished)
@@ -461,14 +463,14 @@ class ClipContainer : FrameLayout {
         if (leftShadowStart < 0) {
             leftShadowStart = 0
         }
-        if (leftShadowStart == getFrameFixLeftX()) {
-            leftFrameBarIv.setBackgroundColor(Color.TRANSPARENT)
-        } else {
-            leftFrameBarIv.setBackgroundResource(R.color.shadow_color)
-        }
+//        if (leftShadowStart == getFrameFixLeftX()) {
+//            leftFrameBarIv.setBackgroundColor(Color.TRANSPARENT)
+//        } else {
+//            leftFrameBarIv.setBackgroundResource(R.color.shadow_color)
+//        }
 
         leftShadowEnd = leftFrameLeft.toInt() + framebarPadding + SHADOW_DELTA
-        Log.d(TAG, "onFrameMoved: leftShadowStart:$leftShadowStart, leftShadowEnd:$leftShadowEnd")
+//        Log.d(TAG, "onFrameMoved: leftShadowStart:$leftShadowStart, leftShadowEnd:$leftShadowEnd")
 
         rightShadowStart = (rightFrameLeft + framebarImageWidth).toInt() - SHADOW_DELTA
         rightShadowEnd = getFrameFixLeftX() + totalItemsWidth - scrollXTotal
@@ -476,21 +478,23 @@ class ClipContainer : FrameLayout {
             rightShadowEnd = width
         }
 
-        if (rightShadowEnd == (width - getFrameFixLeftX())) {
-            rightFrameBarIv.setBackgroundColor(Color.TRANSPARENT)
-        } else {
-            rightFrameBarIv.setBackgroundResource(R.color.shadow_color)
-        }
+//        if (rightShadowEnd == (width - getFrameFixLeftX())) {
+//            rightFrameBarIv.setBackgroundColor(Color.TRANSPARENT)
+//        } else {
+//            rightFrameBarIv.setBackgroundResource(R.color.shadow_color)
+//        }
+
+        updateFramebarBg()
 
         Log.d(TAG, "onFrameMoved: rightShadowStart:$rightShadowStart, rightShadowEnd:$rightShadowEnd")
 //        leftShadowStart = scrollXTotal
 
         var scrollMillSec = scrollXTotal * 1f / totalItemsWidth * mediaDutaion
-        Log.d(TAG, "onFrameMoved: totalItemsWidth:$totalItemsWidth, scrollXTotal:$scrollXTotal, scrollMillSec:$scrollMillSec")
+//        Log.d(TAG, "onFrameMoved: totalItemsWidth:$totalItemsWidth, scrollXTotal:$scrollXTotal, scrollMillSec:$scrollMillSec")
 
         startMillSec += scrollMillSec
         endMillSec += scrollMillSec
-        Log.e(TAG, "onFrameMoved: final startMillSec:$startMillSec, endMillSec:$endMillSec, range:${endMillSec - startMillSec}")
+//        Log.e(TAG, "onFrameMoved: final startMillSec:$startMillSec, endMillSec:$endMillSec, range:${endMillSec - startMillSec}")
 
         if (callback != null) {
             callback!!.onSelectionChang(itemCount, startMillSec.toLong(), endMillSec.toLong(), finished)
@@ -499,11 +503,24 @@ class ClipContainer : FrameLayout {
         return
     }
 
+    fun updateFramebarBg(){
+        if (rightShadowEnd > rightShadowStart) {
+            rightFrameBarIv.setBackgroundResource(R.color.shadow_color)
+        } else {
+            rightFrameBarIv.setBackgroundColor(Color.TRANSPARENT)
+        }
+
+        if (leftShadowEnd > leftShadowStart) {
+            leftFrameBarIv.setBackgroundResource(R.color.shadow_color)
+        } else {
+            leftFrameBarIv.setBackgroundColor(Color.TRANSPARENT)
+        }
+    }
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
         if (hasWindowFocus && rightFrameLeft == 0f) {
             initUiValues()
-            Log.d(TAG, "onWindowFocusChanged()  frameWidth:$frameWidth, rightFrameLeft:$rightFrameLeft")
+//            Log.d(TAG, "onWindowFocusChanged()  frameWidth:$frameWidth, rightFrameLeft:$rightFrameLeft")
         }
     }
 
@@ -516,46 +533,30 @@ class ClipContainer : FrameLayout {
 //        Log.d(TAG, "onDraw()  width:${width}, rightFrameLeft:${rightFrameLeft}, rightFrameBar.left:${rightFrameBar.left}, rightFrameBar.right:${rightFrameBar.right}, " +
 //                "rightFrameBar.x:${rightFrameBar.x} ")
 
+        // 绘制阴影
         if (leftShadowEnd > leftShadowStart) {
-            canvas.drawRect(Rect(leftShadowStart, 0, leftShadowEnd, height), shadowPaint)
+            canvas.drawRect(Rect(leftShadowStart, 0, leftShadowEnd+2, height), shadowPaint)
         }
-
-//        Log.d(TAG, "onDraw()  itemCount:${itemCount}")
 
         if (rightShadowEnd > rightShadowStart) {
-            canvas.drawRect(Rect(rightShadowStart, 0, rightShadowEnd, height), shadowPaint)
+            canvas.drawRect(Rect(rightShadowStart-2, 0, rightShadowEnd, height), shadowPaint)
         }
 
 
-        // 绘制一个矩形
+        // 绘制上下边框矩形
         canvas.drawRect(Rect((leftFrameLeft + leftFrameBar.width).toInt(),
                 0, (rightFrameLeft + DELTA).toInt(), framebarHeight), paint!!)
         canvas.drawRect(Rect((leftFrameLeft + leftFrameBar.width).toInt(),
                 height - framebarHeight, (rightFrameLeft + DELTA).toInt(), height), paint!!)
 
-//        Log.d(TAG, "onDraw()  progressStart:$progressStart,  progressWidth:$progressWidth")
-
-//        if (progressStart < getCutLeftX()) {
-//            progressStart = getCutLeftX().toInt()
-//        }
-//        if (progressStart > getCutRightX()) {
-//            progressStart = getCutRightX().toInt()
-//        }
-//
-//        canvas.drawRect(Rect(progressStart, framebarHeight, progressStart + progressWidth, height - framebarHeight), progressPaint!!)
 
     }
 
-    override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
 
-    }
-
-    fun updateBitmapList(toList: List<Bitmap>) {
+    fun updateBitmapList(toList: List<Bitmap?>) {
         list.clear()
         list.addAll(toList)
         adapter?.notifyDataSetChanged()
-//        Log.d(TAG, "updateBitmapList()  clipContainer.list:${list.size}")
     }
 
     fun addThumbnail(index: Int, bitmap: Bitmap) {
@@ -573,7 +574,8 @@ class ClipContainer : FrameLayout {
     companion object {
 
         private val TAG = "ClipContainer"
-
+        public val minSelection = 3000 // 最短3s
+        public val maxSelection: Long = 30000 // 最长30s
         private val DELTA = 6
         private val SHADOW_DELTA = 0
     }
@@ -603,11 +605,13 @@ class ClipContainer : FrameLayout {
             layoutParams.width = itemWidth
             viewholder.itemView.layoutParams = layoutParams
 //            viewholder.title.setText("$position")
-            viewholder.image.setImageBitmap(list[position])
+            if (list[position] != null) {
+                viewholder.image.setImageBitmap(list[position])
+            }
+
         }
 
     }
-
 }
 
 
