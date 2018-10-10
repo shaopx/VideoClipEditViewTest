@@ -39,6 +39,7 @@ import java.util.Map;
 public class VideoFrameExtractor {
     private static final String TAG = "VideoFrameExtractor";
     private static final boolean VERBOSE = true;           // lots of logging
+    private static final boolean USE_MEDIACODEC = true;
     private Uri videoFilePath = null;
     private Context context;
 
@@ -70,11 +71,12 @@ public class VideoFrameExtractor {
     private int processThumbnailIndex = 0;
 
     // 要生成的缩略图的宽高(px)
-    private int saveWidth = 540;
-    private int saveHeight = 960;
+    private int saveWidth = 54;
+    private int saveHeight = 96;
 
     /**
      * 获取截图接口
+     *
      * @param millsecsPerFrame
      * @param callback
      */
@@ -85,24 +87,36 @@ public class VideoFrameExtractor {
         long duration = getVideoDuration();
         int thumbnailCount = (int) (duration / millsecsPerFrame);
         long millSec = 0l;
+        MediaMetadataRetriever mMMR = null;
+        if (!USE_MEDIACODEC) {
+            mMMR = new MediaMetadataRetriever();
+            mMMR.setDataSource(videoFilePath.getPath());
+        }
+
         for (int i = 0; i < thumbnailCount; i++) {
             thumbnailMillSecList.add(millSec);
             Log.d(TAG, "getThumbnail()  [" + i + "] time:" + millSec);
-//            Bitmap thumbnailAtTime = createThumbnailAtTime(videoFilePath.getPath(), (int) millSec);
-//            if (callback != null) {
-//                callback.onFrameAvailable(thumbnailAtTime, i);
-//            }
+
+            if (!USE_MEDIACODEC) {
+                Bitmap thumbnailAtTime = createThumbnailAtTime(mMMR, (int) millSec);
+                if (callback != null) {
+                    callback.onFrameAvailable(thumbnailAtTime, i);
+                }
+            }
+
             millSec += millsecsPerFrame;
         }
 
 
-
-        try {
-            extractMpegFrames();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.e(TAG, "IOException", e);
+        if (USE_MEDIACODEC) {
+            try {
+                extractMpegFrames();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e(TAG, "IOException", e);
+            }
         }
+
         long end = System.currentTimeMillis();
         Log.e(TAG, "extract thumbnails use:" + (end - start) + "ms");
     }
@@ -110,15 +124,15 @@ public class VideoFrameExtractor {
     /**
      * 这是一种更快速的截图的办法, 但是却可能无法截取到正确的截图, 因为视频的关键帧不够完整
      */
-//    private Bitmap createThumbnailAtTime(String filePath, int timeInSeconds){
-//        MediaMetadataRetriever mMMR = new MediaMetadataRetriever();
-//        mMMR.setDataSource(filePath);
-//        //api time unit is microseconds
-//        return mMMR.getFrameAtTime(timeInSeconds*1000000, MediaMetadataRetriever.OPTION_CLOSEST);
-//    }
+    private Bitmap createThumbnailAtTime(MediaMetadataRetriever mMMR, int timeInSeconds) {
+        //api time unit is microseconds
+//        return mMMR.getFrameAtTime(timeInSeconds * 1000, MediaMetadataRetriever.OPTION_CLOSEST);
+        return mMMR.getScaledFrameAtTime(timeInSeconds * 1000, MediaMetadataRetriever.OPTION_CLOSEST, saveWidth, saveHeight);
+    }
 
     /**
      * 读取媒体文件的时长
+     *
      * @return
      */
     public long getVideoDuration() {
@@ -279,9 +293,9 @@ public class VideoFrameExtractor {
                         if (processThumbnailIndex < thumbnailMillSecList.size()) {
                             long nextFrameTimeLine = thumbnailMillSecList.get(processThumbnailIndex);
                             if (presentationTimeUs > nextFrameTimeLine * 1000) {
-                                Log.e(TAG, "FOUND frame:"+inputChunk+", time:"+presentationTimeUs+", index:"+processThumbnailIndex);
+                                Log.e(TAG, "FOUND frame:" + inputChunk + ", time:" + presentationTimeUs + ", index:" + processThumbnailIndex);
                                 thumbnailIndexSet.put(inputChunk, processThumbnailIndex);
-                                Log.e(TAG, "thumbnailIndexSet:"+thumbnailIndexSet);
+                                Log.e(TAG, "thumbnailIndexSet:" + thumbnailIndexSet);
                                 processThumbnailIndex++;
                             }
                         }
@@ -332,7 +346,7 @@ public class VideoFrameExtractor {
                     decoder.releaseOutputBuffer(decoderStatus, doRender);
                     if (doRender) {
                         if (VERBOSE)
-                            Log.d(TAG, "awaiting decode of frame " + decodeCount );
+                            Log.d(TAG, "awaiting decode of frame " + decodeCount);
                         outputSurface.awaitNewImage();
                         outputSurface.drawImage(true);
 

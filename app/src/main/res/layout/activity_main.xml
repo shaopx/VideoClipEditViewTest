@@ -7,15 +7,12 @@
     tools:context=".MainActivity">
 
 
-    <com.google.android.exoplayer2.ui.PlayerView
-        android:id="@+id/player_view"
+    <SurfaceView
+        android:id="@+id/surfaceView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:resize_mode="fill"
-        app:surface_type="texture_view"
-        app:use_controller="false">
+        android:layout_height="match_parent">
 
-    </com.google.android.exoplayer2.ui.PlayerView>
+    </SurfaceView>
 
     <!--<TextView-->
     <!--android:id="@+id/start_decode"-->
@@ -32,7 +29,7 @@
     <com.spx.videoclipeditviewtest.ClipContainer
         android:id="@+id/clipContainer"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="60dp"
         android:layout_marginBottom="@dimen/clip_frame_marginbottom"
         app:layout_constraintBottom_toBottomOf="parent">
 

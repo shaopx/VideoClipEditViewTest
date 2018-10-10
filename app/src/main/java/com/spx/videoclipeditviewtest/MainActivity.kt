@@ -1,26 +1,25 @@
 package com.spx.videoclipeditviewtest
 
 import android.graphics.Bitmap
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.SurfaceHolder
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.Toast
-import com.google.android.exoplayer2.DefaultRenderersFactory
-import com.google.android.exoplayer2.ExoPlayerFactory
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.DefaultLoadControl.*
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import kotlinx.android.synthetic.main.activity_main.*
-import com.google.android.exoplayer2.PlaybackParameters
 import java.io.File
 import java.text.DecimalFormat
 
@@ -31,23 +30,22 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
 
     companion object {
         val TAG = "MainActivity"
-//        val videoPlayUrl = "/storage/emulated/0/DCIM/Camera/1111.mp4"
-        val videoPlayUrl = "/storage/emulated/0/1.mp4"
+        //        val videoPlayUrl = "/storage/emulated/0/DCIM/Camera/VID_20180930_123107.mp4"
+        val videoPlayUrl = "/storage/emulated/0/22.mp4"
         var MSG_UPDATE = 1
     }
 
 
-    lateinit var player: SimpleExoPlayer
+    lateinit var player: MediaPlayer
 
     var handler = object : Handler() {
         override fun handleMessage(msg: Message?) {
             updatePlayPosition()
         }
     }
-    private var millsecPerThumbnail = 2000
+    private var millsecPerThumbnail = 1000
     private var secFormat = DecimalFormat("##0.0")
 
-    var playEndOnece = false
     var mediaDuration: Long = 0
 
 
@@ -102,6 +100,15 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
         var selSec = startMillSec / 1000f
         toast_msg_tv.text = "预览到${secFormat.format(selSec)}s"
         toast_msg_tv.visibility = View.VISIBLE
+        if (!finished) {
+            player.pause()
+        }
+
+        player.seekTo(startMillSec.toInt())
+
+        if (finished) {
+            player.start()
+        }
     }
 
     override fun onSelectionChang(totalCount: Int, startMillSec: Long, endMillSec: Long, finished: Boolean) {
@@ -114,24 +121,18 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
         toast_msg_tv.text = "已截取${secFormat.format(selSec)}s"
         toast_msg_tv.visibility = View.VISIBLE
 
-        if (finished) {
-            updatePlayPosition()
+//        if (finished) {
+//            updatePlayPosition()
+//        }
+
+        if (!finished) {
+            player.pause()
         }
 
-    }
+        player.seekTo(startMillSec.toInt())
 
-
-    var listener: Player.DefaultEventListener = object : Player.DefaultEventListener() {
-        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-            if (playbackState == Player.STATE_READY) {
-                Log.d(TAG, "player started!  duration:" + player.duration)
-
-
-            } else if (playbackState == Player.STATE_ENDED) {
-                Log.d(TAG, "player end!")
-                playEndOnece = true
-                handler.removeCallbacksAndMessages(null)
-            }
+        if (finished) {
+            player.start()
         }
     }
 
@@ -142,37 +143,34 @@ class MainActivity : AppCompatActivity(), ClipContainer.Callback {
     }
 
     fun updatePlayPosition() {
-        val currentPosition = player.currentPosition
-        clipContainer.setProgress(currentPosition)
+        val currentPosition = player.duration
+        clipContainer.setProgress(currentPosition.toLong())
         handler.removeMessages(MSG_UPDATE)
         handler.sendEmptyMessageDelayed(MSG_UPDATE, 60)
     }
 
     private fun initPlayer() {
+        player = MediaPlayer()
+        player.setDataSource(videoPlayUrl)
+        val holder = surfaceView.holder
+        holder.addCallback(object : SurfaceHolder.Callback {
+            override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
+                player.setDisplay(holder)
+            }
 
-        val bandwidthMeter = DefaultBandwidthMeter()
-        val videoTrackSelectionFactory = AdaptiveTrackSelection.Factory(bandwidthMeter)
-        var mTrackSelector = DefaultTrackSelector(videoTrackSelectionFactory)
+            override fun surfaceDestroyed(holder: SurfaceHolder?) {
+            }
 
-        player = ExoPlayerFactory.newSimpleInstance(DefaultRenderersFactory(this),
-                mTrackSelector)
+            override fun surfaceCreated(holder: SurfaceHolder?) {
+            }
 
-        player_view.visibility = View.VISIBLE
-        player_view.player = player
-        player.addListener(listener)
+        })
 
-        player.repeatMode = Player.REPEAT_MODE_ALL
-//        player.repeatMode = Player.REPEAT_MODE_OFF
-        player.playWhenReady = true
-        val param = PlaybackParameters(1f)
-        player.playbackParameters = (param)
-        player.volume = 0f
-
-        var videoUrl = videoPlayUrl
-
-
-        var mVideoSource = ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, "spx")).createMediaSource(Uri.parse(videoUrl)!!)
-        player.prepare(mVideoSource)
-
+        player.prepare()
+        player.setOnPreparedListener {
+            Log.d(TAG, "onPrepared: ...")
+            player.start()
+            player.isLooping = true
+        }
     }
 }
