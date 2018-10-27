@@ -226,7 +226,7 @@ class ClipContainer : FrameLayout {
     fun init(context: Context) {
         setWillNotDraw(false)
         shadowPaint = Paint()
-        shadowPaint.color = context.resources.getColor(R.color.shadow_color)
+        shadowPaint.color = context.resources.getColor(R.color.clip_shadow_color)
         shadowPaint.style = Paint.Style.FILL
 
         paint = Paint()
@@ -238,7 +238,7 @@ class ClipContainer : FrameLayout {
         progressPaint!!.style = Paint.Style.FILL
 
         shadowPaint = Paint()
-        shadowPaint!!.color = context.resources.getColor(R.color.shadow_color)
+        shadowPaint!!.color = context.resources.getColor(R.color.clip_shadow_color)
         shadowPaint!!.style = Paint.Style.FILL
         minDistance = context.resources.getDimensionPixelSize(R.dimen.video_clip_min_length).toFloat()
         progressWidth = context.resources.getDimensionPixelSize(R.dimen.video_clip_progressbar_width)
@@ -468,13 +468,13 @@ class ClipContainer : FrameLayout {
 
     fun updateFramebarBg(){
         if (rightShadowEnd > rightShadowStart) {
-            rightFrameBarIv.setBackgroundResource(R.color.shadow_color)
+            rightFrameBarIv.setBackgroundResource(R.color.clip_shadow_color)
         } else {
             rightFrameBarIv.setBackgroundColor(Color.TRANSPARENT)
         }
 
         if (leftShadowEnd > leftShadowStart) {
-            leftFrameBarIv.setBackgroundResource(R.color.shadow_color)
+            leftFrameBarIv.setBackgroundResource(R.color.clip_shadow_color)
         } else {
             leftFrameBarIv.setBackgroundColor(Color.TRANSPARENT)
         }

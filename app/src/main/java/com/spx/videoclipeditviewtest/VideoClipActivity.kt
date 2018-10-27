@@ -1,5 +1,6 @@
 package com.spx.videoclipeditviewtest
 
+import android.annotation.TargetApi
 import android.graphics.Bitmap
 import android.media.MediaPlayer
 import android.media.MediaPlayer.SEEK_CLOSEST
@@ -13,8 +14,13 @@ import android.util.Log
 import android.view.SurfaceHolder
 import android.view.View
 import android.view.ViewTreeObserver
+import android.widget.SeekBar
 import android.widget.Toast
 import com.daasuu.mp4compose.composer.Mp4Composer
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.spx.videoclipeditviewtest.player.VideoPlayer
+import com.spx.videoclipeditviewtest.player.VideoPlayerOfExoPlayer
+import com.spx.videoclipeditviewtest.player.VideoPlayerOfMediaPlayer
 import kotlinx.android.synthetic.main.activity_video_clip.*
 import java.io.File
 import java.text.DecimalFormat
@@ -26,7 +32,8 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 
     companion object {
         val TAG = "VideoClipActivity"
-//                val videoPlayUrl = "/storage/emulated/0/DCIM/Camera/VID_20180930_123107.mp4"
+        const val SPEED_RANGE = 20
+        //                val videoPlayUrl = "/storage/emulated/0/DCIM/Camera/VID_20180930_123107.mp4"
 //        val videoPlayUrl = "/storage/emulated/0/download/VID_20181025.mp4"
 //        val videoPlayUrl = "/storage/emulated/0/movies/201810_25sp.mp4"
         val videoPlayUrl = "/storage/emulated/0/movies/process.mp4"
@@ -35,7 +42,8 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 
 
     lateinit var videoPathInput: String
-    lateinit var player: MediaPlayer
+    lateinit var finalVideoPath: String
+    var videoPlayer: VideoPlayer? = null
 
     var handler = object : Handler() {
         override fun handleMessage(msg: Message?) {
@@ -49,9 +57,10 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
     var startMillSec: Long = 0
     var endMillSec: Long = 0
     var frozontime = 0L
+    var useSmoothPreview = true
 
     private fun onNewThumbnail(bitmap: Bitmap, index: Int) {
-        Log.d(TAG, "onNewThumbnail  bitmap($index):$bitmap, width:${bitmap.width}, height:${bitmap.height}")
+//        Log.d(TAG, "onNewThumbnail  bitmap($index):$bitmap, width:${bitmap.width}, height:${bitmap.height}")
         clipContainer.addThumbnail(index, bitmap)
     }
 
@@ -62,29 +71,43 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
         videoPathInput = intent.getStringExtra("video_path")
         Log.d(TAG, "onCreate videoPathInput:$videoPathInput")
 
-        player = MediaPlayer()
-        val holder = surfaceView.holder
-        holder.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-                player.setDisplay(holder)
+
+        initPlayer()
+
+
+        play_spped_seakbar.max = SPEED_RANGE
+        var normalSpeed = play_spped_seakbar.max / 2
+        play_spped_seakbar.progress = 0
+
+        play_spped_seakbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                var speed = 1.0f + progress / 10f * 1f
+
+                Log.d(TAG, "onProgressChanged  progress:$progress, speed:$speed")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    setPlayerSpeed(speed)
+                }
             }
 
-            override fun surfaceDestroyed(holder: SurfaceHolder?) {
-            }
-
-            override fun surfaceCreated(holder: SurfaceHolder?) {
-            }
-
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
         // 因为使用了egl, 必须在一个新线程中启动
-
-        startProcess()
-
-
-//        onProcessCompleted()
+        if (useSmoothPreview) {
+            startProcess()
+        } else {
+            finalVideoPath = videoPathInput
+            hideShadow()
+            onProcessCompleted()
+        }
 
     }
+
+    private fun setPlayerSpeed(speed: Float) {
+        videoPlayer!!.setPlaySpeed(speed)
+    }
+
 
     private fun startProcess() {
         var mp4Composer = Mp4Composer(videoPathInput, videoPlayUrl)
@@ -98,8 +121,9 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
                     override fun onCompleted() {
                         Log.d(TAG, "onCompleted()")
                         runOnUiThread {
-                            pb_progress.visibility = View.GONE
-                            view_shadow.visibility = View.INVISIBLE
+                            hideShadow()
+
+                            finalVideoPath = videoPlayUrl
                             onProcessCompleted()
                         }
 
@@ -118,14 +142,19 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 
     }
 
+    private fun hideShadow() {
+        pb_progress.visibility = View.GONE
+        view_shadow.visibility = View.INVISIBLE
+    }
+
     private fun onProcessCompleted() {
 
-        var file = File(videoPlayUrl)
+        var file = File(finalVideoPath)
         if (!file.exists()) {
             Toast.makeText(this, "请更新videoPlayUrl变量为本地手机的视频文件地址", Toast.LENGTH_LONG).show()
         }
 
-        var test = VideoFrameExtractor(this, Uri.parse(videoPlayUrl))
+        var test = VideoFrameExtractor(this, Uri.parse(finalVideoPath))
 
         mediaDuration = test.videoDuration
         Log.d(TAG, "onProcessCompleted mediaDuration:$mediaDuration")
@@ -143,7 +172,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
         }.start()
 
 
-        startPlayer()
+        setupPlayer()
 
         clipContainer.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
@@ -165,18 +194,15 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
         toast_msg_tv.text = "预览到${secFormat.format(selSec)}s"
         toast_msg_tv.visibility = View.VISIBLE
         if (!finished) {
-            player.pause()
+            pausePlayer()
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            player.seekTo(startMillSec, SEEK_CLOSEST)
-        } else {
-            player.seekTo(startMillSec.toInt())
-        }
+        seekToPosition(startMillSec)
+
 
         if (finished) {
             frozontime = System.currentTimeMillis() + 500
-            player.start()
+            startPlayer()
         }
 
         handler.removeMessages(MSG_UPDATE)
@@ -184,6 +210,8 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
             handler.sendEmptyMessageDelayed(MSG_UPDATE, 20)
         }
     }
+
+
 
     override fun onSelectionChang(totalCount: Int, startMillSec: Long, endMillSec: Long, finished: Boolean) {
 //        Log.d(TAG, "onSelectionChang ...startMillSec:$startMillSec, endMillSec:$endMillSec")
@@ -204,29 +232,29 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
         }
 
         if (!finished) {
-            player.pause()
+            pausePlayer()
         }
 
-        player.seekTo(startMillSec.toInt())
+        seekToPosition(startMillSec)
 
         if (finished) {
             frozontime = System.currentTimeMillis() + 500
-            player.start()
+            startPlayer()
         }
     }
 
 
     override fun onPause() {
         super.onPause()
-        player?.pause()
+        pausePlayer()
         handler.removeCallbacksAndMessages(null)
     }
 
     fun updatePlayPosition() {
-        player ?: return
-        val currentPosition = player.currentPosition
+
+        val currentPosition = getPlayerCurrentPosition()
         if (currentPosition > endMillSec) {
-            player.seekTo(0)
+            seekToPosition(0)
         } else {
             clipContainer.setProgress(currentPosition.toLong(), frozontime)
         }
@@ -236,13 +264,28 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
     }
 
     private fun startPlayer() {
-
-        player.setDataSource(videoPlayUrl)
-        player.prepare()
-        player.setOnPreparedListener {
-            Log.d(TAG, "onPrepared: ...")
-            player.start()
-            player.isLooping = true
-        }
+        videoPlayer?.startPlayer()
     }
+
+    private fun seekToPosition(startMillSec: Long) {
+       videoPlayer?.seekToPosition(startMillSec)
+    }
+
+    private fun pausePlayer() {
+        videoPlayer?.pausePlayer()
+    }
+
+    private fun getPlayerCurrentPosition(): Int {
+        return videoPlayer!!.getPlayerCurrentPosition()
+    }
+
+    private fun setupPlayer() {
+        videoPlayer?.setupPlayer(this,finalVideoPath,player_view )
+    }
+
+    private fun initPlayer(){
+        videoPlayer = VideoPlayerOfMediaPlayer(player_view)
+        videoPlayer?.initPlayer()
+    }
+
 }

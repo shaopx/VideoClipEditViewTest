@@ -4,7 +4,7 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
     <color name="progress_color">#67ffec</color>
-    <color name="shadow_color">#99000000</color>
+    <color name="clip_shadow_color">#99000000</color>
     <color name="video_clip_progress_color">#67ffec</color>
     <color name="frame_bar_color">#ff324c</color>
 </resources>

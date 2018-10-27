@@ -8,9 +8,16 @@
 
 
     <SurfaceView
-        android:id="@+id/surfaceView"
+        android:id="@+id/player_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"></SurfaceView>
+
+    <!--<com.google.android.exoplayer2.ui.PlayerView-->
+        <!--android:id="@+id/player_view"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent">-->
+
+    <!--</com.google.android.exoplayer2.ui.PlayerView>-->
 
 
     <com.spx.videoclipeditviewtest.ClipContainer
@@ -43,7 +50,7 @@
                 android:layout_width="@dimen/clip_frame_bar_width"
                 android:layout_height="match_parent"
                 android:layout_alignParentRight="true"
-                android:background="@color/shadow_color"
+                android:background="@color/clip_shadow_color"
                 android:src="@drawable/ic_video_clip_framebar_left" />
 
         </RelativeLayout>
@@ -60,7 +67,7 @@
                 android:layout_width="@dimen/clip_frame_bar_width"
                 android:layout_height="match_parent"
                 android:layout_alignParentLeft="true"
-                android:background="@color/shadow_color"
+                android:background="@color/clip_shadow_color"
                 android:src="@drawable/ic_video_clip_framebar_right" />
 
         </RelativeLayout>
@@ -82,14 +89,13 @@
         </LinearLayout>
 
 
-
     </com.spx.videoclipeditviewtest.ClipContainer>
 
     <View
         android:id="@+id/view_shadow"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/shadow_color"/>
+        android:background="@color/clip_shadow_color" />
 
 
     <TextView
@@ -106,6 +112,48 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp"
+        android:background="@color/clip_shadow_color"
+        app:layout_constraintBottom_toTopOf="@+id/toast_msg_tv"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="16dp"
+            android:text="正常"
+            android:textColor="#ffffff" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="16dp"
+            android:text="快"
+            android:textColor="#ffffff" />
+
+        <SeekBar
+            android:id="@+id/play_spped_seakbar"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="38dp"
+            android:layout_marginRight="38dp"
+            android:progress="0">
+
+        </SeekBar>
+
+    </RelativeLayout>
+
+
     <ProgressBar
         android:id="@+id/pb_progress"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
@@ -115,10 +163,10 @@
         android:layout_marginRight="80dp"
         android:max="100"
         android:progressDrawable="@drawable/layer_action_progress"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintVertical_bias="0.4" />
 
 
