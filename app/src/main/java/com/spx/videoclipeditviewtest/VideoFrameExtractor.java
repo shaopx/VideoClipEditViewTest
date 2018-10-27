@@ -16,6 +16,7 @@ import android.opengl.EGLSurface;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Surface;
 
@@ -42,6 +43,7 @@ public class VideoFrameExtractor {
     private static final boolean USE_MEDIACODEC = true;
     private Uri videoFilePath = null;
     private Context context;
+    private String filedir = "";
 
     public VideoFrameExtractor(Context context, Uri path) {
         this.context = context;
@@ -109,6 +111,9 @@ public class VideoFrameExtractor {
 
 
         if (USE_MEDIACODEC) {
+
+            filedir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES).getAbsolutePath();
+            Log.d(TAG, "getThumbnail: filedir:" + filedir);
             try {
                 extractMpegFrames();
             } catch (IOException e) {
@@ -126,8 +131,8 @@ public class VideoFrameExtractor {
      */
     private Bitmap createThumbnailAtTime(MediaMetadataRetriever mMMR, int timeInSeconds) {
         //api time unit is microseconds
-//        return mMMR.getFrameAtTime(timeInSeconds * 1000, MediaMetadataRetriever.OPTION_CLOSEST);
-        return mMMR.getScaledFrameAtTime(timeInSeconds * 1000, MediaMetadataRetriever.OPTION_CLOSEST, saveWidth, saveHeight);
+        return mMMR.getFrameAtTime(timeInSeconds * 1000, MediaMetadataRetriever.OPTION_CLOSEST);
+//        return mMMR.getScaledFrameAtTime(timeInSeconds * 1000, MediaMetadataRetriever.OPTION_CLOSEST, saveWidth, saveHeight);
     }
 
     /**
@@ -354,10 +359,12 @@ public class VideoFrameExtractor {
                             Integer index = thumbnailIndexSet.get(decodeCount);
                             long startWhen = System.nanoTime();
                             Bitmap bitmap = outputSurface.getBitmap();
+//                        String filename = filedir + "/save_" + format(decodeCount) + ".png";
+//                        outputSurface.saveFrame(filename);
 
 
-                            if (callback != null) {
-                                callback.onFrameAvailable(bitmap, index);
+                            if (callback != null && bitmap != null) {
+                                callback.onFrameAvailable(bitmap, index == null ? 0 : index);
                             }
                         }
                         decodeCount++;
@@ -366,6 +373,11 @@ public class VideoFrameExtractor {
             }
         }
 
+    }
+
+    private String format(int decodeCount) {
+        String s = "0000000000" + decodeCount;
+        return s.substring(s.length() - 6);
     }
 
     private static void fail(String s) {
@@ -659,7 +671,7 @@ public class VideoFrameExtractor {
                 Bitmap bmp = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
                 mPixelBuf.rewind();
                 bmp.copyPixelsFromBuffer(mPixelBuf);
-                bmp.compress(Bitmap.CompressFormat.PNG, 90, bos);
+                bmp.compress(Bitmap.CompressFormat.PNG, 60, bos);
                 bmp.recycle();
             } finally {
                 if (bos != null) bos.close();

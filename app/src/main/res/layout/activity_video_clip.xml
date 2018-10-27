@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".VideoClipActivity">
+
+
+    <SurfaceView
+        android:id="@+id/surfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></SurfaceView>
+
+
+    <com.spx.videoclipeditviewtest.ClipContainer
+        android:id="@+id/clipContainer"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginBottom="@dimen/clip_frame_marginbottom"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:clipToPadding="false"
+            android:paddingLeft="@dimen/clip_recyclerview_paddingleft"
+            android:paddingRight="@dimen/clip_recyclerview_paddingleft">
+
+        </android.support.v7.widget.RecyclerView>
+
+        <RelativeLayout
+            android:id="@+id/frame_left"
+            android:layout_width="@dimen/clip_frame_bar_width_outer"
+            android:layout_height="match_parent"
+            android:layout_gravity="left">
+
+            <ImageView
+                android:id="@+id/frame_left_iv"
+                android:layout_width="@dimen/clip_frame_bar_width"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:background="@color/shadow_color"
+                android:src="@drawable/ic_video_clip_framebar_left" />
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/frame_right"
+            android:layout_width="@dimen/clip_frame_bar_width_outer"
+            android:layout_height="match_parent"
+            android:layout_gravity="right">
+
+            <ImageView
+                android:id="@+id/frame_right_iv"
+                android:layout_width="@dimen/clip_frame_bar_width"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:background="@color/shadow_color"
+                android:src="@drawable/ic_video_clip_framebar_right" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/clip_play_progress_ll"
+            android:layout_width="16dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/clip_frame_bar_height"
+            android:paddingBottom="@dimen/clip_frame_bar_height"
+            android:visibility="invisible">
+
+            <ImageView
+                android:id="@+id/clip_play_progress_bar"
+                android:layout_width="2dp"
+                android:layout_height="match_parent"
+                android:background="@color/video_clip_progress_color" />
+        </LinearLayout>
+
+
+
+    </com.spx.videoclipeditviewtest.ClipContainer>
+
+    <View
+        android:id="@+id/view_shadow"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/shadow_color"/>
+
+
+    <TextView
+        android:id="@+id/toast_msg_tv"
+        android:layout_width="104dp"
+        android:layout_height="30dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/round_bg"
+        android:gravity="center"
+        android:textColor="#ffffff"
+        android:textSize="14sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/clipContainer"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/pb_progress"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:layout_marginLeft="80dp"
+        android:layout_marginRight="80dp"
+        android:max="100"
+        android:progressDrawable="@drawable/layer_action_progress"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.4" />
+
+
+</android.support.constraint.ConstraintLayout>

@@ -14,7 +14,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-import kotlinx.android.synthetic.main.activity_main.view.*
+import kotlinx.android.synthetic.main.activity_video_clip.view.*
 
 class ClipContainer : FrameLayout {
     lateinit var recyclerView: RecyclerView
@@ -199,7 +199,7 @@ class ClipContainer : FrameLayout {
         if (transX < minProgressBarX) {
             transX = minProgressBarX.toFloat()
         }
-        Log.d(TAG, "adjustProgressBar  transX_:$transX_, transX: $transX")
+//        Log.d(TAG, "adjustProgressBar  transX_:$transX_, transX: $transX")
 
         v.translationX = transX
     }
@@ -518,6 +518,7 @@ class ClipContainer : FrameLayout {
 
     fun addThumbnail(index: Int, bitmap: Bitmap) {
         list.set(index, bitmap)
+        Log.d(TAG, "addThumbnail  $index  size:${list.size}  bitmap.size:${bitmap.byteCount}, width:${bitmap.width}, height:${bitmap.height}")
         adapter.notifyDataSetChanged()
     }
 

@@ -14,4 +14,5 @@
     <dimen name="video_clip_min_length">48dp</dimen>
     <dimen name="clip_frame_item_width">32dp</dimen>
     <dimen name="clip_frame_progressbar_width">2dp</dimen>
+    <dimen name="entry_textview_width">200dp</dimen>
 </resources>

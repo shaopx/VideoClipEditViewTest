@@ -1,199 +1,85 @@
 package com.spx.videoclipeditviewtest
 
-import android.graphics.Bitmap
-import android.media.MediaPlayer
-import android.media.MediaPlayer.SEEK_CLOSEST
-import android.net.Uri
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Message
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
-import android.view.SurfaceHolder
-import android.view.View
-import android.view.ViewTreeObserver
 import android.widget.Toast
+import com.spx.videoclipeditviewtest.util.VideoItem
+import com.spx.videoclipeditviewtest.util.getVideoItem
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.File
-import java.text.DecimalFormat
 
-/**
- * 请根据手机中视频文件的地址更新下面的videoPlayUrl变量
- */
-class MainActivity : AppCompatActivity(), ClipContainer.Callback {
+class MainActivity : AppCompatActivity() {
 
     companion object {
-        val TAG = "MainActivity"
-        //        val videoPlayUrl = "/storage/emulated/0/DCIM/Camera/VID_20180930_123107.mp4"
-        val videoPlayUrl = "/storage/emulated/0/22.mp4"
-        var MSG_UPDATE = 1
-    }
-
-
-    lateinit var player: MediaPlayer
-
-    var handler = object : Handler() {
-        override fun handleMessage(msg: Message?) {
-            updatePlayPosition()
-        }
-    }
-    private var millsecPerThumbnail = 2000
-    private var secFormat = DecimalFormat("##0.0")
-
-    var mediaDuration: Long = 0
-    var startMillSec: Long = 0
-    var endMillSec: Long = 0
-    var frozontime = 0L
-
-    private fun onNewThumbnail(bitmap: Bitmap, index: Int) {
-//        Log.d(TAG, "onNewThumbnail  bitmap:$bitmap, index:$index")
-        clipContainer.addThumbnail(index, bitmap)
+        const val PERMISSION_REQUEST_CODE = 1000
+        const val REQUEST_PICK_VIDEO_CODE = 1001
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var file = File(videoPlayUrl)
-        if (!file.exists()) {
-            Toast.makeText(this, "请更新videoPlayUrl变量为本地手机的视频文件地址", Toast.LENGTH_LONG).show()
-        }
+        tv_start_video_clip.setOnClickListener { selectVideo() }
+    }
 
-        var test = VideoFrameExtractor(this, Uri.parse(videoPlayUrl))
+    override fun onResume() {
+        super.onResume()
+        checkPermission()
+    }
 
-        mediaDuration = test.videoDuration
-        Log.d(TAG, "onCreate mediaDuration:$mediaDuration")
-        endMillSec = if (mediaDuration > ClipContainer.maxSelection) {
-            ClipContainer.maxSelection
-        } else {
-            mediaDuration
-        }
+    /**
+     * 从系统中选择视频
+     */
+    private fun selectVideo() {
+        val intent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(intent, REQUEST_PICK_VIDEO_CODE)
+    }
 
-        clipContainer.initRecyclerList((mediaDuration / millsecPerThumbnail).toInt())
-
-
-        // 因为使用了egl, 必须在一个新线程中启动
-        Thread {
-            test.getThumbnail(millsecPerThumbnail) { bitmap, index -> handler.post { onNewThumbnail(bitmap, index) } }
-        }.start()
-
-
-        initPlayer()
-
-
-
-        clipContainer.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                clipContainer.updateInfo(mediaDuration, clipContainer.list.size)
-                updatePlayPosition()
-
-                clipContainer.viewTreeObserver.removeOnGlobalLayoutListener(this)
-            }
+    private fun startVideoClipActivity(videoItem: VideoItem) {
+        startActivity(Intent(this, VideoClipActivity::class.java).apply {
+            putExtra("video_path", videoItem.path)
         })
-
-        clipContainer.callback = (this)
-
     }
 
 
-    override fun onPreviewChang(startMillSec: Long, finished: Boolean) {
-        Log.d(TAG, "onPreviewChang   startMillSec:$startMillSec")
-        var selSec = startMillSec / 1000f
-        toast_msg_tv.text = "预览到${secFormat.format(selSec)}s"
-        toast_msg_tv.visibility = View.VISIBLE
-        if (!finished) {
-            player.pause()
-        }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_PICK_VIDEO_CODE) {
+            if (resultCode == RESULT_OK && data != null) {
+                val videoItem = getVideoItem(contentResolver, data!!)
+                videoItem?.run {
+                    log("video title:$title, duration:${durationSec}, size:$size, path:$path")
+                    startVideoClipActivity(this)
+                }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            player.seekTo(startMillSec, SEEK_CLOSEST)
-        } else {
-            player.seekTo(startMillSec.toInt())
-        }
-
-        if (finished) {
-            frozontime = System.currentTimeMillis() + 500
-            player.start()
-        }
-
-        handler.removeMessages(MSG_UPDATE)
-        if (finished) {
-            handler.sendEmptyMessageDelayed(MSG_UPDATE, 20)
-        }
-    }
-
-    override fun onSelectionChang(totalCount: Int, startMillSec: Long, endMillSec: Long, finished: Boolean) {
-//        Log.d(TAG, "onSelectionChang ...startMillSec:$startMillSec, endMillSec:$endMillSec")
-        this.startMillSec = startMillSec
-        this.endMillSec = endMillSec
-
-        var time = (endMillSec - startMillSec)
-        if (time > mediaDuration) {
-            time = mediaDuration
-        }
-        var selSec = time / 1000f
-        toast_msg_tv.text = "已截取${secFormat.format(selSec)}s"
-        toast_msg_tv.visibility = View.VISIBLE
-
-        handler.removeMessages(MSG_UPDATE)
-        if (finished) {
-            handler.sendEmptyMessageDelayed(MSG_UPDATE, 20)
-        }
-
-        if (!finished) {
-            player.pause()
-        }
-
-        player.seekTo(startMillSec.toInt())
-
-        if (finished) {
-            frozontime = System.currentTimeMillis() + 500
-            player.start()
-        }
-    }
-
-
-    override fun onPause() {
-        super.onPause()
-        handler.removeCallbacksAndMessages(null)
-    }
-
-    fun updatePlayPosition() {
-
-        val currentPosition = player.currentPosition
-        if (currentPosition > endMillSec) {
-            player.seekTo(0)
-        } else {
-            clipContainer.setProgress(currentPosition.toLong(), frozontime)
-        }
-
-        handler.removeMessages(MSG_UPDATE)
-        handler.sendEmptyMessageDelayed(MSG_UPDATE, 20)
-    }
-
-    private fun initPlayer() {
-        player = MediaPlayer()
-        player.setDataSource(videoPlayUrl)
-        val holder = surfaceView.holder
-        holder.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-                player.setDisplay(holder)
             }
 
-            override fun surfaceDestroyed(holder: SurfaceHolder?) {
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun checkPermission(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return true
+        }
+        // request permission if it has not been grunted.
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST_CODE)
+            return false
+        }
+
+        return true
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            PERMISSION_REQUEST_CODE -> if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this@MainActivity, "permission has been grunted.", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this@MainActivity, "[WARN] permission is not grunted.", Toast.LENGTH_SHORT).show()
             }
-
-            override fun surfaceCreated(holder: SurfaceHolder?) {
-            }
-
-        })
-
-        player.prepare()
-        player.setOnPreparedListener {
-            Log.d(TAG, "onPrepared: ...")
-            player.start()
-            player.isLooping = true
         }
     }
 }
