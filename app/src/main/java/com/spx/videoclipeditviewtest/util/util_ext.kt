@@ -7,7 +7,12 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.MediaStore
+import android.text.TextUtils
 import android.util.Log
+import android.view.Gravity
+import android.view.View
+import android.widget.TextView
+import android.widget.Toast
 import com.spx.videoclipeditviewtest.ThumbExoPlayerView
 import com.spx.videoclipeditviewtest.log
 import java.io.*

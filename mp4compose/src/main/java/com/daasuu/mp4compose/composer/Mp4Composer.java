@@ -39,6 +39,7 @@ public class Mp4Composer {
     private FillModeCustomItem fillModeCustomItem;
     private int timeScale = 1;
     private float resolutionScale = 1f;
+    private long clipStartMs, clipEndMs;
     private boolean flipVertical = false;
     private boolean flipHorizontal = false;
 
@@ -57,6 +58,12 @@ public class Mp4Composer {
 
     public Mp4Composer size(int width, int height) {
         this.outputResolution = new Resolution(width, height);
+        return this;
+    }
+
+    public Mp4Composer clip(long start, long end) {
+        this.clipStartMs = start;
+        this.clipEndMs = end;
         return this;
     }
 
@@ -215,7 +222,9 @@ public class Mp4Composer {
                             fillModeCustomItem,
                             timeScale,
                             flipVertical,
-                            flipHorizontal
+                            flipHorizontal,
+                            clipStartMs,
+                            clipEndMs
                     );
 
                 } catch (Exception e) {

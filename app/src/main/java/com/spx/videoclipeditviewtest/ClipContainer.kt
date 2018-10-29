@@ -14,10 +14,20 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import com.spx.videoclipeditviewtest.Config.Companion.maxSelection
+import com.spx.videoclipeditviewtest.Config.Companion.minSelection
 import com.spx.videoclipeditviewtest.util.decodeFile
 import kotlinx.android.synthetic.main.activity_video_clip.view.*
 
 class ClipContainer : FrameLayout {
+    companion object {
+
+        private val TAG = "ClipContainer"
+        private val DELTA = 6
+        private val SHADOW_DELTA = 0
+    }
+
+
     lateinit var recyclerView: RecyclerView
     lateinit var shadowPaint: Paint
     var framebarHeight: Int = 0
@@ -530,14 +540,7 @@ class ClipContainer : FrameLayout {
     }
 
 
-    companion object {
 
-        private val TAG = "ClipContainer"
-        val minSelection = 3000 // 最短3s
-        val maxSelection: Long = 30000 // 最长30s
-        private val DELTA = 6
-        private val SHADOW_DELTA = 0
-    }
 
     inner class VH : RecyclerView.ViewHolder {
         var title: TextView

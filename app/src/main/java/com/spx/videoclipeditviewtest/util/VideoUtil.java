@@ -20,12 +20,11 @@ public class VideoUtil {
     static final String TAG = "VideoUtil";
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private static void genVideoUsingMuxer(Context context, String srcPath, String dstPath,
+    public static boolean genVideoUsingMuxer(Context context, String srcPath, String dstPath,
                                            int startMs, int endMs, boolean useAudio, boolean
                                                    useVideo)
             throws IOException {
-
-
+        boolean success = true;
         // Set up MediaExtractor to read from the source.
         MediaExtractor extractor = new MediaExtractor();
         extractor.setDataSource(srcPath);
@@ -73,7 +72,7 @@ public class VideoUtil {
             }
         }
         if (startMs > 0) {
-            extractor.seekTo(startMs * 1000, MediaExtractor.SEEK_TO_CLOSEST_SYNC);
+            extractor.seekTo(startMs * 1000, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
         }
         // Copy the samples from MediaExtractor to MediaMuxer. We will loop
         // for copying each sample and stop when we get to the end of the source
@@ -108,14 +107,15 @@ public class VideoUtil {
             muxer.stop();
 
             //deleting the old file
-            File file = new File(srcPath);
-            file.delete();
-        } catch (IllegalStateException e) {
+//            File file = new File(srcPath);
+//            file.delete();
+        } catch (Exception e) {
             // Swallow the exception due to malformed source.
             Log.w(TAG, "The source video file is malformed");
+            success = false;
         } finally {
             muxer.release();
         }
-        return;
+        return success;
     }
 }

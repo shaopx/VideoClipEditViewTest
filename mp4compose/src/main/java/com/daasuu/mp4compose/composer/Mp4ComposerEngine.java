@@ -57,7 +57,9 @@ class Mp4ComposerEngine {
             final FillModeCustomItem fillModeCustomItem,
             final int timeScale,
             final boolean flipVertical,
-            final boolean flipHorizontal
+            final boolean flipHorizontal,
+            final long startTimeMs,
+            final long endTimeMs
     ) throws IOException {
 
 
@@ -103,6 +105,11 @@ class Mp4ComposerEngine {
             videoComposer = new VideoComposer(mediaExtractor, videoTrackIndex, videoOutputFormat, muxRender, timeScale);
             videoComposer.setUp(filter, rotation, outputResolution, inputResolution, fillMode, fillModeCustomItem, flipVertical, flipHorizontal);
             mediaExtractor.selectTrack(videoTrackIndex);
+
+            if(startTimeMs>=0 && endTimeMs>startTimeMs){
+                videoComposer.setClipRange(startTimeMs, endTimeMs);
+            }
+
 
             // setup audio if present and not muted
             if (mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO) != null && !mute) {

@@ -12,11 +12,21 @@ import android.view.ViewTreeObserver
 import android.widget.SeekBar
 import android.widget.Toast
 import com.daasuu.mp4compose.composer.Mp4Composer
+import com.spx.videoclipeditviewtest.Config.Companion.DEFAULT_FRAME_COUNT
+import com.spx.videoclipeditviewtest.Config.Companion.DEFAULT_TEMP_VIDEO_LOCATION
+import com.spx.videoclipeditviewtest.Config.Companion.MAX_FRAME_INTERVAL_MS
+import com.spx.videoclipeditviewtest.Config.Companion.MSG_UPDATE
+import com.spx.videoclipeditviewtest.Config.Companion.SPEED_RANGE
+import com.spx.videoclipeditviewtest.Config.Companion.USE_EXOPLAYER
+import com.spx.videoclipeditviewtest.Config.Companion.maxSelection
+import com.spx.videoclipeditviewtest.Config.Companion.minSelection
 import com.spx.videoclipeditviewtest.player.VideoPlayTimeController
 import com.spx.videoclipeditviewtest.player.VideoPlayer
 import com.spx.videoclipeditviewtest.player.VideoPlayerOfExoPlayer
 import com.spx.videoclipeditviewtest.player.VideoPlayerOfMediaPlayer
+import com.spx.videoclipeditviewtest.util.VideoUtil
 import com.spx.videoclipeditviewtest.util.getVideoDuration
+import com.spx.videoclipeditviewtest.util.showToast
 import kotlinx.android.synthetic.main.activity_video_clip.*
 import java.io.File
 import java.text.DecimalFormat
@@ -28,13 +38,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 
     companion object {
         val TAG = "VideoClipActivity"
-        const val SPEED_RANGE = 30
-        //                val videoPlayUrl = "/storage/emulated/0/DCIM/Camera/VID_20180930_123107.mp4"
-//        val videoPlayUrl = "/storage/emulated/0/download/VID_20181025.mp4"
-//        val videoPlayUrl = "/storage/emulated/0/movies/201810_25sp.mp4"
-        val videoPlayUrl = "/storage/emulated/0/movies/process.mp4"
-        var MSG_UPDATE = 1
-        val USE_EXOPLAYER = false
+        val videoPlayUrl = DEFAULT_TEMP_VIDEO_LOCATION
     }
 
 
@@ -105,7 +109,20 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
         tv_framepreviewmode.setOnClickListener {
             swithToFramePreviewMode()
         }
+
+        tv_clip.setOnClickListener {
+            Log.d(TAG, "startMillSec:$startMillSec,  endMillSec:$endMillSec,  mediaDuration:$mediaDuration")
+            if (mediaDuration > 0 && endMillSec <= mediaDuration
+                    && startMillSec >= 0
+                    && endMillSec <= startMillSec + maxSelection
+                    && endMillSec >= startMillSec + minSelection) {
+                doClip()
+            } else {
+                showToast("裁剪选择时间段不正确哟")
+            }
+        }
     }
+
 
     private fun swithToFramePreviewMode() {
         showShadow()
@@ -174,18 +191,18 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 
         mediaDuration = getVideoDuration(this, finalVideoPath)
         Log.d(TAG, "onProcessCompleted mediaDuration:$mediaDuration")
-        endMillSec = if (mediaDuration > ClipContainer.maxSelection) {
-            ClipContainer.maxSelection
+        endMillSec = if (mediaDuration > maxSelection) {
+            maxSelection
         } else {
             mediaDuration
         }
 
-        thumbnailCount = if (mediaDuration > ClipContainer.maxSelection) {
-            millsecPerThumbnail = 3 * 1000
+        thumbnailCount = if (mediaDuration > maxSelection) {
+            millsecPerThumbnail = MAX_FRAME_INTERVAL_MS
             Math.ceil(((mediaDuration * 1f / millsecPerThumbnail).toDouble())).toInt()
         } else {
-            millsecPerThumbnail = (mediaDuration / 10).toInt()
-            10
+            millsecPerThumbnail = (mediaDuration / DEFAULT_FRAME_COUNT).toInt()
+            DEFAULT_FRAME_COUNT
         }
 
         clipContainer.initRecyclerList(thumbnailCount)
@@ -340,4 +357,23 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 
     }
 
+
+    private fun doClip() {
+        showShadow()
+        Thread {
+            var clip = VideoUtil.genVideoUsingMuxer(this, videoPathInput, videoPlayUrl, startMillSec.toInt(), endMillSec.toInt(), true, true)
+            handler.post {
+                if (clip) {
+                    showToast("裁剪成功!新文件已经存放在:" + videoPlayUrl)
+                    hideShadow()
+                    finish()
+                } else {
+                    showToast("裁剪失败!")
+                }
+            }
+
+        }.start()
+
+
+    }
 }

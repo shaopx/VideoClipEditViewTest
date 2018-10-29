@@ -14,6 +14,8 @@ import com.daasuu.mp4compose.filter.GlFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import static android.media.MediaExtractor.SEEK_TO_PREVIOUS_SYNC;
+
 // Refer: https://android.googlesource.com/platform/cts/+/lollipop-release/tests/tests/media/src/android/media/cts/ExtractDecodeEditEncodeMuxTest.java
 // Refer: https://github.com/ypresto/android-transcoder/blob/master/lib/src/main/java/net/ypresto/androidtranscoder/engine/VideoTrackTranscoder.java
 class VideoComposer {
@@ -169,7 +171,15 @@ class VideoComposer {
         }
         int sampleSize = mediaExtractor.readSampleData(decoderInputBuffers[result], 0);
         boolean isKeyFrame = (mediaExtractor.getSampleFlags() & MediaExtractor.SAMPLE_FLAG_SYNC) != 0;
-        decoder.queueInputBuffer(result, 0, sampleSize, mediaExtractor.getSampleTime() / timeScale, isKeyFrame ? MediaCodec.BUFFER_FLAG_SYNC_FRAME : 0);
+
+        long sampleTime = mediaExtractor.getSampleTime();
+        if (sampleTime > endTimeMs * 1000) {
+            isExtractorEOS = true;
+            decoder.queueInputBuffer(result, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+            return DRAIN_STATE_NONE;
+        }
+
+        decoder.queueInputBuffer(result, 0, sampleSize, sampleTime / timeScale, isKeyFrame ? MediaCodec.BUFFER_FLAG_SYNC_FRAME : 0);
         mediaExtractor.advance();
         return DRAIN_STATE_CONSUMED;
     }
@@ -237,5 +247,13 @@ class VideoComposer {
         writtenPresentationTimeUs = bufferInfo.presentationTimeUs;
         encoder.releaseOutputBuffer(result, false);
         return DRAIN_STATE_CONSUMED;
+    }
+
+    private long startTimeMs, endTimeMs;
+
+    public void setClipRange(long startTimeMs, long endTimeMs) {
+        this.startTimeMs = startTimeMs;
+        this.endTimeMs = endTimeMs;
+        mediaExtractor.seekTo(startTimeMs, SEEK_TO_PREVIOUS_SYNC);
     }
 }
