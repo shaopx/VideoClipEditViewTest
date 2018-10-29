@@ -11,6 +11,7 @@ import com.spx.videoclipeditviewtest.VideoClipActivity
 
 class VideoPlayerOfMediaPlayer(val surfaceView: SurfaceView) : VideoPlayer {
 
+
     var mediaPlayer: MediaPlayer? = null
     var surfaceHolder: SurfaceHolder? = null
 
@@ -93,5 +94,7 @@ class VideoPlayerOfMediaPlayer(val surfaceView: SurfaceView) : VideoPlayer {
     override fun isPlaying(): Boolean {
         return mediaPlayer?.isPlaying ?: false
     }
-
+    override fun getDuration(): Int {
+        return mediaPlayer?.duration?:0
+    }
 }

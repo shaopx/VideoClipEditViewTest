@@ -15,6 +15,7 @@ interface VideoPlayer {
     fun seekToPosition(position: Long)
 
     fun getPlayerCurrentPosition(): Int
+    fun getDuration():Int
 
     fun setPlaySpeed(speed:Float)
 

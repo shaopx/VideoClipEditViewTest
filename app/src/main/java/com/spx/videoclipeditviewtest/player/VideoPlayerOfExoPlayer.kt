@@ -125,4 +125,8 @@ class VideoPlayerOfExoPlayer(val playerView: PlayerView) : VideoPlayer {
     override fun isPlaying(): Boolean {
        return exoPlayer?.playWhenReady == true && exoPlayer?.playbackState == STATE_READY
     }
+
+    override fun getDuration(): Int {
+        return (exoPlayer?.duration?:0).toInt()
+    }
 }

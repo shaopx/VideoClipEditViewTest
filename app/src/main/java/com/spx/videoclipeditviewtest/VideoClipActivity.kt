@@ -18,6 +18,7 @@ import android.widget.SeekBar
 import android.widget.Toast
 import com.daasuu.mp4compose.composer.Mp4Composer
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.spx.videoclipeditviewtest.player.VideoPlayTimeController
 import com.spx.videoclipeditviewtest.player.VideoPlayer
 import com.spx.videoclipeditviewtest.player.VideoPlayerOfExoPlayer
 import com.spx.videoclipeditviewtest.player.VideoPlayerOfMediaPlayer
@@ -74,10 +75,6 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 
 
         initPlayer()
-
-//        if (videoPlayer is VideoPlayerOfMediaPlayer) {
-//            tv_framepreviewmode.visibility = View.INVISIBLE
-//        }
 
 
         play_spped_seakbar.max = SPEED_RANGE
@@ -192,7 +189,15 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
             mediaDuration
         }
 
-        clipContainer.initRecyclerList((mediaDuration / millsecPerThumbnail).toInt())
+        var count =  if (mediaDuration > ClipContainer.maxSelection) {
+            millsecPerThumbnail = 3*1000
+            Math.ceil( ((mediaDuration*1f/millsecPerThumbnail).toDouble())).toInt()
+        } else {
+            millsecPerThumbnail = (mediaDuration/10).toInt()
+            10
+        }
+
+        clipContainer.initRecyclerList(count.toInt())
 
 
         Thread {
@@ -249,7 +254,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 
 
     override fun onSelectionChang(totalCount: Int, startMillSec: Long, endMillSec: Long, finished: Boolean) {
-//        Log.d(TAG, "onSelectionChang ...startMillSec:$startMillSec, endMillSec:$endMillSec")
+        Log.d(TAG, "onSelectionChang ...startMillSec:$startMillSec, endMillSec:$endMillSec")
         this.startMillSec = startMillSec
         this.endMillSec = endMillSec
 
@@ -258,7 +263,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
             time = mediaDuration
         }
         var selSec = time / 1000f
-        toast_msg_tv.text = "已截取${secFormat.format(selSec)}s"
+        toast_msg_tv.text = "已截取${secFormat.format(selSec)}s, [$startMillSec - $endMillSec]"
         toast_msg_tv.visibility = View.VISIBLE
 
         handler.removeMessages(MSG_UPDATE)
@@ -275,6 +280,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
         if (finished) {
             frozontime = System.currentTimeMillis() + 500
             startPlayer()
+            videoPlayTimeController?.setPlayTimeRange(startMillSec, endMillSec)
         }
     }
 
@@ -314,8 +320,13 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
         return videoPlayer!!.getPlayerCurrentPosition()
     }
 
+    var videoPlayTimeController: VideoPlayTimeController? =null
     private fun setupPlayer() {
         videoPlayer?.setupPlayer(this, finalVideoPath)
+
+        videoPlayTimeController = VideoPlayTimeController(videoPlayer!!)
+        videoPlayTimeController?.start()
+
     }
 
     private fun initPlayer() {
@@ -330,6 +341,8 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
         }
 
         videoPlayer?.initPlayer()
+
+
     }
 
 }
