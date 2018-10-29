@@ -1,8 +1,12 @@
 package com.spx.videoclipeditviewtest.util
 
 import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.provider.MediaStore
+import android.util.Log
+import com.spx.videoclipeditviewtest.ThumbExoPlayerView
 import com.spx.videoclipeditviewtest.log
 
 fun getVideoItem(contentResolver: ContentResolver, data: Intent):VideoItem?{
@@ -44,4 +48,28 @@ fun getVideoItem(contentResolver: ContentResolver, data: Intent):VideoItem?{
     }
 
     return videoItem
+}
+
+
+/**
+ * 读取媒体文件的时长
+ *
+ * @return
+ */
+fun getVideoDuration(context: Context, mediaPath:String): Long {
+    val start = System.currentTimeMillis()
+    val mmr = android.media.MediaMetadataRetriever()
+
+    try {
+        mmr.setDataSource(context, Uri.parse(mediaPath))
+        var duration = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION)
+        val end = System.currentTimeMillis()
+        Log.e(ThumbExoPlayerView.TAG, "duration " + duration + ", use:" + (end - start) + "ms")
+        return java.lang.Long.parseLong(duration!!)
+    } catch (ex: Exception) {
+    } finally {
+        mmr.release()
+    }
+
+    return 0
 }

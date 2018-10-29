@@ -1,9 +1,6 @@
 package com.spx.videoclipeditviewtest
 
-import android.annotation.TargetApi
 import android.graphics.Bitmap
-import android.media.MediaPlayer
-import android.media.MediaPlayer.SEEK_CLOSEST
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -11,17 +8,16 @@ import android.os.Handler
 import android.os.Message
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.view.SurfaceHolder
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.SeekBar
 import android.widget.Toast
 import com.daasuu.mp4compose.composer.Mp4Composer
-import com.google.android.exoplayer2.SimpleExoPlayer
 import com.spx.videoclipeditviewtest.player.VideoPlayTimeController
 import com.spx.videoclipeditviewtest.player.VideoPlayer
 import com.spx.videoclipeditviewtest.player.VideoPlayerOfExoPlayer
 import com.spx.videoclipeditviewtest.player.VideoPlayerOfMediaPlayer
+import com.spx.videoclipeditviewtest.util.getVideoDuration
 import kotlinx.android.synthetic.main.activity_video_clip.*
 import java.io.File
 import java.text.DecimalFormat
@@ -60,6 +56,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
     var endMillSec: Long = 0
     var frozontime = 0L
     var useSmoothPreview = false
+    var thumbnailCount = 0
 
     private fun onNewThumbnail(bitmap: Bitmap, index: Int) {
 //        Log.d(TAG, "onNewThumbnail  bitmap($index):$bitmap, width:${bitmap.width}, height:${bitmap.height}")
@@ -179,9 +176,8 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
             Toast.makeText(this, "请更新videoPlayUrl变量为本地手机的视频文件地址", Toast.LENGTH_LONG).show()
         }
 
-        var test = VideoFrameExtractor(this, Uri.parse(finalVideoPath))
 
-        mediaDuration = test.videoDuration
+        mediaDuration = getVideoDuration(this, finalVideoPath)
         Log.d(TAG, "onProcessCompleted mediaDuration:$mediaDuration")
         endMillSec = if (mediaDuration > ClipContainer.maxSelection) {
             ClipContainer.maxSelection
@@ -189,7 +185,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
             mediaDuration
         }
 
-        var count =  if (mediaDuration > ClipContainer.maxSelection) {
+        thumbnailCount =  if (mediaDuration > ClipContainer.maxSelection) {
             millsecPerThumbnail = 3*1000
             Math.ceil( ((mediaDuration*1f/millsecPerThumbnail).toDouble())).toInt()
         } else {
@@ -197,12 +193,8 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
             10
         }
 
-        clipContainer.initRecyclerList(count.toInt())
+        clipContainer.initRecyclerList(thumbnailCount)
 
-
-        Thread {
-            test.getThumbnail(millsecPerThumbnail) { bitmap, index -> handler.post { onNewThumbnail(bitmap, index) } }
-        }.start()
 
         if (videoPlayer?.isPlaying() == true) {
             releasePlayer()
@@ -327,6 +319,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
         videoPlayTimeController = VideoPlayTimeController(videoPlayer!!)
         videoPlayTimeController?.start()
 
+        player_view_exo_thumbnail.setDataSource(finalVideoPath, millsecPerThumbnail, thumbnailCount){ bitmap:Bitmap, index:Int -> handler.post { onNewThumbnail(bitmap, index) } }
     }
 
     private fun initPlayer() {
