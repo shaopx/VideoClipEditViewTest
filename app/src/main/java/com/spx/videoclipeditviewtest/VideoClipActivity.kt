@@ -1,7 +1,6 @@
 package com.spx.videoclipeditviewtest
 
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -58,10 +57,6 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
     var useSmoothPreview = false
     var thumbnailCount = 0
 
-    private fun onNewThumbnail(bitmap: Bitmap, index: Int) {
-//        Log.d(TAG, "onNewThumbnail  bitmap($index):$bitmap, width:${bitmap.width}, height:${bitmap.height}")
-        clipContainer.addThumbnail(index, bitmap)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -185,11 +180,11 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
             mediaDuration
         }
 
-        thumbnailCount =  if (mediaDuration > ClipContainer.maxSelection) {
-            millsecPerThumbnail = 3*1000
-            Math.ceil( ((mediaDuration*1f/millsecPerThumbnail).toDouble())).toInt()
+        thumbnailCount = if (mediaDuration > ClipContainer.maxSelection) {
+            millsecPerThumbnail = 3 * 1000
+            Math.ceil(((mediaDuration * 1f / millsecPerThumbnail).toDouble())).toInt()
         } else {
-            millsecPerThumbnail = (mediaDuration/10).toInt()
+            millsecPerThumbnail = (mediaDuration / 10).toInt()
             10
         }
 
@@ -312,14 +307,16 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
         return videoPlayer!!.getPlayerCurrentPosition()
     }
 
-    var videoPlayTimeController: VideoPlayTimeController? =null
+    var videoPlayTimeController: VideoPlayTimeController? = null
     private fun setupPlayer() {
         videoPlayer?.setupPlayer(this, finalVideoPath)
 
         videoPlayTimeController = VideoPlayTimeController(videoPlayer!!)
         videoPlayTimeController?.start()
 
-        player_view_exo_thumbnail.setDataSource(finalVideoPath, millsecPerThumbnail, thumbnailCount){ bitmap:Bitmap, index:Int -> handler.post { onNewThumbnail(bitmap, index) } }
+        player_view_exo_thumbnail.setDataSource(finalVideoPath, millsecPerThumbnail, thumbnailCount) { bitmap: Bitmap, index: Int ->
+            handler.post { clipContainer.addThumbnail(index, bitmap) }
+        }
     }
 
     private fun initPlayer() {

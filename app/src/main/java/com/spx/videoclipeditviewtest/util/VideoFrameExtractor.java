@@ -1,4 +1,4 @@
-package com.spx.videoclipeditviewtest;
+package com.spx.videoclipeditviewtest.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -21,8 +21,6 @@ import android.util.Log;
 import android.view.Surface;
 
 import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;

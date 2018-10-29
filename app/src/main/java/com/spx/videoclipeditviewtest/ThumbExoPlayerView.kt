@@ -3,16 +3,15 @@ package com.spx.videoclipeditviewtest
 import android.content.Context
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
-import android.net.Uri
 import android.util.AttributeSet
 import android.util.Log
 import android.view.TextureView
+import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ui.PlayerView
-import java.util.ArrayList
-import com.google.android.exoplayer2.PlaybackParameters
 import com.spx.videoclipeditviewtest.util.getVideoDuration
+import java.util.*
 
 
 class ThumbExoPlayerView(context: Context?, attrs: AttributeSet?) : PlayerView(context, attrs) {
@@ -81,11 +80,11 @@ class ThumbExoPlayerView(context: Context?, attrs: AttributeSet?) : PlayerView(c
         }
 
         val timeMs = thumbnailMillSecList.get(0)
-        Log.d(TAG, "startPlayAndCapture()  current position:${exoPlayer!!.currentPosition}, want timems:$timeMs")
+//        Log.d(TAG, "startPlayAndCapture()  current position:${exoPlayer!!.currentPosition}, want timems:$timeMs")
         if (exoPlayer!!.currentPosition > timeMs) {
             exoPlayer?.playWhenReady = false
             val bitmap = textureView.bitmap
-            Log.d(TAG, "startPlayAndCapture()  bitmap:$bitmap")
+//            Log.d(TAG, "startPlayAndCapture()  bitmap:$bitmap")
             bitmap?.run {
                 callback?.invoke(this, bitmapIndex++)
                 thumbnailMillSecList.removeAt(0)
