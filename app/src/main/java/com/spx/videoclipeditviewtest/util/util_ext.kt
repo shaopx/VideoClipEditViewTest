@@ -3,16 +3,19 @@ package com.spx.videoclipeditviewtest.util
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
 import com.spx.videoclipeditviewtest.ThumbExoPlayerView
 import com.spx.videoclipeditviewtest.log
+import java.io.*
 
-fun getVideoItem(contentResolver: ContentResolver, data: Intent):VideoItem?{
+fun getVideoItem(contentResolver: ContentResolver, data: Intent): VideoItem? {
     var uri = data.getData()
     var cr = contentResolver
-    var videoItem:VideoItem? = null
+    var videoItem: VideoItem? = null
     /** 数据库查询操作。
      * 第一个参数 uri：为要查询的数据库+表的名称。
      * 第二个参数 projection ： 要查询的列。
@@ -56,7 +59,7 @@ fun getVideoItem(contentResolver: ContentResolver, data: Intent):VideoItem?{
  *
  * @return
  */
-fun getVideoDuration(context: Context, mediaPath:String): Long {
+fun getVideoDuration(context: Context, mediaPath: String): Long {
     val start = System.currentTimeMillis()
     val mmr = android.media.MediaMetadataRetriever()
 
@@ -72,4 +75,46 @@ fun getVideoDuration(context: Context, mediaPath:String): Long {
     }
 
     return 0
+}
+
+
+fun writeToFile(bitmap: Bitmap, outBitmap: String, quality: Int = 50): Boolean {
+    var success = false
+    var out: FileOutputStream? = null
+    try {
+        out = FileOutputStream(outBitmap)
+        success = bitmap.compress(Bitmap.CompressFormat.JPEG, quality, out)
+        out.close()
+    } catch (e: IOException) {
+        // success is already false
+    } finally {
+        try {
+            if (out != null) {
+                out.close()
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+    }
+    return success
+}
+
+fun decodeFile(file:  String): Bitmap? {
+    return decodeInputStream(FileInputStream(file))
+}
+
+fun decodeInputStream(inputStream:  InputStream): Bitmap? {
+    val opt_decord = BitmapFactory.Options()
+    opt_decord.inPurgeable = true
+    opt_decord.inInputShareable = true
+    var bitmap_ret: Bitmap? = null
+    try {
+        bitmap_ret = BitmapFactory.decodeStream(inputStream, null, opt_decord)
+    } catch (e: Throwable) {
+        // TODO: handle exception
+        bitmap_ret = null
+    }
+
+    return bitmap_ret
 }

@@ -11,18 +11,19 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ui.PlayerView
 import com.spx.videoclipeditviewtest.util.getVideoDuration
+import com.spx.videoclipeditviewtest.util.writeToFile
 import java.util.*
 
 
 class ThumbExoPlayerView(context: Context?, attrs: AttributeSet?) : PlayerView(context, attrs) {
     companion object {
-        const val CHECK_INTERVAL_MS:Long = 20
+        const val CHECK_INTERVAL_MS: Long = 30
         const val TAG = "ThumbExoPlayerView"
     }
 
     private lateinit var mediaPath: String
     private lateinit var textureView: TextureView
-    private var callback: ((Bitmap, Int) -> Boolean)? = null
+    private var callback: ((String, Int) -> Boolean)? = null
     private var bitmapIndex = 0
     private val thumbnailMillSecList = ArrayList<Long>()
     private var exoPlayer: SimpleExoPlayer? = null
@@ -39,7 +40,7 @@ class ThumbExoPlayerView(context: Context?, attrs: AttributeSet?) : PlayerView(c
         textureView = videoSurfaceView as TextureView
     }
 
-    fun setDataSource(source: String, millsecsPerFrame: Int, thubnailCount: Int, callback: (Bitmap, Int) -> Boolean) {
+    fun setDataSource(source: String, millsecsPerFrame: Int, thubnailCount: Int, callback: (String, Int) -> Boolean) {
         mediaPath = source
         exoPlayer = com.spx.videoclipeditviewtest.player.initPlayer(context, mediaPath, this, listener)
         exoPlayer?.volume = 0f
@@ -86,12 +87,18 @@ class ThumbExoPlayerView(context: Context?, attrs: AttributeSet?) : PlayerView(c
             val bitmap = textureView.bitmap
 //            Log.d(TAG, "startPlayAndCapture()  bitmap:$bitmap")
             bitmap?.run {
-                callback?.invoke(this, bitmapIndex++)
+                var fileName = context.externalCacheDir.absolutePath+"thumbnail_" + bitmapIndex
+                writeToFile(bitmap, fileName)
+                callback?.invoke(fileName, bitmapIndex++)
                 thumbnailMillSecList.removeAt(0)
             }
         }
         exoPlayer?.playWhenReady = true
-        postDelayed({ startPlayAndCapture() },CHECK_INTERVAL_MS)
+        postDelayed({ startPlayAndCapture() }, CHECK_INTERVAL_MS)
+    }
+
+    fun release() {
+
     }
 
 

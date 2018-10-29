@@ -278,6 +278,11 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
         handler.removeCallbacksAndMessages(null)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        player_view_exo_thumbnail.release()
+    }
+
     fun updatePlayPosition() {
 
         val currentPosition = getPlayerCurrentPosition()
@@ -314,7 +319,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
         videoPlayTimeController = VideoPlayTimeController(videoPlayer!!)
         videoPlayTimeController?.start()
 
-        player_view_exo_thumbnail.setDataSource(finalVideoPath, millsecPerThumbnail, thumbnailCount) { bitmap: Bitmap, index: Int ->
+        player_view_exo_thumbnail.setDataSource(finalVideoPath, millsecPerThumbnail, thumbnailCount) { bitmap: String, index: Int ->
             handler.post { clipContainer.addThumbnail(index, bitmap) }
         }
     }

@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import com.spx.videoclipeditviewtest.util.decodeFile
 import kotlinx.android.synthetic.main.activity_video_clip.view.*
 
 class ClipContainer : FrameLayout {
@@ -39,7 +40,7 @@ class ClipContainer : FrameLayout {
     lateinit var leftFrameBarIv: View
     lateinit var rightFrameBarIv: View
 
-    var list: MutableList<Bitmap?> = mutableListOf()
+    var list: MutableList<String?> = mutableListOf()
 
 
     var startMillSec: Float = 0f
@@ -510,15 +511,15 @@ class ClipContainer : FrameLayout {
     }
 
 
-    fun updateBitmapList(toList: List<Bitmap?>) {
+    fun updateBitmapList(toList: List<String>) {
         list.clear()
         list.addAll(toList)
         adapter?.notifyDataSetChanged()
     }
 
-    fun addThumbnail(index: Int, bitmap: Bitmap) {
-        list.set(index, bitmap)
-        Log.d(TAG, "addThumbnail  $index  size:${list.size}  bitmap.size:${bitmap.byteCount}, width:${bitmap.width}, height:${bitmap.height}")
+    fun addThumbnail(index: Int, bitmapPath: String) {
+        list.set(index, bitmapPath)
+//        Log.d(TAG, "addThumbnail  $index  size:${list.size}  bitmap.size:${bitmap.byteCount}, width:${bitmap.width}, height:${bitmap.height}")
         adapter.notifyDataSetChanged()
     }
 
@@ -564,7 +565,9 @@ class ClipContainer : FrameLayout {
             viewholder.itemView.layoutParams = layoutParams
 //            viewholder.title.setText("$position")
             if (list[position] != null) {
-                viewholder.image.setImageBitmap(list[position])
+                viewholder.image.setImageBitmap(decodeFile(list[position]!!))
+            } else {
+                viewholder.image.setImageResource(R.drawable.ic_launcher_background)
             }
 
         }
