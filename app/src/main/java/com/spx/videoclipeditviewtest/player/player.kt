@@ -3,10 +3,7 @@ package com.spx.videoclipeditviewtest.player
 import android.content.Context
 import android.net.Uri
 import android.view.View
-import com.google.android.exoplayer2.DefaultRenderersFactory
-import com.google.android.exoplayer2.ExoPlayerFactory
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
@@ -16,6 +13,9 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.video.VideoListener
+import com.google.android.exoplayer2.PlaybackParameters
+
+
 
 
 
@@ -24,8 +24,10 @@ fun initPlayer(context: Context, videoUrl:String, playerView: PlayerView,
     var TAG ="initPlayer"
     val defaultSourceFactory = DefaultDataSourceFactory(context,"luedong")
 
+    var loadControl = MyLoadControl()
 
-    var player = ExoPlayerFactory.newSimpleInstance(context)
+    var player = ExoPlayerFactory.newSimpleInstance( DefaultRenderersFactory(context),
+            DefaultTrackSelector(),DefaultLoadControl(),null )
 
     playerView.visibility = View.VISIBLE
     playerView.player = player
@@ -33,6 +35,7 @@ fun initPlayer(context: Context, videoUrl:String, playerView: PlayerView,
 
     player!!.repeatMode = Player.REPEAT_MODE_ALL
     player!!.playWhenReady = true
+
 
 //    var mVideoSource = ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, "spx")).createMediaSource(Uri.parse(videoUrl)!!)
 //    player.prepare(mVideoSource)

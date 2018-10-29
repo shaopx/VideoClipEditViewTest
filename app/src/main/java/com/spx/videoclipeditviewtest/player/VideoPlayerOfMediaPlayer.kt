@@ -11,25 +11,29 @@ import com.spx.videoclipeditviewtest.VideoClipActivity
 
 class VideoPlayerOfMediaPlayer(val surfaceView: SurfaceView) : VideoPlayer {
 
+    var mediaPlayer: MediaPlayer? = null
+    var surfaceHolder: SurfaceHolder? = null
 
-    lateinit var mediaPlayer: MediaPlayer
-
-    override fun setupPlayer(context: Context, mediaPath: String, view: Any) {
-        mediaPlayer.setDataSource(mediaPath)
-        mediaPlayer.prepare()
-        mediaPlayer.setOnPreparedListener {
+    override fun setupPlayer(context: Context, mediaPath: String) {
+        mediaPlayer?.setDataSource(mediaPath)
+        mediaPlayer?.prepare()
+        mediaPlayer?.setOnPreparedListener {
             Log.d(VideoClipActivity.TAG, "onPrepared: ...")
-            mediaPlayer.start()
-            mediaPlayer.isLooping = true
+            mediaPlayer!!.start()
+            mediaPlayer!!.isLooping = true
         }
     }
 
     override fun initPlayer() {
         mediaPlayer = MediaPlayer()
         val holder = surfaceView.holder
+        if (surfaceHolder != null) {
+            mediaPlayer!!.setDisplay(surfaceHolder)
+        }
         holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-                mediaPlayer.setDisplay(holder)
+                mediaPlayer!!.setDisplay(holder)
+                surfaceHolder = holder
             }
 
             override fun surfaceDestroyed(holder: SurfaceHolder?) {
@@ -39,26 +43,27 @@ class VideoPlayerOfMediaPlayer(val surfaceView: SurfaceView) : VideoPlayer {
             }
 
         })
+
     }
 
     override fun pausePlayer() {
-        mediaPlayer.pause()
+        mediaPlayer?.pause()
     }
 
     override fun startPlayer() {
-        mediaPlayer.start()
+        mediaPlayer?.start()
     }
 
     override fun seekToPosition(position: Long) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mediaPlayer.seekTo(position, MediaPlayer.SEEK_CLOSEST)
+            mediaPlayer?.seekTo(position, MediaPlayer.SEEK_CLOSEST)
         } else {
-            mediaPlayer.seekTo(position.toInt())
+            mediaPlayer?.seekTo(position.toInt())
         }
     }
 
     override fun getPlayerCurrentPosition(): Int {
-        return mediaPlayer.currentPosition
+        return mediaPlayer?.currentPosition ?: 0
     }
 
     override fun setPlaySpeed(speed: Float) {
@@ -67,13 +72,26 @@ class VideoPlayerOfMediaPlayer(val surfaceView: SurfaceView) : VideoPlayer {
 
     @TargetApi(Build.VERSION_CODES.M)
     private fun setMediaPlayerSpeed(speed: Float) {
-        if (mediaPlayer.isPlaying()) {
-            mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(speed))
-            mediaPlayer.start()
+        if (mediaPlayer!!.isPlaying()) {
+            mediaPlayer!!.setPlaybackParams(mediaPlayer!!.getPlaybackParams().setSpeed(speed))
+            mediaPlayer!!.start()
         } else {
-            mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(speed))
-            mediaPlayer.pause()
+            mediaPlayer!!.setPlaybackParams(mediaPlayer!!.getPlaybackParams().setSpeed(speed))
+            mediaPlayer!!.pause()
         }
+    }
+
+    override fun enableFramePreviewMode() {
+
+    }
+
+    override fun releasePlayer() {
+        mediaPlayer?.stop()
+        mediaPlayer?.reset()
+    }
+
+    override fun isPlaying(): Boolean {
+        return mediaPlayer?.isPlaying ?: false
     }
 
 }

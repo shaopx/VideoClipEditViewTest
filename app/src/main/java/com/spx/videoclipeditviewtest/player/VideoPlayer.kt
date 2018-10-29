@@ -4,7 +4,7 @@ import android.content.Context
 
 interface VideoPlayer {
 
-    fun setupPlayer(context: Context, mediaPath:String, view:Any)
+    fun setupPlayer(context: Context, mediaPath:String)
 
     fun initPlayer()
 
@@ -17,4 +17,8 @@ interface VideoPlayer {
     fun getPlayerCurrentPosition(): Int
 
     fun setPlaySpeed(speed:Float)
+
+    fun enableFramePreviewMode()
+    fun releasePlayer()
+    fun isPlaying(): Boolean
 }

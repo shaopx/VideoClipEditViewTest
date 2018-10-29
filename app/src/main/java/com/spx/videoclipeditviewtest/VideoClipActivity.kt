@@ -32,12 +32,13 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 
     companion object {
         val TAG = "VideoClipActivity"
-        const val SPEED_RANGE = 20
+        const val SPEED_RANGE = 30
         //                val videoPlayUrl = "/storage/emulated/0/DCIM/Camera/VID_20180930_123107.mp4"
 //        val videoPlayUrl = "/storage/emulated/0/download/VID_20181025.mp4"
 //        val videoPlayUrl = "/storage/emulated/0/movies/201810_25sp.mp4"
         val videoPlayUrl = "/storage/emulated/0/movies/process.mp4"
         var MSG_UPDATE = 1
+        val USE_EXOPLAYER = false
     }
 
 
@@ -57,7 +58,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
     var startMillSec: Long = 0
     var endMillSec: Long = 0
     var frozontime = 0L
-    var useSmoothPreview = true
+    var useSmoothPreview = false
 
     private fun onNewThumbnail(bitmap: Bitmap, index: Int) {
 //        Log.d(TAG, "onNewThumbnail  bitmap($index):$bitmap, width:${bitmap.width}, height:${bitmap.height}")
@@ -74,14 +75,23 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 
         initPlayer()
 
+//        if (videoPlayer is VideoPlayerOfMediaPlayer) {
+//            tv_framepreviewmode.visibility = View.INVISIBLE
+//        }
+
 
         play_spped_seakbar.max = SPEED_RANGE
         var normalSpeed = play_spped_seakbar.max / 2
-        play_spped_seakbar.progress = 0
+        play_spped_seakbar.progress = normalSpeed
 
         play_spped_seakbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 var speed = 1.0f + progress / 10f * 1f
+                if (progress > normalSpeed) {
+                    speed = 1.0f + (progress - normalSpeed) * 1f / normalSpeed
+                } else {
+                    speed = progress * 1f / normalSpeed + 0.01f
+                }
 
                 Log.d(TAG, "onProgressChanged  progress:$progress, speed:$speed")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -102,6 +112,15 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
             onProcessCompleted()
         }
 
+
+        tv_framepreviewmode.setOnClickListener {
+            swithToFramePreviewMode()
+        }
+    }
+
+    private fun swithToFramePreviewMode() {
+        showShadow()
+        startProcess()
     }
 
     private fun setPlayerSpeed(speed: Float) {
@@ -125,6 +144,9 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 
                             finalVideoPath = videoPlayUrl
                             onProcessCompleted()
+
+                            videoPlayer!!.enableFramePreviewMode()
+                            tv_framepreviewmode.visibility = View.INVISIBLE
                         }
 
 
@@ -146,6 +168,12 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
         pb_progress.visibility = View.GONE
         view_shadow.visibility = View.INVISIBLE
     }
+
+    private fun showShadow() {
+        pb_progress.visibility = View.VISIBLE
+        view_shadow.visibility = View.VISIBLE
+    }
+
 
     private fun onProcessCompleted() {
 
@@ -171,6 +199,10 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
             test.getThumbnail(millsecPerThumbnail) { bitmap, index -> handler.post { onNewThumbnail(bitmap, index) } }
         }.start()
 
+        if (videoPlayer?.isPlaying() == true) {
+            releasePlayer()
+//            initPlayer()
+        }
 
         setupPlayer()
 
@@ -185,6 +217,10 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
         })
 
         clipContainer.callback = (this)
+    }
+
+    private fun releasePlayer() {
+        videoPlayer?.releasePlayer()
     }
 
 
@@ -210,7 +246,6 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
             handler.sendEmptyMessageDelayed(MSG_UPDATE, 20)
         }
     }
-
 
 
     override fun onSelectionChang(totalCount: Int, startMillSec: Long, endMillSec: Long, finished: Boolean) {
@@ -268,7 +303,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
     }
 
     private fun seekToPosition(startMillSec: Long) {
-       videoPlayer?.seekToPosition(startMillSec)
+        videoPlayer?.seekToPosition(startMillSec)
     }
 
     private fun pausePlayer() {
@@ -280,11 +315,20 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
     }
 
     private fun setupPlayer() {
-        videoPlayer?.setupPlayer(this,finalVideoPath,player_view )
+        videoPlayer?.setupPlayer(this, finalVideoPath)
     }
 
-    private fun initPlayer(){
-        videoPlayer = VideoPlayerOfMediaPlayer(player_view)
+    private fun initPlayer() {
+        if (USE_EXOPLAYER) {
+            player_view_mp.visibility = View.GONE
+            player_view_exo.visibility = View.VISIBLE
+            videoPlayer = VideoPlayerOfExoPlayer(player_view_exo)
+        } else {
+            player_view_mp.visibility = View.VISIBLE
+            player_view_exo.visibility = View.GONE
+            videoPlayer = VideoPlayerOfMediaPlayer(player_view_mp)
+        }
+
         videoPlayer?.initPlayer()
     }
 

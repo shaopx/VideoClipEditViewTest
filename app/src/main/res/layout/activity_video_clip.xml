@@ -8,16 +8,18 @@
 
 
     <SurfaceView
-        android:id="@+id/player_view"
+    android:id="@+id/player_view_mp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"></SurfaceView>
+
+    <com.google.android.exoplayer2.ui.PlayerView
+        android:id="@+id/player_view_exo"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></SurfaceView>
+        android:layout_height="match_parent"
+        app:surface_type="texture_view"
+        app:use_controller="false">
 
-    <!--<com.google.android.exoplayer2.ui.PlayerView-->
-        <!--android:id="@+id/player_view"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent">-->
-
-    <!--</com.google.android.exoplayer2.ui.PlayerView>-->
+    </com.google.android.exoplayer2.ui.PlayerView>
 
 
     <com.spx.videoclipeditviewtest.ClipContainer
@@ -128,17 +130,31 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="16dp"
-            android:text="正常"
+            android:text="慢"
             android:textColor="#ffffff" />
 
         <TextView
+            android:id="@+id/tv_framepreviewmode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="16dp"
+            android:background="@drawable/app_frame_preview_mode_bg"
+            android:padding="4dp"
+            android:text="开启帧预览模式"
+            android:textColor="#ffffff" />
+
+        <TextView
+            android:id="@+id/tv_faster"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="16dp"
+            android:layout_toLeftOf="@+id/tv_framepreviewmode"
             android:text="快"
             android:textColor="#ffffff" />
+
 
         <SeekBar
             android:id="@+id/play_spped_seakbar"
@@ -146,7 +162,8 @@
             android:layout_height="32dp"
             android:layout_centerHorizontal="true"
             android:layout_marginLeft="38dp"
-            android:layout_marginRight="38dp"
+            android:layout_marginRight="16dp"
+            android:layout_toLeftOf="@+id/tv_faster"
             android:progress="0">
 
         </SeekBar>

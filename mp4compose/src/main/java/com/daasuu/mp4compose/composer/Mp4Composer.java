@@ -38,6 +38,7 @@ public class Mp4Composer {
     private FillMode fillMode = FillMode.PRESERVE_ASPECT_FIT;
     private FillModeCustomItem fillModeCustomItem;
     private int timeScale = 1;
+    private float resolutionScale = 1f;
     private boolean flipVertical = false;
     private boolean flipHorizontal = false;
 
@@ -193,6 +194,7 @@ public class Mp4Composer {
 
                 Log.d(TAG, "rotation = " + (rotation.getRotation() + videoRotate));
                 Log.d(TAG, "inputResolution width = " + srcVideoResolution.width() + " height = " + srcVideoResolution.height());
+                outputResolution = new Resolution((int) (outputResolution.width() * resolutionScale), (int) (outputResolution.height() * resolutionScale));
                 Log.d(TAG, "outputResolution width = " + outputResolution.width() + " height = " + outputResolution.height());
                 Log.d(TAG, "fillMode = " + fillMode);
 
