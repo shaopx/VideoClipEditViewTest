@@ -4,6 +4,7 @@ package com.daasuu.mp4compose.composer;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
+import android.util.Log;
 
 import com.daasuu.mp4compose.FillMode;
 import com.daasuu.mp4compose.FillModeCustomItem;
@@ -19,7 +20,7 @@ import static android.media.MediaExtractor.SEEK_TO_PREVIOUS_SYNC;
 // Refer: https://android.googlesource.com/platform/cts/+/lollipop-release/tests/tests/media/src/android/media/cts/ExtractDecodeEditEncodeMuxTest.java
 // Refer: https://github.com/ypresto/android-transcoder/blob/master/lib/src/main/java/net/ypresto/androidtranscoder/engine/VideoTrackTranscoder.java
 class VideoComposer {
-    private static final String TAG = "VideoComposer";
+    private static final String TAG = "VComposer";
     private static final int DRAIN_STATE_NONE = 0;
     private static final int DRAIN_STATE_SHOULD_RETRY_IMMEDIATELY = 1;
     private static final int DRAIN_STATE_CONSUMED = 2;
@@ -157,12 +158,15 @@ class VideoComposer {
     }
 
     private int drainExtractor() {
+        Log.d(TAG, "drainExtractor(): isExtractorEOS:"+isExtractorEOS);
         if (isExtractorEOS) return DRAIN_STATE_NONE;
         int trackIndex = mediaExtractor.getSampleTrackIndex();
+        Log.d(TAG, "drainExtractor(): trackIndex:"+trackIndex+", this.trackIndex:"+this.trackIndex);
         if (trackIndex >= 0 && trackIndex != this.trackIndex) {
             return DRAIN_STATE_NONE;
         }
         int result = decoder.dequeueInputBuffer(0);
+        Log.d(TAG, "drainExtractor(): decoder.dequeueInputBuffer result:" + result);
         if (result < 0) return DRAIN_STATE_NONE;
         if (trackIndex < 0) {
             isExtractorEOS = true;
@@ -173,8 +177,11 @@ class VideoComposer {
         boolean isKeyFrame = (mediaExtractor.getSampleFlags() & MediaExtractor.SAMPLE_FLAG_SYNC) != 0;
 
         long sampleTime = mediaExtractor.getSampleTime();
-        if (sampleTime > endTimeMs * 1000) {
+        Log.d(TAG, "drainExtractor(): sampleTime:"+sampleTime +", endTimeMs:"+endTimeMs);
+        if (sampleTime > endTimeMs * 1000 && enableClip()) {
+            Log.e(TAG, "drainExtractor(): sampleTime:"+sampleTime+", reach the end time");
             isExtractorEOS = true;
+            mediaExtractor.unselectTrack(this.trackIndex);
             decoder.queueInputBuffer(result, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
             return DRAIN_STATE_NONE;
         }
@@ -187,6 +194,7 @@ class VideoComposer {
     private int drainDecoder() {
         if (isDecoderEOS) return DRAIN_STATE_NONE;
         int result = decoder.dequeueOutputBuffer(bufferInfo, 0);
+        Log.d(TAG+".drainDecoder", "drainDecoder: dequeueOutputBuffer, return:"+result);
         switch (result) {
             case MediaCodec.INFO_TRY_AGAIN_LATER:
                 return DRAIN_STATE_NONE;
@@ -195,11 +203,26 @@ class VideoComposer {
                 return DRAIN_STATE_SHOULD_RETRY_IMMEDIATELY;
         }
         if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
+            Log.d(TAG+".drainDecoder", "drainDecoder: end of stream! bufferInfo.offset:"+bufferInfo.offset+", size:"+bufferInfo.size+",presentationTimeUs:"+bufferInfo.presentationTimeUs);
             encoder.signalEndOfInputStream();
             isDecoderEOS = true;
             bufferInfo.size = 0;
         }
+
+        // added by shaopx begin
+        Log.d(TAG+".drainDecoder", "drainDecoder: bufferInfo.presentationTimeUs:"+bufferInfo.presentationTimeUs +", endTimeMs:"+endTimeMs);
+        if (enableClip() && bufferInfo.presentationTimeUs > endTimeMs*1000) {
+            Log.w(TAG+".drainDecoder", "drainDecoder: reach the clip end ms! bufferInfo.offset:"+bufferInfo.offset+", size:"+bufferInfo.size+",presentationTimeUs:"+bufferInfo.presentationTimeUs);
+            encoder.signalEndOfInputStream();
+            isDecoderEOS = true;
+            bufferInfo.flags = bufferInfo.flags | MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+        }
+        // added by shaopx end
+
         boolean doRender = (bufferInfo.size > 0);
+
+
+
         // NOTE: doRender will block if buffer (of encoder) is full.
         // Refer: http://bigflake.com/mediacodec/CameraToMpegTest.java.txt
         decoder.releaseOutputBuffer(result, doRender);
@@ -215,6 +238,7 @@ class VideoComposer {
     private int drainEncoder() {
         if (isEncoderEOS) return DRAIN_STATE_NONE;
         int result = encoder.dequeueOutputBuffer(bufferInfo, 0);
+        Log.d(TAG+".drainEncoder", "drainEncoder: dequeueOutputBuffer() return:"+result);
         switch (result) {
             case MediaCodec.INFO_TRY_AGAIN_LATER:
                 return DRAIN_STATE_NONE;
@@ -235,6 +259,7 @@ class VideoComposer {
         }
 
         if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
+            Log.d(TAG+".drainEncoder", "drainEncoder: reach the end@!");
             isEncoderEOS = true;
             bufferInfo.set(0, 0, 0, bufferInfo.flags);
         }
@@ -243,6 +268,7 @@ class VideoComposer {
             encoder.releaseOutputBuffer(result, false);
             return DRAIN_STATE_SHOULD_RETRY_IMMEDIATELY;
         }
+        Log.d(TAG+".drainEncoder", "drainEncoder: writeSampleData time:"+bufferInfo.presentationTimeUs);
         muxRender.writeSampleData(MuxRender.SampleType.VIDEO, encoderOutputBuffers[result], bufferInfo);
         writtenPresentationTimeUs = bufferInfo.presentationTimeUs;
         encoder.releaseOutputBuffer(result, false);
@@ -250,6 +276,10 @@ class VideoComposer {
     }
 
     private long startTimeMs, endTimeMs;
+
+    private boolean enableClip() {
+        return endTimeMs > startTimeMs && startTimeMs >= 0;
+    }
 
     public void setClipRange(long startTimeMs, long endTimeMs) {
         this.startTimeMs = startTimeMs;

@@ -21,8 +21,8 @@ public class VideoUtil {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static boolean genVideoUsingMuxer(Context context, String srcPath, String dstPath,
-                                           int startMs, int endMs, boolean useAudio, boolean
-                                                   useVideo)
+                                             int startMs, int endMs, boolean useAudio, boolean
+                                                     useVideo)
             throws IOException {
         boolean success = true;
         // Set up MediaExtractor to read from the source.
@@ -51,13 +51,16 @@ public class VideoUtil {
                 indexMap.put(i, dstIndex);
                 if (format.containsKey(MediaFormat.KEY_MAX_INPUT_SIZE)) {
                     int newSize = format.getInteger(MediaFormat.KEY_MAX_INPUT_SIZE);
+                    Log.d(TAG, "genVideoUsingMuxer: newSize:" + newSize);
                     bufferSize = newSize > bufferSize ? newSize : bufferSize;
+                    Log.d(TAG, "genVideoUsingMuxer: bufferSize:" + bufferSize);
                 }
             }
         }
 
         if (bufferSize < 0) {
-            bufferSize = 1080*1920*30; // todo
+            bufferSize = 1080 * 1920 * 30; // todo
+            Log.d(TAG, "use default: bufferSize:" + bufferSize);
         }
 
         // Set up the orientation and starting time for extractor.
@@ -72,7 +75,7 @@ public class VideoUtil {
             }
         }
         if (startMs > 0) {
-            extractor.seekTo(startMs * 1000, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
+            extractor.seekTo(startMs * 1000, MediaExtractor.SEEK_TO_CLOSEST_SYNC);
         }
         // Copy the samples from MediaExtractor to MediaMuxer. We will loop
         // for copying each sample and stop when we get to the end of the source

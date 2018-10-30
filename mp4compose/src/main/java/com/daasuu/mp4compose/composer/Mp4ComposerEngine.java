@@ -69,11 +69,16 @@ class Mp4ComposerEngine {
             mediaMuxer = new MediaMuxer(destPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
             MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
             mediaMetadataRetriever.setDataSource(inputFileDescriptor);
-            try {
-                durationUs = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) * 1000;
-            } catch (NumberFormatException e) {
-                durationUs = -1;
+            if (startTimeMs >= 0 && endTimeMs > startTimeMs) {
+                durationUs = endTimeMs - startTimeMs;
+            } else {
+                try {
+                    durationUs = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) * 1000;
+                } catch (NumberFormatException e) {
+                    durationUs = -1;
+                }
             }
+
             Log.d(TAG, "Duration (us): " + durationUs);
 
             MediaFormat videoOutputFormat = MediaFormat.createVideoFormat("video/avc", outputResolution.width(), outputResolution.height());
@@ -106,7 +111,7 @@ class Mp4ComposerEngine {
             videoComposer.setUp(filter, rotation, outputResolution, inputResolution, fillMode, fillModeCustomItem, flipVertical, flipHorizontal);
             mediaExtractor.selectTrack(videoTrackIndex);
 
-            if(startTimeMs>=0 && endTimeMs>startTimeMs){
+            if (startTimeMs >= 0 && endTimeMs > startTimeMs) {
                 videoComposer.setClipRange(startTimeMs, endTimeMs);
             }
 
@@ -117,9 +122,13 @@ class Mp4ComposerEngine {
 
                 if (timeScale < 2) {
                     audioComposer = new AudioComposer(mediaExtractor, audioTrackIndex, muxRender);
+                    if (startTimeMs >= 0 && endTimeMs > startTimeMs) {
+                        ((AudioComposer) audioComposer).setClipRange(startTimeMs, endTimeMs);
+                    }
                 } else {
                     audioComposer = new RemixAudioComposer(mediaExtractor, audioTrackIndex, mediaExtractor.getTrackFormat(audioTrackIndex), muxRender, timeScale);
                 }
+
 
                 audioComposer.setup();
 

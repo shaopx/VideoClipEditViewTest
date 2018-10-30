@@ -24,9 +24,7 @@ import com.spx.videoclipeditviewtest.player.VideoPlayTimeController
 import com.spx.videoclipeditviewtest.player.VideoPlayer
 import com.spx.videoclipeditviewtest.player.VideoPlayerOfExoPlayer
 import com.spx.videoclipeditviewtest.player.VideoPlayerOfMediaPlayer
-import com.spx.videoclipeditviewtest.util.VideoUtil
-import com.spx.videoclipeditviewtest.util.getVideoDuration
-import com.spx.videoclipeditviewtest.util.showToast
+import com.spx.videoclipeditviewtest.util.*
 import kotlinx.android.synthetic.main.activity_video_clip.*
 import java.io.File
 import java.text.DecimalFormat
@@ -257,15 +255,17 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
     }
 
 
-    override fun onSelectionChang(totalCount: Int, startMillSec: Long, endMillSec: Long, finished: Boolean) {
-        Log.d(TAG, "onSelectionChang ...startMillSec:$startMillSec, endMillSec:$endMillSec")
-        this.startMillSec = startMillSec
-        this.endMillSec = endMillSec
+    override fun onSelectionChang(totalCount: Int, _startMillSec: Long, _endMillSec: Long, finished: Boolean) {
+        Log.d(TAG, "onSelectionChang ...startMillSec:$_startMillSec, endMillSec:$_endMillSec")
+        this.startMillSec = _startMillSec
+        this.endMillSec = _endMillSec
 
         var time = (endMillSec - startMillSec)
         if (time > mediaDuration) {
             time = mediaDuration
         }
+        adjustSelection()
+
         var selSec = time / 1000f
         toast_msg_tv.text = "已截取${secFormat.format(selSec)}s, [$startMillSec - $endMillSec]"
         toast_msg_tv.visibility = View.VISIBLE
@@ -285,6 +285,22 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
             frozontime = System.currentTimeMillis() + 500
             startPlayer()
             videoPlayTimeController?.setPlayTimeRange(startMillSec, endMillSec)
+        }
+    }
+
+    private fun adjustSelection() {
+        if (endMillSec > mediaDuration) {
+            endMillSec = mediaDuration
+        }
+        if (startMillSec < 0) {
+            startMillSec = 0
+        }
+
+        if (startMillSec + Config.minSelection > endMillSec && endMillSec < mediaDuration) {
+            endMillSec = Math.min(startMillSec + Config.minSelection, mediaDuration)
+            if (startMillSec + Config.minSelection > endMillSec && startMillSec > 0) {
+                startMillSec = Math.max(0, endMillSec - Config.minSelection)
+            }
         }
     }
 
@@ -360,20 +376,74 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 
     private fun doClip() {
         showShadow()
-        Thread {
-            var clip = VideoUtil.genVideoUsingMuxer(this, videoPathInput, videoPlayUrl, startMillSec.toInt(), endMillSec.toInt(), true, true)
-            handler.post {
-                if (clip) {
-                    showToast("裁剪成功!新文件已经存放在:" + videoPlayUrl)
-                    hideShadow()
-                    finish()
-                } else {
-                    showToast("裁剪失败!")
-                }
-            }
 
+        doClipUseGl()
+
+
+        Thread {
+            //            var clip = VideoUtil.genVideoUsingMuxer(this, videoPathInput, videoPlayUrl, startMillSec.toInt(), endMillSec.toInt(), true, true)
+//            handler.post {
+//                if (clip) {
+//                    showToast("裁剪成功!新文件已经存放在:" + videoPlayUrl)
+//                    hideShadow()
+//                    finish()
+//                } else {
+//                    showToast("裁剪失败!")
+//                }
+//            }
+
+//            var clipObj = VideoClip()
+//            var clip = clipObj.clipVideo(videoPathInput, videoPlayUrl, startMillSec, endMillSec - startMillSec)
+//            handler.post {
+//                if (clip) {
+//                    showToast("裁剪成功!新文件已经存放在:" + videoPlayUrl)
+//                    hideShadow()
+//                    finish()
+//                } else {
+//                    showToast("裁剪失败!")
+//                }
+//            }
+
+
+//            VideoUtils.startTrim(videoPathInput, videoPlayUrl, startMillSec.toInt(), endMillSec.toInt())
         }.start()
 
 
+    }
+
+    private fun doClipUseGl() {
+        Mp4Composer(videoPathInput, videoPlayUrl)
+                .frameRate(8)
+                .size(540, 960)
+                .clip(startMillSec, endMillSec)
+                .listener(object : Mp4Composer.Listener {
+                    override fun onProgress(progress: Double) {
+                        Log.d(TAG, "onProgress = $progress")
+                        runOnUiThread { pb_progress.progress = (progress * 100).toInt() }
+                    }
+
+                    override fun onCompleted() {
+                        Log.d(TAG, "onCompleted()")
+                        runOnUiThread {
+                            hideShadow()
+                            showToast("裁剪成功!新文件已经存放在:" + videoPlayUrl)
+                            finish()
+                        }
+
+
+                    }
+
+                    override fun onCanceled() {
+
+                    }
+
+                    override fun onFailed(exception: Exception) {
+                        runOnUiThread {
+                            hideShadow()
+                            showToast("裁剪失败")
+                        }
+                    }
+                })
+                .start()
     }
 }

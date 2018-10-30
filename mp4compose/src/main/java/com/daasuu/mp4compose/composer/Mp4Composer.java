@@ -142,6 +142,11 @@ public class Mp4Composer {
                     }
                 });
 
+                File outFile = new File(destPath);
+                if (outFile.exists()) {
+                    outFile.delete();
+                }
+
                 final File srcFile = new File(srcPath);
                 final FileInputStream fileInputStream;
                 try {
