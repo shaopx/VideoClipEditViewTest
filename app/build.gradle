@@ -44,4 +44,6 @@ dependencies {
 
     implementation project(path: ':mp4compose')
     implementation project(path: ':library')
+    implementation project(path: ':epf')
+    compile project(path: ':epf')
 }

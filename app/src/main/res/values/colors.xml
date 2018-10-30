@@ -8,4 +8,6 @@
     <color name="video_clip_progress_color">#67ffec</color>
     <color name="frame_bar_color">#ff324c</color>
     <color name="toast_shadow_color">#cc000000</color>
+    <color name="transparent">#00000000</color>
+    <color name="white">#ffffff</color>
 </resources>

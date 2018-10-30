@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingRight="14dp">
+
+    <View
+        android:id="@+id/view_change"
+        android:layout_width="4dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_beauty_change"
+        android:visibility="invisible" />
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp">
+
+        <ImageView
+            android:id="@+id/iv_beauty_image"
+            android:layout_width="54dp"
+            android:layout_height="54dp" />
+
+        <ImageView
+            android:id="@+id/iv_beauty_circle"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
+            android:background="@drawable/bg_item_beauty_select"
+            android:visibility="invisible" />
+
+    </FrameLayout>
+
+
+    <TextView
+        android:id="@+id/tv_beauty_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/white"
+        android:textSize="13dp" />
+
+</LinearLayout>

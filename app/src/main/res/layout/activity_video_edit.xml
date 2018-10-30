@@ -5,14 +5,18 @@
     android:layout_height="match_parent"
     android:background="#000000">
 
-    <com.google.android.exoplayer2.ui.PlayerView
-        android:id="@+id/exo_playview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:resize_mode="fill"
-        app:use_controller="false">
+    <!--<com.google.android.exoplayer2.ui.PlayerView-->
+        <!--android:id="@+id/exo_playview"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--app:resize_mode="fill"-->
+        <!--app:use_controller="false">-->
 
-    </com.google.android.exoplayer2.ui.PlayerView>
+    <!--</com.google.android.exoplayer2.ui.PlayerView>-->
+    <FrameLayout
+        android:id="@+id/layout_movie_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <!--<FrameLayout-->
     <!--android:id="@+id/mask"-->

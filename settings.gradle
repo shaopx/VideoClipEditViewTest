@@ -1,1 +1,1 @@
-include ':app', ':mp4compose', ':library'
+include ':app', ':mp4compose', ':library', ':epf'

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <SeekBar
+        android:id="@+id/sb_beauty_seek"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:max="9"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="158dp"
+        android:layout_below="@+id/sb_beauty_seek"
+        android:background="@drawable/bg_record_beauty_panel">
+
+        <RelativeLayout
+            android:id="@+id/rl_title_area"
+            android:layout_width="match_parent"
+            android:layout_height="47dp">
+
+            <TextView
+                android:id="@+id/tv_operate_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="选择美颜"
+                android:textColor="#F7F7F7"
+                android:textSize="15dp" />
+
+            <ImageView
+                android:id="@+id/iv_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="12dp"
+                android:layout_marginRight="12dp"
+                android:src="@drawable/ic_record_beauty_close" />
+
+            <View
+                android:id="@+id/title_divider"
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_alignParentBottom="true"
+                android:background="#333333" />
+
+        </RelativeLayout>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/rl_title_area"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/ll_container"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingLeft="14dp" />
+
+        </HorizontalScrollView>
+
+    </RelativeLayout>
+
+</RelativeLayout>
