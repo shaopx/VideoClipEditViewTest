@@ -14,5 +14,5 @@
    
 
 
-![效果图](https://upload-images.jianshu.io/upload_images/7018022-12e8bea5ecb5edbf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/304)
+![效果图](https://github.com/shaopx/VideoClipEditViewTest/blob/master/7018022-12e8bea5ecb5edbf.png)
 
