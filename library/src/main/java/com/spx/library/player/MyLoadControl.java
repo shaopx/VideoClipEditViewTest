@@ -1,4 +1,4 @@
-package com.spx.videoclipeditviewtest.player;
+package com.spx.library.player;
 
 import android.util.Log;
 

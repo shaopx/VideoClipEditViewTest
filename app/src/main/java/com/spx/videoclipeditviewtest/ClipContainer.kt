@@ -16,7 +16,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.spx.videoclipeditviewtest.Config.Companion.maxSelection
 import com.spx.videoclipeditviewtest.Config.Companion.minSelection
-import com.spx.videoclipeditviewtest.util.decodeFile
+import com.spx.library.decodeFile
 import kotlinx.android.synthetic.main.activity_video_clip.view.*
 
 class ClipContainer : FrameLayout {

@@ -1,4 +1,4 @@
-package com.spx.videoclipeditviewtest
+package com.spx.library
 
 import android.app.Activity
 import android.util.Log

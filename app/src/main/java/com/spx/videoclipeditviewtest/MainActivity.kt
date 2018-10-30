@@ -7,22 +7,28 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
-import com.spx.videoclipeditviewtest.util.VideoItem
-import com.spx.videoclipeditviewtest.util.getVideoItem
+import com.spx.library.log
+import com.spx.library.VideoItem
+import com.spx.library.getVideoItem
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
         const val PERMISSION_REQUEST_CODE = 1000
-        const val REQUEST_PICK_VIDEO_CODE = 1001
+        const val REQUEST_PICK_CLIP_CODE = 1001
+        const val REQUEST_PICK_EDIT_CODE = 1002
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        tv_start_video_clip.setOnClickListener { selectVideo() }
+        // 裁剪视频
+        tv_start_video_clip.setOnClickListener { selectVideo(REQUEST_PICK_CLIP_CODE) }
+
+        // 编辑视频(特效 滤镜)
+        tv_local_video_edit.setOnClickListener { selectVideo(REQUEST_PICK_EDIT_CODE) }
     }
 
     override fun onResume() {
@@ -33,31 +39,37 @@ class MainActivity : AppCompatActivity() {
     /**
      * 从系统中选择视频
      */
-    private fun selectVideo() {
+    private fun selectVideo(requestCode: Int) {
         val intent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(intent, REQUEST_PICK_VIDEO_CODE)
-    }
-
-    private fun startVideoClipActivity(videoItem: VideoItem) {
-        startActivity(Intent(this, VideoClipActivity::class.java).apply {
-            putExtra("video_path", videoItem.path)
-        })
+        startActivityForResult(intent, requestCode)
     }
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_PICK_VIDEO_CODE) {
-            if (resultCode == RESULT_OK && data != null) {
-                val videoItem = getVideoItem(contentResolver, data!!)
-                videoItem?.run {
-                    log("video title:$title, duration:${durationSec}, size:$size, path:$path")
-                    startVideoClipActivity(this)
+        if (resultCode == RESULT_OK && data != null) {
+            val videoItem = getVideoItem(contentResolver, data!!)
+            videoItem?.run {
+                log("video title:$title, duration:${durationSec}, size:$size, path:$path")
+                when (requestCode) {
+                    REQUEST_PICK_CLIP_CODE -> startActivity(this, VideoClipActivity::class.java)
+                    REQUEST_PICK_EDIT_CODE -> startActivity(this, VideoEditActivity::class.java)
+                    else -> {
+                    }
                 }
 
             }
-
         }
+
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun startActivity(videoItem: VideoItem, activityClass: Class<*>) {
+        startActivity(Intent(this, activityClass).apply {
+            videoItem?.run {
+                putExtra("video_path", path)
+                putExtra("video_duration", durationSec)
+            }
+        })
     }
 
     private fun checkPermission(): Boolean {

@@ -24,6 +24,7 @@
         </activity>
         <activity android:name=".DecodeActivity" />
         <activity android:name=".VideoClipActivity"></activity>
+        <activity android:name=".VideoEditActivity"></activity>
     </application>
 
 </manifest>

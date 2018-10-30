@@ -1,4 +1,4 @@
-package com.spx.videoclipeditviewtest.util;
+package com.spx.library;
 
 import android.media.MediaCodec;
 import android.media.MediaExtractor;

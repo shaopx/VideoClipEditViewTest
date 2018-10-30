@@ -1,3 +1,3 @@
-package com.spx.videoclipeditviewtest.util
+package com.spx.library
 
 class VideoItem(val title: String, val path: String, val durationSec: Int, val size: Long)

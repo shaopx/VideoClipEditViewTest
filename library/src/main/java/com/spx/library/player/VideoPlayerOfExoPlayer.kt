@@ -1,10 +1,7 @@
-package com.spx.videoclipeditviewtest.player
+package com.spx.library.player
 
 import android.content.Context
-import android.net.Uri
 import android.util.Log
-import android.view.SurfaceView
-import android.view.View
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
@@ -74,7 +71,7 @@ class VideoPlayerOfExoPlayer(val playerView: PlayerView) : VideoPlayer {
     }
 
     override fun setupPlayer(context: Context, mediaPath: String) {
-        exoPlayer = com.spx.videoclipeditviewtest.player.initPlayer(context, mediaPath, playerView!!, listener)
+        exoPlayer = com.spx.library.player.initPlayer(context, mediaPath, playerView!!, listener)
         startPlayer()
     }
 

@@ -1,4 +1,4 @@
-package com.spx.videoclipeditviewtest.util;
+package com.spx.library.util;
 
 import android.annotation.TargetApi;
 import android.content.Context;

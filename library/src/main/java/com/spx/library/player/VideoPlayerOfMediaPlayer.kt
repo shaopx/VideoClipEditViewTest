@@ -1,4 +1,4 @@
-package com.spx.videoclipeditviewtest.player
+package com.spx.library.player
 
 import android.annotation.TargetApi
 import android.content.Context
@@ -7,7 +7,6 @@ import android.os.Build
 import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import com.spx.videoclipeditviewtest.VideoClipActivity
 
 class VideoPlayerOfMediaPlayer(val surfaceView: SurfaceView) : VideoPlayer {
 
@@ -19,7 +18,6 @@ class VideoPlayerOfMediaPlayer(val surfaceView: SurfaceView) : VideoPlayer {
         mediaPlayer?.setDataSource(mediaPath)
         mediaPlayer?.prepare()
         mediaPlayer?.setOnPreparedListener {
-            Log.d(VideoClipActivity.TAG, "onPrepared: ...")
             mediaPlayer!!.start()
             mediaPlayer!!.isLooping = true
         }

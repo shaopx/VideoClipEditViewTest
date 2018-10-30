@@ -1,6 +1,5 @@
 package com.spx.videoclipeditviewtest
 
-import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -12,6 +11,7 @@ import android.view.ViewTreeObserver
 import android.widget.SeekBar
 import android.widget.Toast
 import com.daasuu.mp4compose.composer.Mp4Composer
+import com.spx.library.log
 import com.spx.videoclipeditviewtest.Config.Companion.DEFAULT_FRAME_COUNT
 import com.spx.videoclipeditviewtest.Config.Companion.DEFAULT_TEMP_VIDEO_LOCATION
 import com.spx.videoclipeditviewtest.Config.Companion.MAX_FRAME_INTERVAL_MS
@@ -20,11 +20,12 @@ import com.spx.videoclipeditviewtest.Config.Companion.SPEED_RANGE
 import com.spx.videoclipeditviewtest.Config.Companion.USE_EXOPLAYER
 import com.spx.videoclipeditviewtest.Config.Companion.maxSelection
 import com.spx.videoclipeditviewtest.Config.Companion.minSelection
-import com.spx.videoclipeditviewtest.player.VideoPlayTimeController
-import com.spx.videoclipeditviewtest.player.VideoPlayer
-import com.spx.videoclipeditviewtest.player.VideoPlayerOfExoPlayer
-import com.spx.videoclipeditviewtest.player.VideoPlayerOfMediaPlayer
-import com.spx.videoclipeditviewtest.util.*
+import com.spx.library.player.VideoPlayTimeController
+import com.spx.library.player.VideoPlayer
+import com.spx.library.player.VideoPlayerOfExoPlayer
+import com.spx.library.player.VideoPlayerOfMediaPlayer
+import com.spx.library.getVideoDuration
+import com.spx.library.showToast
 import kotlinx.android.synthetic.main.activity_video_clip.*
 import java.io.File
 import java.text.DecimalFormat
@@ -314,6 +315,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
     override fun onDestroy() {
         super.onDestroy()
         player_view_exo_thumbnail.release()
+        videoPlayTimeController?.stop()
     }
 
     fun updatePlayPosition() {

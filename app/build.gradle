@@ -16,7 +16,8 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -40,8 +41,7 @@ dependencies {
 
     implementation 'com.android.support:recyclerview-v7:28.0.0'
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.8.3'
-    implementation 'com.google.android.exoplayer:exoplayer-ui:2.8.3'
 
     implementation project(path: ':mp4compose')
+    implementation project(path: ':library')
 }

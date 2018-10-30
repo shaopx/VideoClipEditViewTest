@@ -1,7 +1,6 @@
-package com.spx.videoclipeditviewtest
+package com.spx.library
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.util.AttributeSet
 import android.util.Log
@@ -10,8 +9,6 @@ import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ui.PlayerView
-import com.spx.videoclipeditviewtest.util.getVideoDuration
-import com.spx.videoclipeditviewtest.util.writeToFile
 import java.util.*
 
 
@@ -42,7 +39,7 @@ class ThumbExoPlayerView(context: Context?, attrs: AttributeSet?) : PlayerView(c
 
     fun setDataSource(source: String, millsecsPerFrame: Int, thubnailCount: Int, callback: (String, Int) -> Boolean) {
         mediaPath = source
-        exoPlayer = com.spx.videoclipeditviewtest.player.initPlayer(context, mediaPath, this, listener)
+        exoPlayer = com.spx.library.player.initPlayer(context, mediaPath, this, listener)
         exoPlayer?.volume = 0f
         exoPlayer!!.repeatMode = Player.REPEAT_MODE_OFF
         exoPlayer!!.playWhenReady = false

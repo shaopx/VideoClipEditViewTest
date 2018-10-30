@@ -1,4 +1,4 @@
-package com.spx.videoclipeditviewtest.util
+package com.spx.library
 
 
 import android.content.Context
@@ -8,7 +8,6 @@ import android.view.Gravity
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import com.spx.videoclipeditviewtest.R
 
 var toast: Toast? = null
 

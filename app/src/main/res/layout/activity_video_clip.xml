@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".VideoClipActivity">
-    <com.spx.videoclipeditviewtest.ThumbExoPlayerView
+    <com.spx.library.ThumbExoPlayerView
         android:id="@+id/player_view_exo_thumbnail"
         android:layout_width="27dp"
         android:layout_height="48dp"
@@ -16,7 +16,7 @@
         app:surface_type="texture_view"
         app:use_controller="false">
 
-    </com.spx.videoclipeditviewtest.ThumbExoPlayerView>
+    </com.spx.library.ThumbExoPlayerView>
 
 
     <SurfaceView
