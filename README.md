@@ -14,5 +14,8 @@
    
 
 
+
 ![效果图](https://github.com/shaopx/VideoClipEditViewTest/blob/master/7018022-12e8bea5ecb5edbf.png)
+![效果图](https://github.com/shaopx/VideoClipEditViewTest/blob/master/device-2018-10-30-194415.png)
+
 
