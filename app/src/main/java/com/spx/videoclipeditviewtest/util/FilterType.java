@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.cgfay.filterlibrary.glfilter.advanced.beauty.GLImageComplexionBeautyFilter;
 import com.daasuu.epf.custfilter.GLImageBeautyHighPassFilter;
 import com.daasuu.epf.custfilter.GLImageBlackWhiteFilter;
 import com.daasuu.epf.custfilter.GLImageGaussPassFilter;
@@ -91,8 +92,8 @@ public enum FilterType {
             case DEFAULT:
                 return new GlFilter();
             case BEAUTY_CUS:
-                return new GlFilterGroup(new GLImageGaussPassFilter(0), new GLImageGaussPassFilter(1) );
-//                return new GLImageBlackWhiteFilter();
+//                return new GlFilterGroup(new GLImageGaussPassFilter(0), new GLImageGaussPassFilter(1) );
+                return new GLImageComplexionBeautyFilter(context);
             case SEPIA:
                 return new GlSepiaFilter();
             case GRAY_SCALE:

@@ -8,6 +8,8 @@ import android.util.Log;
 
 import com.daasuu.epf.filter.GlFilter;
 
+import java.util.Map;
+
 public class GLImageGaussPassFilter extends GlFilter {
     private static final String VERTEX_SHADER = "" +
             "uniform mat4 uMVPMatrix;\n" +
@@ -72,6 +74,10 @@ public class GLImageGaussPassFilter extends GlFilter {
         super(vertexShader, fragmentShader);
     }
 
+    @Override
+    public String getName() {
+        return super.getName() + "_" + mType;
+    }
 
     @Override
     public void setFrameSize(int width, int height) {
@@ -82,7 +88,8 @@ public class GLImageGaussPassFilter extends GlFilter {
     }
 
     @Override
-    public void onDraw() {
+    public void onDraw(Map<String, Integer> extraTextureIds) {
+        Log.d(TAG, "onDraw: extraTextureIds:" + extraTextureIds);
         Matrix.setIdentityM(mMVPMatrix, 0);
         Log.d(TAG, "onDraw: mTexelWidth:" + mTexelWidth + ", mTexelHeight:" + mTexelHeight);
         GLES30.glUniformMatrix4fv(getHandle("uMVPMatrix"), 1, false, mMVPMatrix, 0);

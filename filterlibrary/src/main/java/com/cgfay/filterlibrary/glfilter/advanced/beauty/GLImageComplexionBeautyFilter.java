@@ -5,12 +5,21 @@ import android.opengl.GLES30;
 
 import com.cgfay.filterlibrary.glfilter.base.GLImageFilter;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
+import com.daasuu.epf.filter.GlFilter;
 
 /**
  * 美肤滤镜
  */
-public class GLImageComplexionBeautyFilter extends GLImageFilter {
-
+public class GLImageComplexionBeautyFilter extends GlFilter {
+    protected static final String VERTEX_SHADER = "" +
+            "uniform mat4 uMVPMatrix;                                   \n" +
+            "attribute vec4 aPosition;                                  \n" +
+            "attribute vec4 aTextureCoord;                              \n" +
+            "varying vec2 textureCoordinate;                            \n" +
+            "void main() {                                              \n" +
+            "    gl_Position = uMVPMatrix * aPosition;                  \n" +
+            "    textureCoordinate = aTextureCoord.xy;                  \n" +
+            "}                                                          \n";
     private static final String FRAGMENT_SHADER = "" +
             "varying highp vec2 textureCoordinate;\n" +
             "\n" +

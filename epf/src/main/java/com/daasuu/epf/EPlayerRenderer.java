@@ -100,6 +100,7 @@ class EPlayerRenderer extends EFrameBufferObjectRenderer implements SurfaceTextu
         previewFilter = new GlPreviewFilter(previewTexture.getTextureTarget());
         previewFilter.setup();
 
+        // 通过把previewTexture的对应的surface传给simpleExoPlayer, 那simpleExoPlayer播放的输出都会渲染到previewTexture对应的纹理texName上
         Surface surface = new Surface(previewTexture.getSurfaceTexture());
         this.simpleExoPlayer.setVideoSurface(surface);
 
@@ -124,6 +125,9 @@ class EPlayerRenderer extends EFrameBufferObjectRenderer implements SurfaceTextu
     @Override
     public void onSurfaceChanged(final int width, final int height) {
         Log.d(TAG, "onSurfaceChanged width = " + width + "  height = " + height);
+
+        //因为这里设置了FBO, 所以exoplayer的输出不再是屏幕, 而是framebuffer
+        //不明白的是里面又创建了新的纹理作为 fbo , 那前面那个纹理  是什么用处?   -- 上面那个纹理texName是作为视频播放的输出的, 见下面的onDrawFrame()
         filterFramebufferObject.setup(width, height);
         previewFilter.setFrameSize(width, height);
         if (glFilter != null) {
@@ -166,11 +170,12 @@ class EPlayerRenderer extends EFrameBufferObjectRenderer implements SurfaceTextu
         Matrix.multiplyMM(MVPMatrix, 0, ProjMatrix, 0, MVPMatrix, 0);
 
         previewFilter.draw(texName, MVPMatrix, STMatrix, aspectRatio);
+        // 第一个管线输出到哪?  应该是framebuffer的颜色缓冲区吧.  -- 取决于framebuffer是否启用.filterFramebufferObject.enable();
 
         if (glFilter != null) {
-            fbo.enable();
+            fbo.enable();  // 重新启用了最外层的fbo , 那么glFilter的输出就到了这个fbo .
             GLES20.glClear(GL_COLOR_BUFFER_BIT);
-            glFilter.draw(filterFramebufferObject.getTexName(), fbo);
+            glFilter.draw(filterFramebufferObject.getTexName(), fbo, null);
         }
     }
 

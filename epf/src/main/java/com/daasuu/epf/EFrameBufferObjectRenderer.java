@@ -59,11 +59,13 @@ abstract class EFrameBufferObjectRenderer implements GLSurfaceView.Renderer {
 
         onDrawFrame(framebufferObject);
 
+
+        // 在最外层, 最终把输出从屏幕输出
         GLES20.glBindFramebuffer(GL_FRAMEBUFFER, 0);
         GLES20.glViewport(0, 0, framebufferObject.getWidth(), framebufferObject.getHeight());
 
         GLES20.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        normalShader.draw(framebufferObject.getTexName(), null);
+        normalShader.draw(framebufferObject.getTexName(), null, null);
 
     }
 

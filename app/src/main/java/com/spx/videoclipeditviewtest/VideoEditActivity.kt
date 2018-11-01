@@ -67,7 +67,7 @@ class VideoEditActivity : AppCompatActivity() {
         dialogFragment.setSelectionCallBack { selection, name ->
             val filter = FilterType.createFilterList().get(selection)
             Log.d(TAG, "selection:$selection, filter:$filter")
-            ePlayerView.setGlFilter(FilterType.createGlFilter(filter, applicationContext))
+            ePlayerView.setGlFilter(FilterType.createGlFilter( filter, applicationContext))
         }
         dialogFragment.show(supportFragmentManager, "filter_dialog")
     }

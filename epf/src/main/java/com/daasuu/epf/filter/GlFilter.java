@@ -1,9 +1,14 @@
 package com.daasuu.epf.filter;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.opengl.GLES20;
+import android.opengl.GLES30;
+import android.opengl.Matrix;
 
+import java.nio.FloatBuffer;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.daasuu.epf.EglUtil;
 import com.daasuu.epf.EFramebufferObject;
@@ -33,6 +38,8 @@ public class GlFilter {
                     "vTextureCoord = aTextureCoord.xy;\n" +
                     "}\n";
 
+//    protected static final String VERTEX_SHADER = DEFAULT_VERTEX_SHADER;
+
     protected static final String DEFAULT_FRAGMENT_SHADER =
             "precision mediump float;\n" +
                     "varying highp vec2 vTextureCoord;\n" +
@@ -51,6 +58,7 @@ public class GlFilter {
     };
 
     private static HashMap<String, String> nickNames = new HashMap<>();
+
     static {
         nickNames.put("sTexture", "inputTexture");
     }
@@ -64,15 +72,19 @@ public class GlFilter {
 
     private final String vertexShaderSource;
     private final String fragmentShaderSource;
+    protected Context mContext;
 
-    private int program;
-
+    protected int mProgramHandle;
+    protected int mMVPMatrixHandle;
     private int vertexShader;
     private int fragmentShader;
 
     private int vertexBufferName;
 
     protected final HashMap<String, Integer> handleMap = new HashMap<String, Integer>();
+
+    // 变换矩阵
+    protected float[] mMVPMatrix = new float[16];
 
     public GlFilter() {
         this(DEFAULT_VERTEX_SHADER, DEFAULT_FRAGMENT_SHADER);
@@ -81,27 +93,57 @@ public class GlFilter {
     public GlFilter(final Resources res, final int vertexShaderSourceResId, final int fragmentShaderSourceResId) {
         this(res.getString(vertexShaderSourceResId), res.getString(fragmentShaderSourceResId));
     }
-
-    public GlFilter(final String vertexShaderSource, final String fragmentShaderSource) {
+    public GlFilter(final Context context,final String vertexShaderSource, final String fragmentShaderSource) {
+        this.mContext = context;
         this.vertexShaderSource = vertexShaderSource;
         this.fragmentShaderSource = fragmentShaderSource;
+    }
+
+    public GlFilter(final String vertexShaderSource, final String fragmentShaderSource) {
+        this(null, vertexShaderSource, fragmentShaderSource);
+    }
+
+    public String getName(){
+        return this.getClass().getSimpleName();
+    }
+    public void initProgramHandle() {
+
     }
 
     public void setup() {
         release();
         vertexShader = EglUtil.loadShader(vertexShaderSource, GL_VERTEX_SHADER);
         fragmentShader = EglUtil.loadShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
-        program = EglUtil.createProgram(vertexShader, fragmentShader);
+        mProgramHandle = EglUtil.createProgram(vertexShader, fragmentShader);
         vertexBufferName = EglUtil.createBuffer(VERTICES_DATA);
+
+        initProgramHandle();
+    }
+
+    public void onDrawFrameBegin() {
+        // 绑定总变换矩阵
+        Matrix.setIdentityM(mMVPMatrix, 0);
+        mMVPMatrixHandle = GLES30.glGetUniformLocation(mProgramHandle, "uMVPMatrix");
+        GLES30.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mMVPMatrix, 0);
+    }
+
+    public int getTextureType() {
+        return GLES30.GL_TEXTURE_2D;
     }
 
     public void setFrameSize(final int width, final int height) {
     }
+    public void onDisplaySizeChanged(final int width, final int height) {
+        setFrameSize(width, height);
+    }
+    public void onInputSizeChanged(final int width, final int height){
+
+    }
 
 
     public void release() {
-        GLES20.glDeleteProgram(program);
-        program = 0;
+        GLES20.glDeleteProgram(mProgramHandle);
+        mProgramHandle = 0;
         GLES20.glDeleteShader(vertexShader);
         vertexShader = 0;
         GLES20.glDeleteShader(fragmentShader);
@@ -112,7 +154,7 @@ public class GlFilter {
         handleMap.clear();
     }
 
-    public void draw(final int texName, final EFramebufferObject fbo) {
+    public int draw(final int sourceTextId, final EFramebufferObject fbo, Map<String,Integer> extraTextureIds) {
         useProgram();
 
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vertexBufferName);
@@ -122,10 +164,12 @@ public class GlFilter {
         GLES20.glVertexAttribPointer(getHandle("aTextureCoord"), VERTICES_DATA_UV_SIZE, GL_FLOAT, false, VERTICES_DATA_STRIDE_BYTES, VERTICES_DATA_UV_OFFSET);
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texName);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, sourceTextId);
         GLES20.glUniform1i(getHandle("sTexture"), 0);
 
+        onDrawFrameBegin();
         onDraw();
+        onDraw(extraTextureIds);
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 
@@ -133,13 +177,19 @@ public class GlFilter {
         GLES20.glDisableVertexAttribArray(getHandle("aTextureCoord"));
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+        if (fbo != null) {
+            return fbo.getTexName();
+        }
+        return -1;
     }
 
     protected void onDraw() {
     }
+    protected void onDraw( Map<String,Integer> extraTextureIds) {
+    }
 
     protected final void useProgram() {
-        glUseProgram(program);
+        glUseProgram(mProgramHandle);
     }
 
     protected final int getVertexBufferName() {
@@ -152,9 +202,9 @@ public class GlFilter {
             return value.intValue();
         }
 
-        int location = glGetAttribLocation(program, name);
+        int location = glGetAttribLocation(mProgramHandle, name);
         if (location == -1) {
-            location = glGetUniformLocation(program, name);
+            location = glGetUniformLocation(mProgramHandle, name);
         }
         if (location == -1 && nickNames.containsKey(name)) {
             String nickName = nickNames.get(name);
@@ -167,4 +217,14 @@ public class GlFilter {
         return location;
     }
 
+    public int drawFrameBuffer(int textureId, FloatBuffer vertexBuffer, FloatBuffer textureBuffer) {
+        return draw(textureId, null, null);
+    }
+
+    public void initFrameBuffer(final int width, final int height){
+
+    }
+
+    public void destroyFrameBuffer(){
+    }
 }

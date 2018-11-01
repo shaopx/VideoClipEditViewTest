@@ -8,6 +8,8 @@ import com.daasuu.epf.EFramebufferObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
 import static android.opengl.GLES20.GL_FRAMEBUFFER;
@@ -20,7 +22,19 @@ public class GlFilterGroup extends GlFilter {
 
     private final Collection<GlFilter> filters;
 
-    private final ArrayList<Pair<GlFilter, EFramebufferObject>> list = new ArrayList<Pair<GlFilter, EFramebufferObject>>();
+    private final ArrayList<GlFilterEntry> list = new ArrayList<GlFilterEntry>();
+
+    static class GlFilterEntry{
+        GlFilter filter;
+        EFramebufferObject fbo;
+        String name;
+
+        public GlFilterEntry(GlFilter filter, EFramebufferObject fbo, String name) {
+            this.filter = filter;
+            this.fbo = fbo;
+            this.name = name;
+        }
+    }
 
     public GlFilterGroup(final GlFilter... glFilters) {
         this(Arrays.asList(glFilters));
@@ -46,7 +60,8 @@ public class GlFilterGroup extends GlFilter {
                 } else {
                     fbo = null;
                 }
-                list.add(Pair.create(shader, fbo));
+//                list.add(Pair.create(shader, fbo));
+                list.add(new GlFilterEntry(shader, fbo, shader.getName()));
                 count++;
             }
         }
@@ -54,12 +69,12 @@ public class GlFilterGroup extends GlFilter {
 
     @Override
     public void release() {
-        for (final Pair<GlFilter, EFramebufferObject> pair : list) {
-            if (pair.first != null) {
-                pair.first.release();
+        for (final GlFilterEntry entry : list) {
+            if (entry.filter != null) {
+                entry.filter.release();
             }
-            if (pair.second != null) {
-                pair.second.release();
+            if (entry.fbo != null) {
+                entry.fbo.release();
             }
         }
         list.clear();
@@ -70,12 +85,12 @@ public class GlFilterGroup extends GlFilter {
     public void setFrameSize(final int width, final int height) {
         super.setFrameSize(width, height);
 
-        for (final Pair<GlFilter, EFramebufferObject> pair : list) {
-            if (pair.first != null) {
-                pair.first.setFrameSize(width, height);
+        for (final GlFilterEntry entry : list) {
+            if (entry.filter != null) {
+                entry.filter.setFrameSize(width, height);
             }
-            if (pair.second != null) {
-                pair.second.setup(width, height);
+            if (entry.fbo != null) {
+                entry.fbo.setup(width, height);
             }
         }
     }
@@ -83,17 +98,20 @@ public class GlFilterGroup extends GlFilter {
     private int prevTexName;
 
     @Override
-    public void draw(final int texName, final EFramebufferObject fbo) {
+    public int draw(final int texName, final EFramebufferObject fbo, Map<String,Integer> extraTextureIds) {
         prevTexName = texName;
-        for (final Pair<GlFilter, EFramebufferObject> pair : list) {
-            if (pair.second != null) {
-                if (pair.first != null) {
-                    pair.second.enable();
+        int textName = -1;
+        Map<String, Integer> extraTexIds = new HashMap<>();
+        for (final GlFilterEntry entry : list) {
+            if (entry.fbo != null) {
+                if (entry.filter != null) {
+                    entry.fbo.enable();
                     GLES20.glClear(GL_COLOR_BUFFER_BIT);
 
-                    pair.first.draw(prevTexName, pair.second);
+                    textName = entry.filter.draw(prevTexName, entry.fbo, extraTexIds);
+                    extraTexIds.put(entry.name, textName);
                 }
-                prevTexName = pair.second.getTexName();
+                prevTexName = entry.fbo.getTexName();
 
             } else {
                 if (fbo != null) {
@@ -102,11 +120,13 @@ public class GlFilterGroup extends GlFilter {
                     GLES20.glBindFramebuffer(GL_FRAMEBUFFER, 0);
                 }
 
-                if (pair.first != null) {
-                    pair.first.draw(prevTexName, fbo);
+                if (entry.filter != null) {
+                    textName = entry.filter.draw(prevTexName, fbo, extraTexIds);
                 }
             }
         }
+
+        return textName;
     }
 
 }
