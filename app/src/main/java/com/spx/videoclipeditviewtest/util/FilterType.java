@@ -6,6 +6,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.daasuu.epf.custfilter.GLImageBeautyHighPassFilter;
+import com.daasuu.epf.custfilter.GLImageBlackWhiteFilter;
+import com.daasuu.epf.custfilter.GLImageGaussPassFilter;
+import com.daasuu.epf.custfilter.GlBeautyFilter;
 import com.daasuu.epf.filter.GlBilateralFilter;
 import com.daasuu.epf.filter.GlBoxBlurFilter;
 import com.daasuu.epf.filter.GlBulgeDistortionFilter;
@@ -36,6 +40,7 @@ import java.util.List;
 
 public enum FilterType {
     DEFAULT,
+    BEAUTY_CUS,
     BILATERAL_BLUR,
     BOX_BLUR,
     TONE_CURVE_SAMPLE,
@@ -59,6 +64,7 @@ public enum FilterType {
         List<FilterType> filters = new ArrayList<>();
 
         filters.add(DEFAULT);
+        filters.add(BEAUTY_CUS);
         filters.add(SEPIA);
         filters.add(MONOCHROME);
         filters.add(TONE_CURVE_SAMPLE);
@@ -84,6 +90,9 @@ public enum FilterType {
         switch (filterType) {
             case DEFAULT:
                 return new GlFilter();
+            case BEAUTY_CUS:
+                return new GlFilterGroup(new GLImageGaussPassFilter(0), new GLImageGaussPassFilter(1) );
+//                return new GLImageBlackWhiteFilter();
             case SEPIA:
                 return new GlSepiaFilter();
             case GRAY_SCALE:

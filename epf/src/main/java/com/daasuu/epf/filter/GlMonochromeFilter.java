@@ -1,6 +1,7 @@
 package com.daasuu.epf.filter;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
 /**
  * Created by sudamasayuki on 2017/05/18.
@@ -34,6 +35,7 @@ public class GlMonochromeFilter extends GlFilter {
 
                     "gl_FragColor = vec4(mix(textureColor.rgb, outputColor.rgb, intensity), textureColor.a);" +
                     "}";
+    private static final String TAG = "GlMonochromeFilter";
 
     private float intensity = 1.0f;
     private float[] filterColor = new float[]{0.6f, 0.45f, 0.3f};
@@ -53,7 +55,9 @@ public class GlMonochromeFilter extends GlFilter {
     @Override
     public void onDraw() {
         GLES20.glUniform1f(getHandle("intensity"), intensity);
-        GLES20.glUniform3fv(getHandle("filterColor"), 0, filterColor, 0);
+        Log.d(TAG, "onDraw: getHandleMap:"+handleMap.toString());
+//        Log.d(TAG, "onDraw: filterColor:"+getHandle("filterColor"));
+        GLES20.glUniform3fv(getHandle("filterColor"), 1, filterColor, 0);
     }
 
 }

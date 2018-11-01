@@ -12,6 +12,7 @@ import com.daasuu.epf.filter.GlPreviewFilter;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 
 import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
 
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
 import static android.opengl.GLES20.GL_LINEAR;
@@ -133,6 +134,7 @@ class EPlayerRenderer extends EFrameBufferObjectRenderer implements SurfaceTextu
         Matrix.frustumM(ProjMatrix, 0, -aspectRatio, aspectRatio, -1, 1, 5, 7);
         Matrix.setIdentityM(MMatrix, 0);
     }
+
 
     @Override
     public void onDrawFrame(final EFramebufferObject fbo) {

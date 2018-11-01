@@ -50,6 +50,11 @@ public class GlFilter {
             1.0f, -1.0f, 0.0f, 1.0f, 0.0f
     };
 
+    private static HashMap<String, String> nickNames = new HashMap<>();
+    static {
+        nickNames.put("sTexture", "inputTexture");
+    }
+
     private static final int FLOAT_SIZE_BYTES = 4;
     protected static final int VERTICES_DATA_POS_SIZE = 3;
     protected static final int VERTICES_DATA_UV_SIZE = 2;
@@ -67,7 +72,7 @@ public class GlFilter {
 
     private int vertexBufferName;
 
-    private final HashMap<String, Integer> handleMap = new HashMap<String, Integer>();
+    protected final HashMap<String, Integer> handleMap = new HashMap<String, Integer>();
 
     public GlFilter() {
         this(DEFAULT_VERTEX_SHADER, DEFAULT_FRAGMENT_SHADER);
@@ -150,6 +155,10 @@ public class GlFilter {
         int location = glGetAttribLocation(program, name);
         if (location == -1) {
             location = glGetUniformLocation(program, name);
+        }
+        if (location == -1 && nickNames.containsKey(name)) {
+            String nickName = nickNames.get(name);
+            return getHandle(nickName);
         }
         if (location == -1) {
             throw new IllegalStateException("Could not get attrib or uniform location for " + name);

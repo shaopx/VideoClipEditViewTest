@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.SeekBar
 import android.widget.Toast
+import com.daasuu.epf.filter.GlBilateralFilter
 import com.daasuu.mp4compose.composer.Mp4Composer
 import com.spx.library.log
 import com.spx.videoclipeditviewtest.Config.Companion.DEFAULT_FRAME_COUNT
@@ -381,41 +382,12 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 
         doClipUseGl()
 
-
-        Thread {
-            //            var clip = VideoUtil.genVideoUsingMuxer(this, videoPathInput, videoPlayUrl, startMillSec.toInt(), endMillSec.toInt(), true, true)
-//            handler.post {
-//                if (clip) {
-//                    showToast("裁剪成功!新文件已经存放在:" + videoPlayUrl)
-//                    hideShadow()
-//                    finish()
-//                } else {
-//                    showToast("裁剪失败!")
-//                }
-//            }
-
-//            var clipObj = VideoClip()
-//            var clip = clipObj.clipVideo(videoPathInput, videoPlayUrl, startMillSec, endMillSec - startMillSec)
-//            handler.post {
-//                if (clip) {
-//                    showToast("裁剪成功!新文件已经存放在:" + videoPlayUrl)
-//                    hideShadow()
-//                    finish()
-//                } else {
-//                    showToast("裁剪失败!")
-//                }
-//            }
-
-
-//            VideoUtils.startTrim(videoPathInput, videoPlayUrl, startMillSec.toInt(), endMillSec.toInt())
-        }.start()
-
-
     }
 
     private fun doClipUseGl() {
         Mp4Composer(videoPathInput, videoPlayUrl)
                 .frameRate(8)
+//                .filter(com.daasuu.mp4compose.filter.GlGrayScaleFilter())
                 .size(540, 960)
                 .clip(startMillSec, endMillSec)
                 .listener(object : Mp4Composer.Listener {

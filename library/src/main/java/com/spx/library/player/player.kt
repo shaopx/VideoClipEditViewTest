@@ -48,3 +48,23 @@ fun initPlayer(context: Context, videoUrl:String, playerView: PlayerView,
 
     return player
 }
+
+fun initPlayer(context: Context, videoUrl: String,
+               listener: Player.EventListener): SimpleExoPlayer {
+    val defaultSourceFactory = DefaultDataSourceFactory(context, "luedong")
+
+    var player = ExoPlayerFactory.newSimpleInstance(context, DefaultTrackSelector())
+
+    player!!.addListener(listener)
+
+    player!!.repeatMode = Player.REPEAT_MODE_ALL
+    player!!.playWhenReady = true
+
+    var mVideoSource = ExtractorMediaSource.Factory(defaultSourceFactory).createMediaSource(Uri.parse(videoUrl)!!)
+
+    if (player != null) {
+        player!!.prepare(mVideoSource)
+    }
+
+    return player
+}
