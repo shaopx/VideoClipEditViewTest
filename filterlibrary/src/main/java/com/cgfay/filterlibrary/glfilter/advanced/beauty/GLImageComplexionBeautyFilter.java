@@ -2,6 +2,7 @@ package com.cgfay.filterlibrary.glfilter.advanced.beauty;
 
 import android.content.Context;
 import android.opengl.GLES30;
+import android.util.Log;
 
 import com.cgfay.filterlibrary.glfilter.base.GLImageFilter;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
@@ -11,6 +12,7 @@ import com.daasuu.epf.filter.GlFilter;
  * 美肤滤镜
  */
 public class GLImageComplexionBeautyFilter extends GlFilter {
+    static String TAG ="GLImageComplexion";
     protected static final String VERTEX_SHADER = "" +
             "uniform mat4 uMVPMatrix;                                   \n" +
             "attribute vec4 aPosition;                                  \n" +
@@ -98,20 +100,27 @@ public class GLImageComplexionBeautyFilter extends GlFilter {
         levelRangeInvLoc = GLES30.glGetUniformLocation(mProgramHandle, "levelRangeInv");
         levelBlackLoc = GLES30.glGetUniformLocation(mProgramHandle, "levelBlack");
         alphaLoc = GLES30.glGetUniformLocation(mProgramHandle, "alpha");
-        createTexture();
+
         levelRangeInv = 1.040816f;
         levelBlack = 0.01960784f;
         alpha = 1.0f;
+
+        createTexture();
     }
 
     private void createTexture() {
+        Log.d(TAG, "createTexture: ....");
         mGrayTexture = OpenGLUtils.createTextureFromAssets(mContext, "filters/skin_gray.png");
         mLookupTexture = OpenGLUtils.createTextureFromAssets(mContext, "filters/skin_lookup.png");
+//        mLookupTexture = OpenGLUtils.createTextureFromAssets(mContext, "filters/filter_langman.png");
+        Log.d(TAG, "createTexture: ....mGrayTexture:"+mGrayTexture+",mLookupTexture:"+mLookupTexture);
     }
 
     @Override
     public void onDrawFrameBegin() {
         super.onDrawFrameBegin();
+
+        Log.d(TAG, "onDrawFrameBegin: ....mGrayTexture:"+mGrayTexture+",mLookupTexture:"+mLookupTexture);
         GLES30.glActiveTexture(GLES30.GL_TEXTURE1);
         GLES30.glBindTexture(getTextureType(), mGrayTexture);
         GLES30.glUniform1i(grayTextureLoc, 1);

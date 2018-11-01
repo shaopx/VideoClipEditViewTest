@@ -182,9 +182,9 @@ public final class GLImageFilterManager {
             case EVERGREEN:
                 return new GLImageEvergreenFilter(context);
 
-            // 童话
-            case FAIRYTALE:
-                return new GLImageFairyTaleFilter(context);
+//            // 童话
+//            case FAIRYTALE:
+//                return new GLImageFairyTaleFilter(context);
 
             // 佛洛伊特
             case FREUD:

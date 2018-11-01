@@ -5,13 +5,15 @@ import android.opengl.GLES30;
 
 import com.cgfay.filterlibrary.glfilter.base.GLImageFilter;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
+import com.daasuu.epf.filter.GlFilter;
 
 /**
  * 童话滤镜
  * Created by cain.huang on 2017/11/16.
  */
 
-public class GLImageFairyTaleFilter extends GLImageFilter {
+public class GLImageFairyTaleFilter extends GlFilter {
+
 
     private static final String FRAGMENT_SHADER = "" +
             "precision highp float;\n" +
@@ -65,7 +67,7 @@ public class GLImageFairyTaleFilter extends GLImageFilter {
      */
     private void createTexture() {
         mFairyTaleTexture = OpenGLUtils.createTextureFromAssets(mContext,
-                "filters/fairytale.png");
+                "filters/filter_langman.png");
     }
 
     @Override

@@ -8,6 +8,7 @@ import android.text.TextUtils;
 
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
 import com.cgfay.filterlibrary.glfilter.utils.TextureRotationUtils;
+import com.daasuu.epf.filter.GlFilter;
 
 import java.nio.FloatBuffer;
 import java.util.Arrays;
@@ -18,7 +19,7 @@ import java.util.LinkedList;
  * Created by cain on 2017/7/9.
  */
 
-public class GLImageFilter {
+public class GLImageFilter extends GlFilter {
 
     protected static final String VERTEX_SHADER = "" +
             "uniform mat4 uMVPMatrix;                                   \n" +

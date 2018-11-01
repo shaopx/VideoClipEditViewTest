@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.cgfay.filterlibrary.glfilter.advanced.beauty.GLImageComplexionBeautyFilter;
+import com.cgfay.filterlibrary.glfilter.advanced.colors.GLImageFairyTaleFilter;
 import com.daasuu.epf.custfilter.GLImageBeautyHighPassFilter;
 import com.daasuu.epf.custfilter.GLImageBlackWhiteFilter;
 import com.daasuu.epf.custfilter.GLImageGaussPassFilter;
@@ -42,6 +43,7 @@ import java.util.List;
 public enum FilterType {
     DEFAULT,
     BEAUTY_CUS,
+    FairyTale_CUS,
     BILATERAL_BLUR,
     BOX_BLUR,
     TONE_CURVE_SAMPLE,
@@ -66,6 +68,7 @@ public enum FilterType {
 
         filters.add(DEFAULT);
         filters.add(BEAUTY_CUS);
+        filters.add(FairyTale_CUS);
         filters.add(SEPIA);
         filters.add(MONOCHROME);
         filters.add(TONE_CURVE_SAMPLE);
@@ -94,6 +97,8 @@ public enum FilterType {
             case BEAUTY_CUS:
 //                return new GlFilterGroup(new GLImageGaussPassFilter(0), new GLImageGaussPassFilter(1) );
                 return new GLImageComplexionBeautyFilter(context);
+            case FairyTale_CUS:
+                return new GLImageFairyTaleFilter(context);
             case SEPIA:
                 return new GlSepiaFilter();
             case GRAY_SCALE:

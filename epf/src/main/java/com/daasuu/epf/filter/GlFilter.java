@@ -227,4 +227,15 @@ public class GlFilter {
 
     public void destroyFrameBuffer(){
     }
+
+    protected static final String VERTEX_SHADER = "" +
+            "uniform mat4 uMVPMatrix;                                   \n" +
+            "attribute vec4 aPosition;                                  \n" +
+            "attribute vec4 aTextureCoord;                              \n" +
+            "varying vec2 textureCoordinate;                            \n" +
+            "void main() {                                              \n" +
+            "    gl_Position = uMVPMatrix * aPosition;                  \n" +
+            "    textureCoordinate = aTextureCoord.xy;                  \n" +
+            "}                                                          \n";
+
 }
