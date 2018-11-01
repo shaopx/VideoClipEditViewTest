@@ -27,6 +27,9 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    lintOptions {
+        abortOnError false
+    }
 //    configurations.all {
 //        exclude group: 'com.google.code.gson'
 //        resolutionStrategy.force 'com.android.support:appcompat-v7:28.0.0'
@@ -42,9 +45,8 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:28.0.0'
 
 
-    implementation project(path: ':mp4compose')
-    implementation project(path: ':library')
-    implementation project(path: ':epf')
-    implementation project(path: ':epf')
+    implementation project(':mp4compose')
+    implementation project(':library')
+    implementation project(':epf')
     implementation project(':filterlibrary')
 }
