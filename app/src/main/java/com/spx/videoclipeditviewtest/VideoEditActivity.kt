@@ -7,12 +7,16 @@ import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
+import com.cgfay.filterlibrary.glfilter.advanced.beauty.GLImageComplexionBeautyFilter
 import com.daasuu.epf.EPlayerView
+import com.daasuu.epf.custfilter.GlPngFliter
+import com.daasuu.epf.filter.GlFilter
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.spx.library.player.VideoPlayerOfExoPlayer
 import com.spx.library.player.initPlayer
 import com.spx.videoclipeditviewtest.ext.createFilterOptions
+import com.spx.videoclipeditviewtest.ext.getFilterPngByType
 import com.spx.videoclipeditviewtest.ext.getInt
 import com.spx.videoclipeditviewtest.util.FilterType
 import com.spx.videoclipeditviewtest.view.BottomDialogFragment
@@ -64,10 +68,14 @@ class VideoEditActivity : AppCompatActivity() {
     private fun showFilterDialog() {
         var dialogFragment = BottomDialogFragment.getInstance(0, getSelection(),
                 "选择滤镜", createFilterOptions())
-        dialogFragment.setSelectionCallBack { selection, name ->
-            val filter = FilterType.createFilterList().get(selection)
+        dialogFragment.setSelectionCallBack { selection, option ->
+            val filter = when{
+                option.optionName.equals("无") ->  GlFilter()
+                option.optionName.equals("美颜") ->  GLImageComplexionBeautyFilter(applicationContext)
+                else -> GlPngFliter(applicationContext, getFilterPngByType(option.optionName))
+            }
             Log.d(TAG, "selection:$selection, filter:$filter")
-            ePlayerView.setGlFilter(FilterType.createGlFilter( filter, applicationContext))
+            ePlayerView.setGlFilter(filter)
         }
         dialogFragment.show(supportFragmentManager, "filter_dialog")
     }

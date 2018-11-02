@@ -39,9 +39,9 @@ class BottomDialogFragment : DialogFragment() {
         }
     }
 
-    var callback: ((select: Int, name: String) -> Unit)? = null
+    var callback: ((select: Int, option: Option) -> Unit)? = null
 
-    class Option(internal var iconResId: Int, internal var optionName: String) : Serializable
+    class Option(internal var iconResId: Int, internal var optionName: String, internal var index: Int = 0) : Serializable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,7 +78,8 @@ class BottomDialogFragment : DialogFragment() {
             val itemView = LayoutInflater.from(context).inflate(R.layout.item_record_beauty, null)
             itemView.findViewById<ImageView>(R.id.iv_beauty_image).setImageResource(option.iconResId)
             itemView.findViewById<TextView>(R.id.tv_beauty_text).text = option.optionName
-            itemView.tag = index
+            itemView.tag = option
+            option.index = index
             ll_container.addView(itemView)
 
             if (index == mSelectionIndex) {
@@ -87,9 +88,13 @@ class BottomDialogFragment : DialogFragment() {
 
             itemView.setOnClickListener(listener)
         }
+
+        iv_close.setOnClickListener {
+            dismiss()
+        }
     }
 
-    fun setSelectionCallBack(_callback: (select: Int, name: String) -> Unit) {
+    fun setSelectionCallBack(_callback: (select: Int, option: Option) -> Unit) {
         callback = _callback
     }
 
@@ -97,8 +102,10 @@ class BottomDialogFragment : DialogFragment() {
         override fun onClick(view: View?) {
             view?.run {
                 findViewById<ImageView>(R.id.iv_beauty_circle).visibility = View.VISIBLE
-                var selection = tag as Int
+                var option = tag as Option
+                var selection = option.index
                 putInt(context, "filter_selection", selection)
+
 
                 var childCount = ll_container.childCount
                 var name: String = ""
@@ -112,7 +119,7 @@ class BottomDialogFragment : DialogFragment() {
                             }
                 }
 
-                callback?.invoke(selection, name)
+                callback?.invoke(selection, option)
             }
         }
     }
