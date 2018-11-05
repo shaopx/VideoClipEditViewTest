@@ -1,6 +1,9 @@
 package com.daasuu.epf.filter;
 
 import android.opengl.GLES20;
+import android.opengl.GLUtils;
+
+import com.spx.library.util.GlUtil;
 
 import static android.opengl.GLES20.GL_ARRAY_BUFFER;
 import static android.opengl.GLES20.GL_FLOAT;
@@ -51,7 +54,8 @@ public class GlPreviewFilter extends GlFilter {
 
     public void draw(final int texName, final float[] mvpMatrix, final float[] stMatrix, final float aspectRatio) {
         useProgram();
-
+        GlUtil.printMatrix("mvpMatrix", mvpMatrix);
+        GlUtil.printMatrix("stMatrix", stMatrix);
         GLES20.glUniformMatrix4fv(getHandle("uMVPMatrix"), 1, false, mvpMatrix, 0);
         GLES20.glUniformMatrix4fv(getHandle("uSTMatrix"), 1, false, stMatrix, 0);
         GLES20.glUniform1f(getHandle("uCRatio"), aspectRatio);

@@ -6,11 +6,13 @@ import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.util.Log;
 
+import com.daasuu.epf.filter.GlFilter;
+import com.daasuu.epf.filter.GlFilterList;
 import com.daasuu.mp4compose.FillMode;
 import com.daasuu.mp4compose.FillModeCustomItem;
 import com.daasuu.mp4compose.Resolution;
 import com.daasuu.mp4compose.Rotation;
-import com.daasuu.mp4compose.filter.GlFilter;
+import com.daasuu.mp4compose.filter.GlComposeFilter;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -35,7 +37,8 @@ class VideoComposer {
     private ByteBuffer[] decoderInputBuffers;
     private ByteBuffer[] encoderOutputBuffers;
     private MediaFormat actualOutputFormat;
-    private DecoderSurface decoderSurface;
+//    private DecoderSurface2 decoderSurface;
+    private DecoderOutputSurface decoderSurface;
     private EncoderSurface encoderSurface;
     private boolean isExtractorEOS;
     private boolean isDecoderEOS;
@@ -55,7 +58,7 @@ class VideoComposer {
     }
 
 
-    void setUp(GlFilter filter,
+    void setUp(GlFilter filter,GlFilterList filterList,
                Rotation rotation,
                Resolution outputResolution,
                Resolution inputResolution,
@@ -83,7 +86,8 @@ class VideoComposer {
             // refer: https://android.googlesource.com/platform/frameworks/av/+blame/lollipop-release/media/libstagefright/Utils.cpp
             inputFormat.setInteger("rotation-degrees", 0);
         }
-        decoderSurface = new DecoderSurface(filter);
+        decoderSurface = new DecoderOutputSurface(filter, filterList);
+//        decoderSurface = new DecoderSurface2(new GlComposeFilter());
         decoderSurface.setRotation(rotation);
         decoderSurface.setOutputResolution(outputResolution);
         decoderSurface.setInputResolution(inputResolution);
@@ -228,7 +232,7 @@ class VideoComposer {
         decoder.releaseOutputBuffer(result, doRender);
         if (doRender) {
             decoderSurface.awaitNewImage();
-            decoderSurface.drawImage();
+            decoderSurface.drawImage(bufferInfo.presentationTimeUs);
             encoderSurface.setPresentationTime(bufferInfo.presentationTimeUs * 1000);
             encoderSurface.swapBuffers();
         }

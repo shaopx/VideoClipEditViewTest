@@ -7,11 +7,13 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaMuxer;
 import android.util.Log;
 
+import com.daasuu.epf.filter.GlFilter;
+import com.daasuu.epf.filter.GlFilterList;
 import com.daasuu.mp4compose.FillMode;
 import com.daasuu.mp4compose.FillModeCustomItem;
 import com.daasuu.mp4compose.Resolution;
 import com.daasuu.mp4compose.Rotation;
-import com.daasuu.mp4compose.filter.GlFilter;
+import com.daasuu.mp4compose.filter.GlComposeFilter;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -48,6 +50,7 @@ class Mp4ComposerEngine {
             final String destPath,
             final Resolution outputResolution,
             final GlFilter filter,
+            final GlFilterList filterList,
             final int bitrate,
             final int frameRate,
             final boolean mute,
@@ -108,7 +111,7 @@ class Mp4ComposerEngine {
 
             // setup video composer
             videoComposer = new VideoComposer(mediaExtractor, videoTrackIndex, videoOutputFormat, muxRender, timeScale);
-            videoComposer.setUp(filter, rotation, outputResolution, inputResolution, fillMode, fillModeCustomItem, flipVertical, flipHorizontal);
+            videoComposer.setUp(filter, filterList, rotation, outputResolution, inputResolution, fillMode, fillModeCustomItem, flipVertical, flipHorizontal);
             mediaExtractor.selectTrack(videoTrackIndex);
 
             if (startTimeMs >= 0 && endTimeMs > startTimeMs) {

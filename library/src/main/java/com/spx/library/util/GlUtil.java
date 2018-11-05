@@ -6,14 +6,26 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES30;
 import android.opengl.GLUtils;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 public class GlUtil {
+    private static final String TAG = "GlUtil";
+
+    public static void printMatrix(String matrxName, final float[] mvpMatrix) {
+        Log.d(TAG, "----------------"+matrxName+"-----------------");
+        String s = "";
+        for (int i = 0; i < mvpMatrix.length; i++) {
+            s += mvpMatrix[i]+",";
+        }
+        Log.d(TAG, " " + s);
+    }
 
     /**
      * 加载Assets文件夹下的图片
+     *
      * @param context
      * @param fileName
      * @return
@@ -30,8 +42,10 @@ public class GlUtil {
         }
         return bitmap;
     }
+
     /**
      * 加载mipmap纹理
+     *
      * @param context
      * @param name
      * @return

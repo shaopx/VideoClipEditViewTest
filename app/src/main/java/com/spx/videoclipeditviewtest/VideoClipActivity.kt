@@ -10,7 +10,8 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.SeekBar
 import android.widget.Toast
-import com.daasuu.epf.filter.GlBilateralFilter
+import com.cgfay.filterlibrary.glfilter.advanced.beauty.GLImageComplexionBeautyFilter
+import com.daasuu.epf.filter.*
 import com.daasuu.mp4compose.composer.Mp4Composer
 import com.spx.library.log
 import com.spx.videoclipeditviewtest.Config.Companion.DEFAULT_FRAME_COUNT
@@ -385,9 +386,15 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
     }
 
     private fun doClipUseGl() {
+
+//        var glFilterList = GlFilterList()
+//        glFilterList.putGlFilter(GlFilterPeriod(0, 3000, GlInvertFilter()))
+//        glFilterList.putGlFilter(GlFilterPeriod(3000, 6000, GLImageComplexionBeautyFilter(this)))
+
         Mp4Composer(videoPathInput, videoPlayUrl)
                 .frameRate(8)
-//                .filter(com.daasuu.mp4compose.filter.GlGrayScaleFilter())
+//                .filter(GLImageComplexionBeautyFilter(this))
+//                .filterList(glFilterList)
                 .size(540, 960)
                 .clip(startMillSec, endMillSec)
                 .listener(object : Mp4Composer.Listener {
@@ -412,6 +419,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
                     }
 
                     override fun onFailed(exception: Exception) {
+                        Log.d(TAG, "clip onFailed", exception)
                         runOnUiThread {
                             hideShadow()
                             showToast("裁剪失败")

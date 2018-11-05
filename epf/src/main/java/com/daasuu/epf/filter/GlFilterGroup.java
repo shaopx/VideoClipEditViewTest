@@ -52,16 +52,16 @@ public class GlFilterGroup extends GlFilter {
             final int max = filters.size();
             int count = 0;
 
-            for (final GlFilter shader : filters) {
-                shader.setup();
+            for (final GlFilter filter : filters) {
+                filter.setup();
                 final EFramebufferObject fbo;
                 if ((count + 1) < max) {
                     fbo = new EFramebufferObject();
                 } else {
                     fbo = null;
                 }
-//                list.add(Pair.create(shader, fbo));
-                list.add(new GlFilterEntry(shader, fbo, shader.getName()));
+//                list.add(Pair.create(filter, fbo));
+                list.add(new GlFilterEntry(filter, fbo, filter.getName()));
                 count++;
             }
         }

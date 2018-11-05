@@ -4,11 +4,13 @@ import android.media.MediaMetadataRetriever;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.daasuu.epf.filter.GlFilter;
+import com.daasuu.epf.filter.GlFilterList;
 import com.daasuu.mp4compose.FillMode;
 import com.daasuu.mp4compose.FillModeCustomItem;
 import com.daasuu.mp4compose.Resolution;
 import com.daasuu.mp4compose.Rotation;
-import com.daasuu.mp4compose.filter.GlFilter;
+import com.daasuu.mp4compose.filter.GlComposeFilter;
 import com.daasuu.mp4compose.filter.IResolutionFilter;
 
 import java.io.File;
@@ -29,6 +31,7 @@ public class Mp4Composer {
     private final String srcPath;
     private final String destPath;
     private GlFilter filter;
+    private GlFilterList filterList;
     private Resolution outputResolution;
     private int bitrate = -1;
     private int frameRate = 30;
@@ -53,6 +56,11 @@ public class Mp4Composer {
 
     public Mp4Composer filter(@NonNull GlFilter filter) {
         this.filter = filter;
+        return this;
+    }
+
+    public Mp4Composer filterList(@NonNull GlFilterList filterList) {
+        this.filterList = filterList;
         return this;
     }
 
@@ -218,6 +226,7 @@ public class Mp4Composer {
                             destPath,
                             outputResolution,
                             filter,
+                            filterList,
                             bitrate,
                             frameRate,
                             mute,

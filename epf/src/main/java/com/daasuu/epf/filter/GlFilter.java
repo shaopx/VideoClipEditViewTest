@@ -57,6 +57,14 @@ public class GlFilter {
             1.0f, -1.0f, 0.0f, 1.0f, 0.0f
     };
 
+//    private static final float[] VERTICES_DATA = new float[]{
+//            // X, Y, Z, U, V
+//            -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+//            1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+//            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+//            1.0f, -1.0f, 0.0f, 1.0f, 0.0f
+//    };
+
     private static HashMap<String, String> nickNames = new HashMap<>();
 
     static {

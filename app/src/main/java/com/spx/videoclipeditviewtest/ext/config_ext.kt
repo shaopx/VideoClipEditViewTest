@@ -1,5 +1,12 @@
 package com.spx.videoclipeditviewtest.ext
 
+import android.content.Context
+import com.cgfay.filterlibrary.glfilter.advanced.beauty.GLImageComplexionBeautyFilter
+import com.daasuu.epf.custfilter.GlPngFliter
+import com.daasuu.epf.filter.GlFilter
+import com.daasuu.epf.filter.GlFilterGroup
+import com.daasuu.epf.filter.GlGrayScaleFilter
+import com.daasuu.epf.filter.GlSepiaFilter
 import com.spx.videoclipeditviewtest.R
 import com.spx.videoclipeditviewtest.view.BottomDialogFragment
 
@@ -17,6 +24,14 @@ fun createFilterOptions(): List<BottomDialogFragment.Option> {
             BottomDialogFragment.Option(R.drawable.ic_filter_qingliang, "清凉"),
             BottomDialogFragment.Option(R.drawable.ic_filter_rixi, "日系")
     )
+}
+
+fun getFilterByName(name:String, context:Context): GlFilter{
+    return  when{
+        name.equals("无")    ->  GlFilter()
+        name.equals("美颜")  ->  GLImageComplexionBeautyFilter(context)
+        else                -> GlPngFliter(context, getFilterPngByType(name))
+    }
 }
 
 fun getFilterPngByType(type:String):String{

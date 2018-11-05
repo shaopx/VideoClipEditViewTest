@@ -26,6 +26,7 @@ import static android.opengl.GLES20.glCreateProgram;
  */
 
 public class EglUtil {
+    public static final String TAG = "EglUtil";
 
     public static final int NO_TEXTURE = -1;
 
@@ -46,6 +47,7 @@ public class EglUtil {
 
     public static int createProgram(final int vertexShader, final int pixelShader) throws GLException {
         final int program = glCreateProgram();
+        Log.d(TAG, "createProgram: ...program:"+program, new RuntimeException("sssss"));
         if (program == 0) {
             throw new RuntimeException("Could not create program");
         }

@@ -80,7 +80,7 @@ public class EFramebufferObject {
             GLES20.glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbufferName);
 
             GLES20.glGenTextures(args.length, args, 0);
-            texName = args[0];  // 这个纹理作为framebuffer的颜色缓冲区, 也就是视频流输出
+            texName = args[0];  // 这个纹理作为framebuffer的颜色缓冲区(GL_COLOR_ATTACHMENT0), 也就是视频流输出
             GLES20.glBindTexture(GL_TEXTURE_2D, texName);
 
             EglUtil.setupSampler(GL_TEXTURE_2D, GL_LINEAR, GL_NEAREST);

@@ -13,7 +13,7 @@ import com.daasuu.mp4compose.FillMode;
 import com.daasuu.mp4compose.FillModeCustomItem;
 import com.daasuu.mp4compose.Resolution;
 import com.daasuu.mp4compose.Rotation;
-import com.daasuu.mp4compose.filter.GlFilter;
+import com.daasuu.mp4compose.filter.GlComposeFilter;
 import com.daasuu.mp4compose.utils.GlUtils;
 
 // Refer : https://android.googlesource.com/platform/cts/+/lollipop-release/tests/tests/media/src/android/media/cts/OutputSurface.java
@@ -43,7 +43,7 @@ class DecoderSurface implements SurfaceTexture.OnFrameAvailableListener {
     private Surface surface;
     private Object frameSyncObject = new Object();     // guards frameAvailable
     private boolean frameAvailable;
-    private GlFilter filter;
+    private GlComposeFilter filter;
 
     private float[] MVPMatrix = new float[16];
     private float[] STMatrix = new float[16];
@@ -60,7 +60,7 @@ class DecoderSurface implements SurfaceTexture.OnFrameAvailableListener {
      * Creates an DecoderSurface using the current EGL context (rather than establishing a
      * new one).  Creates a Surface that can be passed to MediaCodec.configure().
      */
-    DecoderSurface(GlFilter filter) {
+    DecoderSurface(GlComposeFilter filter) {
         this.filter = filter;
         this.filter.setUpSurface();
         setup();
@@ -158,8 +158,9 @@ class DecoderSurface implements SurfaceTexture.OnFrameAvailableListener {
 
     /**
      * Draws the data from SurfaceTexture onto the current EGL surface.
+     * @param presentationTimeUs
      */
-    void drawImage() {
+    void drawImage(long presentationTimeUs) {
 
         Matrix.setIdentityM(MVPMatrix, 0);
 
