@@ -6,8 +6,6 @@ import android.opengl.GLES20;
 import com.daasuu.epf.EFramebufferObject;
 import com.daasuu.epf.filter.GlFilter;
 
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
 
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
 import static android.opengl.GLES20.GL_DEPTH_BUFFER_BIT;
