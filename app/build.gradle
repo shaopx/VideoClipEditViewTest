@@ -45,7 +45,7 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:28.0.0'
 
 
-    implementation project(':mp4compose')
+//    implementation project(':mp4compose')
     implementation project(':library')
     implementation project(':epf')
     implementation project(':filterlibrary')
