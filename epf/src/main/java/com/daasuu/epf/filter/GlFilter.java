@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
+import android.opengl.GLUtils;
 import android.opengl.Matrix;
+import android.util.Log;
 
 import java.nio.FloatBuffer;
 import java.util.HashMap;
@@ -56,6 +58,7 @@ public class GlFilter {
             -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
             1.0f, -1.0f, 0.0f, 1.0f, 0.0f
     };
+    private static final String TAG = "glfilter";
 
 //    private static final float[] VERTICES_DATA = new float[]{
 //            // X, Y, Z, U, V
@@ -161,26 +164,27 @@ public class GlFilter {
 
         handleMap.clear();
     }
-
+    public void checkGlError(String op) {
+        int error;
+        while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
+            Log.e("SurfaceTest", op + ": glError " + GLUtils.getEGLErrorString(error));
+        }
+    }
     public int draw(final int sourceTextId, final EFramebufferObject fbo, Map<String,Integer> extraTextureIds) {
         useProgram();
-
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vertexBufferName);
         GLES20.glEnableVertexAttribArray(getHandle("aPosition"));
         GLES20.glVertexAttribPointer(getHandle("aPosition"), VERTICES_DATA_POS_SIZE, GL_FLOAT, false, VERTICES_DATA_STRIDE_BYTES, VERTICES_DATA_POS_OFFSET);
         GLES20.glEnableVertexAttribArray(getHandle("aTextureCoord"));
         GLES20.glVertexAttribPointer(getHandle("aTextureCoord"), VERTICES_DATA_UV_SIZE, GL_FLOAT, false, VERTICES_DATA_STRIDE_BYTES, VERTICES_DATA_UV_OFFSET);
-
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, sourceTextId);
         GLES20.glUniform1i(getHandle("sTexture"), 0);
-
         onDrawFrameBegin();
         onDraw();
         onDraw(extraTextureIds);
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
-
         GLES20.glDisableVertexAttribArray(getHandle("aPosition"));
         GLES20.glDisableVertexAttribArray(getHandle("aTextureCoord"));
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
@@ -197,6 +201,7 @@ public class GlFilter {
     }
 
     protected final void useProgram() {
+        Log.d(TAG, "useProgram: mProgramHandle:"+mProgramHandle);
         glUseProgram(mProgramHandle);
     }
 

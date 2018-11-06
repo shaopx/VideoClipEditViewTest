@@ -1,5 +1,6 @@
 package com.spx.library
 
+import android.animation.ValueAnimator
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
@@ -8,6 +9,9 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
+import android.view.animation.LinearInterpolator
+import android.widget.RelativeLayout
 import java.io.*
 
 fun getVideoItem(contentResolver: ContentResolver, data: Intent): VideoItem? {
@@ -115,4 +119,26 @@ fun decodeInputStream(inputStream:  InputStream): Bitmap? {
     }
 
     return bitmap_ret
+}
+
+fun View.scale(){
+    var margin: Int = 120
+    var bottomMargin: Int = 400
+    val anim = ValueAnimator.ofFloat(0f, 1f)
+    anim.duration = 500
+    anim.interpolator = LinearInterpolator()
+    var lp = this.layoutParams as RelativeLayout.LayoutParams
+    anim.addUpdateListener {
+        var newMargin = (margin * anim.animatedFraction).toInt()
+//        Log.d(TAG, "update anim newMargin:$newMargin")
+
+
+        lp.leftMargin = newMargin
+        lp.topMargin = newMargin
+        lp.rightMargin = newMargin
+        lp.bottomMargin = (bottomMargin * anim.animatedFraction).toInt()
+        this.layoutParams = lp
+        this.invalidate()
+    }
+    anim.start()
 }

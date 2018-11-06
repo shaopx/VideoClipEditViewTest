@@ -390,6 +390,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 //        var glFilterList = GlFilterList()
 //        glFilterList.putGlFilter(GlFilterPeriod(0, 3000, GlInvertFilter()))
 //        glFilterList.putGlFilter(GlFilterPeriod(3000, 6000, GLImageComplexionBeautyFilter(this)))
+//        glFilterList.putGlFilter(GlFilterPeriod(6000, 9000, GlInvertFilter()))
 
         Mp4Composer(videoPathInput, videoPlayUrl)
                 .frameRate(8)

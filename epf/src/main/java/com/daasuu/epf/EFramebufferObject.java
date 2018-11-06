@@ -1,6 +1,7 @@
 package com.daasuu.epf;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
 import static android.opengl.GLES20.GL_COLOR_ATTACHMENT0;
 import static android.opengl.GLES20.GL_DEPTH_ATTACHMENT;
@@ -25,9 +26,10 @@ import static android.opengl.GLES20.GL_UNSIGNED_BYTE;
 
 public class EFramebufferObject {
 
+    private static final String TAG = "EFramebufferObject";
     private int width;
     private int height;
-    private int framebufferName;
+    public int framebufferName;
     private int renderbufferName;
     private int texName;
 
@@ -45,7 +47,7 @@ public class EFramebufferObject {
 
     public void setup(final int width, final int height) {
         final int[] args = new int[1];
-
+        Log.d(TAG, "setup: ....");
         GLES20.glGetIntegerv(GL_MAX_TEXTURE_SIZE, args, 0);
         if (width > args[0] || height > args[0]) {
             throw new IllegalArgumentException("GL_MAX_TEXTURE_SIZE " + args[0]);
@@ -62,6 +64,7 @@ public class EFramebufferObject {
         final int saveRenderbuffer = args[0];
         GLES20.glGetIntegerv(GL_TEXTURE_BINDING_2D, args, 0);
         final int saveTexName = args[0];
+        Log.d(TAG, "setup: saveFramebuffer:"+saveFramebuffer+", saveTexName:"+saveTexName);
 
         release();
 

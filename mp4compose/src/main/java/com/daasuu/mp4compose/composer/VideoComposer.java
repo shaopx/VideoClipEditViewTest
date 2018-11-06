@@ -95,7 +95,7 @@ class VideoComposer {
         decoderSurface.setFillModeCustomItem(fillModeCustomItem);
         decoderSurface.setFlipHorizontal(flipHorizontal);
         decoderSurface.setFlipVertical(flipVertical);
-
+        decoderSurface.setupAll();
         try {
             decoder = MediaCodec.createDecoderByType(inputFormat.getString(MediaFormat.KEY_MIME));
         } catch (IOException e) {

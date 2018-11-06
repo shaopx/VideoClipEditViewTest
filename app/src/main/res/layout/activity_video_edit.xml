@@ -6,17 +6,23 @@
     android:background="#000000">
 
     <!--<com.google.android.exoplayer2.ui.PlayerView-->
-        <!--android:id="@+id/exo_playview"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--app:resize_mode="fill"-->
-        <!--app:use_controller="false">-->
+    <!--android:id="@+id/exo_playview"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--app:resize_mode="fill"-->
+    <!--app:use_controller="false">-->
 
     <!--</com.google.android.exoplayer2.ui.PlayerView>-->
-    <FrameLayout
-        android:id="@+id/layout_movie_wrapper"
+    <!--<FrameLayout-->
+    <!--android:id="@+id/layout_movie_wrapper"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent" />-->
+
+    <com.daasuu.epf.GlPlayerView
+        android:id="@+id/player_view_mp"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
 
     <!--<FrameLayout-->
     <!--android:id="@+id/mask"-->

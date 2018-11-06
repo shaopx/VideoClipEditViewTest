@@ -2,9 +2,11 @@ package com.daasuu.mp4compose.composer;
 
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
+import android.util.Log;
 
 import com.daasuu.epf.EFramebufferObject;
 import com.daasuu.epf.filter.GlFilter;
+import com.daasuu.mp4compose.utils.GlUtils;
 
 
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
@@ -13,10 +15,15 @@ import static android.opengl.GLES20.GL_FRAMEBUFFER;
 
 public abstract class FrameBufferObjectOutputSurface implements SurfaceTexture.OnFrameAvailableListener {
 
+    private static final boolean VERBOSE = true;
+    private static final String TAG = "FBOOutputSurface";
     private EFramebufferObject framebufferObject;
     private GlFilter normalShader;
+    protected SurfaceTexture surfaceTexture;
 
-    public final void setupAll(int width, int height) {
+    public final void setupAll() {
+        int width = getOutputWidth();
+        int height = getOutputHeight();
         framebufferObject = new EFramebufferObject();
         normalShader = new GlFilter();
         normalShader.setup();
@@ -27,12 +34,55 @@ public abstract class FrameBufferObjectOutputSurface implements SurfaceTexture.O
         setup();
     }
 
+    protected abstract int getOutputHeight();
+
+    protected abstract int getOutputWidth();
+
     protected abstract void setup();
 
-
+    private Object frameSyncObject = new Object();     // guards frameAvailable
+    private boolean frameAvailable;
     @Override
-    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+    public void onFrameAvailable(SurfaceTexture st) {
+        if (VERBOSE) Log.d(TAG, "new frame available");
+        synchronized (frameSyncObject) {
+            if (frameAvailable) {
+                throw new RuntimeException("frameAvailable already set, frame could be dropped");
+            }
+            frameAvailable = true;
+            frameSyncObject.notifyAll();
+        }
     }
+
+    /**
+     * Latches the next buffer into the texture.  Must be called from the thread that created
+     * the DecoderSurface object, after the onFrameAvailable callback has signaled that new
+     * data is available.
+     */
+    void awaitNewImage() {
+        final int TIMEOUT_MS = 10000;
+        synchronized (frameSyncObject) {
+            while (!frameAvailable) {
+                try {
+                    // Wait for onFrameAvailable() to signal us.  Use a timeout to avoid
+                    // stalling the test if it doesn't arrive.
+                    frameSyncObject.wait(TIMEOUT_MS);
+                    if (!frameAvailable) {
+                        // TODO: if "spurious wakeup", continue while loop
+                        throw new RuntimeException("Surface frame wait timed out");
+                    }
+                } catch (InterruptedException ie) {
+                    // shouldn't happen
+                    throw new RuntimeException(ie);
+                }
+            }
+            frameAvailable = false;
+        }
+        // Latch the data.
+        GlUtils.checkGlError("before updateTexImage");
+        surfaceTexture.updateTexImage();
+    }
+
 
     public void drawImage(long presentationTimeUs) {
         framebufferObject.enable();

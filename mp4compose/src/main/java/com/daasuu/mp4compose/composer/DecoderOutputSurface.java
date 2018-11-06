@@ -32,13 +32,11 @@ import static android.opengl.GLES20.glViewport;
 public class DecoderOutputSurface extends FrameBufferObjectOutputSurface {
     private static final String TAG = "DecoderSurface";
     private static final boolean VERBOSE = true;
-    private EGLDisplay eglDisplay = EGL14.EGL_NO_DISPLAY;
-    private EGLContext eglContext = EGL14.EGL_NO_CONTEXT;
-    private EGLSurface eglSurface = EGL14.EGL_NO_SURFACE;
-    private SurfaceTexture surfaceTexture;
+//    private EGLDisplay eglDisplay = EGL14.EGL_NO_DISPLAY;
+//    private EGLContext eglContext = EGL14.EGL_NO_CONTEXT;
+//    private EGLSurface eglSurface = EGL14.EGL_NO_SURFACE;
     private Surface surface;
-    private Object frameSyncObject = new Object();     // guards frameAvailable
-    private boolean frameAvailable;
+
 
     private float[] MVPMatrix = new float[16];
     private float[] STMatrix = new float[16];
@@ -74,6 +72,16 @@ public class DecoderOutputSurface extends FrameBufferObjectOutputSurface {
             isNewFilter = true;
         }
 
+    }
+
+    @Override
+    protected int getOutputHeight() {
+        return outputResolution.height();
+    }
+
+    @Override
+    protected int getOutputWidth() {
+        return outputResolution.width();
     }
 
     /**
@@ -129,19 +137,19 @@ public class DecoderOutputSurface extends FrameBufferObjectOutputSurface {
      * Discard all resources held by this class, notably the EGL context.
      */
     void release() {
-        if (eglDisplay != EGL14.EGL_NO_DISPLAY) {
-            EGL14.eglDestroySurface(eglDisplay, eglSurface);
-            EGL14.eglDestroyContext(eglDisplay, eglContext);
-            EGL14.eglReleaseThread();
-            EGL14.eglTerminate(eglDisplay);
-        }
+//        if (eglDisplay != EGL14.EGL_NO_DISPLAY) {
+//            EGL14.eglDestroySurface(eglDisplay, eglSurface);
+//            EGL14.eglDestroyContext(eglDisplay, eglContext);
+//            EGL14.eglReleaseThread();
+//            EGL14.eglTerminate(eglDisplay);
+//        }
         surface.release();
         // this causes a bunch of warnings that appear harmless but might confuse someone:
         //  W BufferQueue: [unnamed-3997-2] cancelBuffer: BufferQueue has been abandoned!
         //surfaceTexture.release();
-        eglDisplay = EGL14.EGL_NO_DISPLAY;
-        eglContext = EGL14.EGL_NO_CONTEXT;
-        eglSurface = EGL14.EGL_NO_SURFACE;
+//        eglDisplay = EGL14.EGL_NO_DISPLAY;
+//        eglContext = EGL14.EGL_NO_CONTEXT;
+//        eglSurface = EGL14.EGL_NO_SURFACE;
         if (filterList != null) {
             filterList.release();
         }
@@ -159,34 +167,6 @@ public class DecoderOutputSurface extends FrameBufferObjectOutputSurface {
         return surface;
     }
 
-    /**
-     * Latches the next buffer into the texture.  Must be called from the thread that created
-     * the DecoderSurface object, after the onFrameAvailable callback has signaled that new
-     * data is available.
-     */
-    void awaitNewImage() {
-        final int TIMEOUT_MS = 10000;
-        synchronized (frameSyncObject) {
-            while (!frameAvailable) {
-                try {
-                    // Wait for onFrameAvailable() to signal us.  Use a timeout to avoid
-                    // stalling the test if it doesn't arrive.
-                    frameSyncObject.wait(TIMEOUT_MS);
-                    if (!frameAvailable) {
-                        // TODO: if "spurious wakeup", continue while loop
-                        throw new RuntimeException("Surface frame wait timed out");
-                    }
-                } catch (InterruptedException ie) {
-                    // shouldn't happen
-                    throw new RuntimeException(ie);
-                }
-            }
-            frameAvailable = false;
-        }
-        // Latch the data.
-        GlUtils.checkGlError("before updateTexImage");
-        surfaceTexture.updateTexImage();
-    }
 
 
     /**
@@ -271,17 +251,7 @@ public class DecoderOutputSurface extends FrameBufferObjectOutputSurface {
         }
     }
 
-    @Override
-    public void onFrameAvailable(SurfaceTexture st) {
-        if (VERBOSE) Log.d(TAG, "new frame available");
-        synchronized (frameSyncObject) {
-            if (frameAvailable) {
-                throw new RuntimeException("frameAvailable already set, frame could be dropped");
-            }
-            frameAvailable = true;
-            frameSyncObject.notifyAll();
-        }
-    }
+
 
     void setRotation(Rotation rotation) {
         this.rotation = rotation;
@@ -290,7 +260,6 @@ public class DecoderOutputSurface extends FrameBufferObjectOutputSurface {
 
     void setOutputResolution(Resolution resolution) {
         this.outputResolution = resolution;
-        setupAll(outputResolution.width(), outputResolution.height());
     }
 
     void setFillMode(FillMode fillMode) {
