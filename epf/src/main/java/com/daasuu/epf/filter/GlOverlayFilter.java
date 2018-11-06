@@ -6,7 +6,7 @@ import android.graphics.Color;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
-import com.daasuu.epf.Resolution;
+import com.spx.egl.Resolution;
 
 /**
  * Created by sudamasayuki on 2017/05/18.

@@ -1,52 +1,42 @@
-package com.daasuu.mp4compose.composer;
+package com.spx.egl;
 
 import android.graphics.SurfaceTexture;
-import android.opengl.EGL14;
-import android.opengl.EGLContext;
-import android.opengl.EGLDisplay;
-import android.opengl.EGLSurface;
+import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Log;
 import android.view.Surface;
 
+import com.daasuu.epf.EFramebufferObject;
+import com.daasuu.epf.EglUtil;
+import com.daasuu.epf.filter.GlFilter;
+import com.daasuu.epf.filter.GlFilterList;
+import com.daasuu.epf.filter.GlPreviewFilter;
 import com.daasuu.mp4compose.FillMode;
 import com.daasuu.mp4compose.FillModeCustomItem;
-import com.daasuu.mp4compose.Resolution;
 import com.daasuu.mp4compose.Rotation;
-import com.daasuu.mp4compose.filter.GlComposeFilter;
-import com.daasuu.mp4compose.utils.GlUtils;
+import com.daasuu.mp4compose.composer.FrameBufferObjectOutputSurface;
 
-// Refer : https://android.googlesource.com/platform/cts/+/lollipop-release/tests/tests/media/src/android/media/cts/OutputSurface.java
+import static android.opengl.GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
+import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
+import static android.opengl.GLES20.GL_LINEAR;
+import static android.opengl.GLES20.GL_NEAREST;
+import static android.opengl.GLES20.GL_TEXTURE_2D;
+import static android.opengl.GLES20.glViewport;
 
-/**
- * Holds state associated with a Surface used for MediaCodec decoder output.
- * <p>
- * The (width,height) constructor for this class will prepare GL, create a SurfaceTexture,
- * and then create a Surface for that SurfaceTexture.  The Surface can be passed to
- * MediaCodec.configure() to receive decoder output.  When a frame arrives, we latch the
- * texture with updateTexImage, then render the texture with GL to a pbuffer.
- * <p>
- * The no-arg constructor skips the GL preparation step and doesn't allocate a pbuffer.
- * Instead, it just creates the Surface and SurfaceTexture, and when a frame arrives
- * we just draw it on whatever surface is current.
- * <p>
- * By default, the Surface will be using a BufferQueue in asynchronous mode, so we
- * can potentially drop frames.
- */
-class DecoderSurface implements SurfaceTexture.OnFrameAvailableListener {
+public class DecoderOutputSurface extends FrameBufferObjectOutputSurface {
     private static final String TAG = "DecoderSurface";
-    private static final boolean VERBOSE = false;
-    private EGLDisplay eglDisplay = EGL14.EGL_NO_DISPLAY;
-    private EGLContext eglContext = EGL14.EGL_NO_CONTEXT;
-    private EGLSurface eglSurface = EGL14.EGL_NO_SURFACE;
-    private SurfaceTexture surfaceTexture;
+    private static final boolean VERBOSE = true;
+//    private EGLDisplay eglDisplay = EGL14.EGL_NO_DISPLAY;
+//    private EGLContext eglContext = EGL14.EGL_NO_CONTEXT;
+//    private EGLSurface eglSurface = EGL14.EGL_NO_SURFACE;
     private Surface surface;
-    private Object frameSyncObject = new Object();     // guards frameAvailable
-    private boolean frameAvailable;
-    private GlComposeFilter filter;
+
 
     private float[] MVPMatrix = new float[16];
     private float[] STMatrix = new float[16];
+    private float[] ProjMatrix = new float[16];
+    private float[] MMatrix = new float[16];
+    private float[] VMatrix = new float[16];
 
     private Rotation rotation = Rotation.NORMAL;
     private Resolution outputResolution;
@@ -55,29 +45,70 @@ class DecoderSurface implements SurfaceTexture.OnFrameAvailableListener {
     private FillModeCustomItem fillModeCustomItem;
     private boolean flipVertical = false;
     private boolean flipHorizontal = false;
+    private int textureID = -12345;
+
+    private GlFilter glFilter;
+    private GlFilterList filterList;
+    private EFramebufferObject glFilterFrameBuffer;
+
+    private GlPreviewFilter previewFilter;
+
+    private boolean isNewFilter;
 
     /**
      * Creates an DecoderSurface using the current EGL context (rather than establishing a
      * new one).  Creates a Surface that can be passed to MediaCodec.configure().
      */
-    DecoderSurface(GlComposeFilter filter) {
-        this.filter = filter;
-        this.filter.setUpSurface();
-        setup();
+    public DecoderOutputSurface(GlFilter filter, GlFilterList filterList) {
+        this.glFilter = filter;
+        this.filterList = filterList;
+        if (filterList != null) {
+            isNewFilter = true;
+        }
+
+    }
+
+    @Override
+    protected int getOutputHeight() {
+        return outputResolution.height();
+    }
+
+    @Override
+    protected int getOutputWidth() {
+        return outputResolution.width();
     }
 
     /**
      * Creates instances of TextureRender and SurfaceTexture, and a Surface associated
      * with the SurfaceTexture.
      */
-    private void setup() {
+    public void setup() {
+        Log.d(TAG, "setup: width:"+outputResolution.width()+", height:"+outputResolution.height());
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
+        int[] textures = new int[1];
+        GLES20.glGenTextures(1, textures, 0);
+        textureID = textures[0];
+
+        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureID);
+        // GL_TEXTURE_EXTERNAL_OES
+        EglUtil.setupSampler(GL_TEXTURE_EXTERNAL_OES, GL_LINEAR, GL_NEAREST);
+        GLES20.glBindTexture(GL_TEXTURE_2D, 0);
+
+
+        glFilterFrameBuffer = new EFramebufferObject();
+        glFilterFrameBuffer.setup(outputResolution.width(),outputResolution.height());
+
+        previewFilter = new GlPreviewFilter(GL_TEXTURE_EXTERNAL_OES);
+        previewFilter.setup();
+
+        // GL_TEXTURE_EXTERNAL_OES
         // Even if we don't access the SurfaceTexture after the constructor returns, we
         // still need to keep a reference to it.  The Surface doesn't retain a reference
         // at the Java level, so if we don't either then the object can get GCed, which
         // causes the native finalizer to run.
-        if (VERBOSE) Log.d(TAG, "textureID=" + filter.getTextureId());
-        surfaceTexture = new SurfaceTexture(filter.getTextureId());
+        if (VERBOSE) Log.d(TAG, "textureID=" + textureID);
+        surfaceTexture = new SurfaceTexture(textureID);
         // This doesn't work if DecoderSurface is created on the thread that CTS started for
         // these test cases.
         //
@@ -99,22 +130,26 @@ class DecoderSurface implements SurfaceTexture.OnFrameAvailableListener {
     /**
      * Discard all resources held by this class, notably the EGL context.
      */
-    void release() {
-        if (eglDisplay != EGL14.EGL_NO_DISPLAY) {
-            EGL14.eglDestroySurface(eglDisplay, eglSurface);
-            EGL14.eglDestroyContext(eglDisplay, eglContext);
-            EGL14.eglReleaseThread();
-            EGL14.eglTerminate(eglDisplay);
-        }
+    public void release() {
+//        if (eglDisplay != EGL14.EGL_NO_DISPLAY) {
+//            EGL14.eglDestroySurface(eglDisplay, eglSurface);
+//            EGL14.eglDestroyContext(eglDisplay, eglContext);
+//            EGL14.eglReleaseThread();
+//            EGL14.eglTerminate(eglDisplay);
+//        }
         surface.release();
         // this causes a bunch of warnings that appear harmless but might confuse someone:
         //  W BufferQueue: [unnamed-3997-2] cancelBuffer: BufferQueue has been abandoned!
         //surfaceTexture.release();
-        eglDisplay = EGL14.EGL_NO_DISPLAY;
-        eglContext = EGL14.EGL_NO_CONTEXT;
-        eglSurface = EGL14.EGL_NO_SURFACE;
-        filter.release();
-        filter = null;
+//        eglDisplay = EGL14.EGL_NO_DISPLAY;
+//        eglContext = EGL14.EGL_NO_CONTEXT;
+//        eglSurface = EGL14.EGL_NO_SURFACE;
+        if (filterList != null) {
+            filterList.release();
+        }
+        if (surfaceTexture != null) {
+            surfaceTexture.release();
+        }
         surface = null;
         surfaceTexture = null;
     }
@@ -122,51 +157,31 @@ class DecoderSurface implements SurfaceTexture.OnFrameAvailableListener {
     /**
      * Returns the Surface that we draw onto.
      */
-    Surface getSurface() {
+    public Surface getSurface() {
         return surface;
     }
 
-    /**
-     * Latches the next buffer into the texture.  Must be called from the thread that created
-     * the DecoderSurface object, after the onFrameAvailable callback has signaled that new
-     * data is available.
-     */
-    void awaitNewImage() {
-        final int TIMEOUT_MS = 10000;
-        synchronized (frameSyncObject) {
-            while (!frameAvailable) {
-                try {
-                    // Wait for onFrameAvailable() to signal us.  Use a timeout to avoid
-                    // stalling the test if it doesn't arrive.
-                    frameSyncObject.wait(TIMEOUT_MS);
-                    if (!frameAvailable) {
-                        // TODO: if "spurious wakeup", continue while loop
-                        throw new RuntimeException("Surface frame wait timed out");
-                    }
-                } catch (InterruptedException ie) {
-                    // shouldn't happen
-                    throw new RuntimeException(ie);
-                }
-            }
-            frameAvailable = false;
-        }
-        // Latch the data.
-        GlUtils.checkGlError("before updateTexImage");
-        surfaceTexture.updateTexImage();
-    }
 
 
     /**
      * Draws the data from SurfaceTexture onto the current EGL surface.
+     *
      * @param presentationTimeUs
      */
-    void drawImage(long presentationTimeUs) {
+    public void onDrawFrame(EFramebufferObject fbo, long presentationTimeUs) {
 
         Matrix.setIdentityM(MVPMatrix, 0);
 
         float scaleDirectionX = flipHorizontal ? -1 : 1;
         float scaleDirectionY = flipVertical ? -1 : 1;
 
+        if (isNewFilter) {
+            if (filterList != null) {
+                filterList.setup();
+                filterList.setFrameSize(fbo.getWidth(), fbo.getHeight());
+            }
+            isNewFilter = false;
+        }
 
         float scale[];
         switch (fillMode) {
@@ -215,41 +230,41 @@ class DecoderSurface implements SurfaceTexture.OnFrameAvailableListener {
             default:
                 break;
         }
+        Log.d(TAG, "onDrawFrame: ...");
+        if (filterList != null) {
+            glFilterFrameBuffer.enable();
+            glViewport(0, 0, glFilterFrameBuffer.getWidth(), glFilterFrameBuffer.getHeight());
+        }
+        surfaceTexture.getTransformMatrix(STMatrix);
+        previewFilter.draw(textureID, MVPMatrix, STMatrix, 1.0f);
 
-
-        filter.draw(surfaceTexture, STMatrix, MVPMatrix);
-    }
-
-    @Override
-    public void onFrameAvailable(SurfaceTexture st) {
-        if (VERBOSE) Log.d(TAG, "new frame available");
-        synchronized (frameSyncObject) {
-            if (frameAvailable) {
-                throw new RuntimeException("frameAvailable already set, frame could be dropped");
-            }
-            frameAvailable = true;
-            frameSyncObject.notifyAll();
+        if (filterList != null) {
+            fbo.enable();  // 重新启用了最外层的fbo , 那么glFilter的输出就到了这个fbo .
+            GLES20.glClear(GL_COLOR_BUFFER_BIT);
+            filterList.draw(glFilterFrameBuffer.getTexName(), fbo, presentationTimeUs, null);
         }
     }
 
-    void setRotation(Rotation rotation) {
+
+
+    public void setRotation(Rotation rotation) {
         this.rotation = rotation;
     }
 
 
-    void setOutputResolution(Resolution resolution) {
+    public void setOutputResolution(Resolution resolution) {
         this.outputResolution = resolution;
     }
 
-    void setFillMode(FillMode fillMode) {
+    public void setFillMode(FillMode fillMode) {
         this.fillMode = fillMode;
     }
 
-    void setInputResolution(Resolution resolution) {
+    public void setInputResolution(Resolution resolution) {
         this.inputResolution = resolution;
     }
 
-    void setFillModeCustomItem(FillModeCustomItem fillModeCustomItem) {
+    public void setFillModeCustomItem(FillModeCustomItem fillModeCustomItem) {
         this.fillModeCustomItem = fillModeCustomItem;
     }
 
@@ -261,3 +276,4 @@ class DecoderSurface implements SurfaceTexture.OnFrameAvailableListener {
         this.flipHorizontal = flipHorizontal;
     }
 }
+

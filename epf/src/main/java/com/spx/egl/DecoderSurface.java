@@ -1,35 +1,40 @@
-package com.daasuu.mp4compose.composer;
+package com.spx.egl;
 
 import android.graphics.SurfaceTexture;
 import android.opengl.EGL14;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
-import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Log;
 import android.view.Surface;
 
-import com.daasuu.epf.EFramebufferObject;
-import com.daasuu.epf.filter.GlFilter;
 import com.daasuu.mp4compose.FillMode;
 import com.daasuu.mp4compose.FillModeCustomItem;
-import com.daasuu.mp4compose.Resolution;
 import com.daasuu.mp4compose.Rotation;
 import com.daasuu.mp4compose.filter.GlComposeFilter;
 import com.daasuu.mp4compose.utils.GlUtils;
 
-import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
-import static android.opengl.GLES20.GL_DEPTH_BUFFER_BIT;
-import static android.opengl.GLES20.GL_FRAMEBUFFER;
+// Refer : https://android.googlesource.com/platform/cts/+/lollipop-release/tests/tests/media/src/android/media/cts/OutputSurface.java
 
-public class DecoderSurface2 implements SurfaceTexture.OnFrameAvailableListener {
+/**
+ * Holds state associated with a Surface used for MediaCodec decoder output.
+ * <p>
+ * The (width,height) constructor for this class will prepare GL, create a SurfaceTexture,
+ * and then create a Surface for that SurfaceTexture.  The Surface can be passed to
+ * MediaCodec.configure() to receive decoder output.  When a frame arrives, we latch the
+ * texture with updateTexImage, then render the texture with GL to a pbuffer.
+ * <p>
+ * The no-arg constructor skips the GL preparation step and doesn't allocate a pbuffer.
+ * Instead, it just creates the Surface and SurfaceTexture, and when a frame arrives
+ * we just draw it on whatever surface is current.
+ * <p>
+ * By default, the Surface will be using a BufferQueue in asynchronous mode, so we
+ * can potentially drop frames.
+ */
+class DecoderSurface implements SurfaceTexture.OnFrameAvailableListener {
     private static final String TAG = "DecoderSurface";
     private static final boolean VERBOSE = false;
-
-    private EFramebufferObject framebufferObject;
-    private GlFilter normalShader;
-
     private EGLDisplay eglDisplay = EGL14.EGL_NO_DISPLAY;
     private EGLContext eglContext = EGL14.EGL_NO_CONTEXT;
     private EGLSurface eglSurface = EGL14.EGL_NO_SURFACE;
@@ -54,16 +59,7 @@ public class DecoderSurface2 implements SurfaceTexture.OnFrameAvailableListener 
      * Creates an DecoderSurface using the current EGL context (rather than establishing a
      * new one).  Creates a Surface that can be passed to MediaCodec.configure().
      */
-    DecoderSurface2(GlComposeFilter filter) {
-
-        framebufferObject = new EFramebufferObject();
-        normalShader = new GlFilter();
-        normalShader.setup();
-
-        framebufferObject.setup(320, 480);
-        normalShader.setFrameSize(320, 480);
-
-
+    DecoderSurface(GlComposeFilter filter) {
         this.filter = filter;
         this.filter.setUpSurface();
         setup();
@@ -220,17 +216,7 @@ public class DecoderSurface2 implements SurfaceTexture.OnFrameAvailableListener 
         }
 
 
-        framebufferObject.enable();
-        GLES20.glViewport(0, 0, framebufferObject.getWidth(), framebufferObject.getHeight());
-
         filter.draw(surfaceTexture, STMatrix, MVPMatrix);
-
-        // 在最外层, 最终把输出从屏幕输出
-        GLES20.glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        GLES20.glViewport(0, 0, framebufferObject.getWidth(), framebufferObject.getHeight());
-
-        GLES20.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        normalShader.draw(framebufferObject.getTexName(), null, null);
     }
 
     @Override

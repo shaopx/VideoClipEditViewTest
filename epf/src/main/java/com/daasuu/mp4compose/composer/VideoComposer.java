@@ -10,9 +10,10 @@ import com.daasuu.epf.filter.GlFilter;
 import com.daasuu.epf.filter.GlFilterList;
 import com.daasuu.mp4compose.FillMode;
 import com.daasuu.mp4compose.FillModeCustomItem;
-import com.daasuu.mp4compose.Resolution;
+import com.spx.egl.Resolution;
 import com.daasuu.mp4compose.Rotation;
-import com.daasuu.mp4compose.filter.GlComposeFilter;
+import com.spx.egl.DecoderOutputSurface;
+import com.spx.egl.EncoderSurface;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -86,6 +87,7 @@ class VideoComposer {
             // refer: https://android.googlesource.com/platform/frameworks/av/+blame/lollipop-release/media/libstagefright/Utils.cpp
             inputFormat.setInteger("rotation-degrees", 0);
         }
+
         decoderSurface = new DecoderOutputSurface(filter, filterList);
 //        decoderSurface = new DecoderSurface2(new GlComposeFilter());
         decoderSurface.setRotation(rotation);

@@ -6,7 +6,7 @@ import android.graphics.Color;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
-import com.daasuu.mp4compose.Resolution;
+import com.spx.egl.Resolution;
 import com.daasuu.mp4compose.utils.GlUtils;
 
 /**

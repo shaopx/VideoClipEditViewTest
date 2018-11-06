@@ -59,7 +59,7 @@ public abstract class FrameBufferObjectOutputSurface implements SurfaceTexture.O
      * the DecoderSurface object, after the onFrameAvailable callback has signaled that new
      * data is available.
      */
-    void awaitNewImage() {
+    public void awaitNewImage() {
         final int TIMEOUT_MS = 10000;
         synchronized (frameSyncObject) {
             while (!frameAvailable) {

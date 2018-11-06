@@ -1,6 +1,6 @@
 package com.daasuu.mp4compose.filter;
 
-import com.daasuu.mp4compose.Resolution;
+import com.spx.egl.Resolution;
 
 /**
  * Created by sudamasayuki on 2018/01/07.

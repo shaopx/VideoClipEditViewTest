@@ -1,4 +1,4 @@
-package com.daasuu.mp4compose.composer;
+package com.spx.egl;
 
 import android.opengl.EGL14;
 import android.opengl.EGLConfig;
@@ -17,7 +17,7 @@ import android.view.Surface;
  * to create an EGL window surface.  Calls to eglSwapBuffers() cause a frame of data to be sent
  * to the video encoder.
  */
-class EncoderSurface {
+public class EncoderSurface {
 
     private static final int EGL_RECORDABLE_ANDROID = 0x3142;
     private EGLDisplay eglDisplay = EGL14.EGL_NO_DISPLAY;
@@ -28,7 +28,7 @@ class EncoderSurface {
     /**
      * Creates an EncoderSurface from a Surface.
      */
-    EncoderSurface(Surface surface) {
+    public EncoderSurface(Surface surface) {
         if (surface == null) {
             throw new NullPointerException();
         }
@@ -109,7 +109,7 @@ class EncoderSurface {
     /**
      * Makes our EGL context and surface current.
      */
-    void makeCurrent() {
+    public void makeCurrent() {
         if (!EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)) {
             throw new RuntimeException("eglMakeCurrent failed");
         }
@@ -118,14 +118,14 @@ class EncoderSurface {
     /**
      * Calls eglSwapBuffers.  Use this to "publish" the current frame.
      */
-    void swapBuffers() {
+    public void swapBuffers() {
         EGL14.eglSwapBuffers(eglDisplay, eglSurface);
     }
 
     /**
      * Sends the presentation time stamp to EGL.  Time is expressed in nanoseconds.
      */
-    void setPresentationTime(long nsecs) {
+    public void setPresentationTime(long nsecs) {
         EGLExt.eglPresentationTimeANDROID(eglDisplay, eglSurface, nsecs);
     }
 

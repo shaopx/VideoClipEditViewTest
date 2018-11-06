@@ -11,9 +11,8 @@ import com.daasuu.epf.filter.GlFilter;
 import com.daasuu.epf.filter.GlFilterList;
 import com.daasuu.mp4compose.FillMode;
 import com.daasuu.mp4compose.FillModeCustomItem;
-import com.daasuu.mp4compose.Resolution;
+import com.spx.egl.Resolution;
 import com.daasuu.mp4compose.Rotation;
-import com.daasuu.mp4compose.filter.GlComposeFilter;
 
 import java.io.FileDescriptor;
 import java.io.IOException;

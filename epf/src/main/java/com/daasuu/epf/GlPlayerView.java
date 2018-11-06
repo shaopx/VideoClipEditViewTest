@@ -5,8 +5,7 @@ import android.graphics.SurfaceTexture;
 import android.util.AttributeSet;
 
 import com.daasuu.epf.filter.GlFilter;
-import com.spx.library.player.mp.MPlayerView;
-import com.spx.library.player.mp.TextureSurfaceRenderer;
+import com.spx.egl.MPlayerView;
 import com.spx.library.player.mp.TextureSurfaceRenderer2;
 
 public class GlPlayerView extends MPlayerView {
