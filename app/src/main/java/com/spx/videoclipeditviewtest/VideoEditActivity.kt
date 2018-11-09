@@ -8,18 +8,18 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import com.spx.library.decodeFile
+import com.daasuu.epf.filter.GlFilter
+import com.daasuu.epf.filter.GlFilterPeriod
 import com.spx.library.getVideoDuration
 import com.spx.library.scale
-import com.spx.videoclipeditviewtest.ext.createFilterOptions
-import com.spx.videoclipeditviewtest.ext.getFilterByName
-import com.spx.videoclipeditviewtest.ext.getInt
+import com.spx.library.showToast
+import com.spx.videoclipeditviewtest.ext.*
+import com.spx.videoclipeditviewtest.util.ThumnaiAdapter
 import com.spx.videoclipeditviewtest.view.BottomDialogFragment
-import kotlinx.android.synthetic.main.activity_video_clip.view.*
 import kotlinx.android.synthetic.main.activity_video_edit.*
 
 class VideoEditActivity : AppCompatActivity() {
@@ -35,6 +35,34 @@ class VideoEditActivity : AppCompatActivity() {
     private var millsecPerThumbnail = 1000
     var list: MutableList<String?> = mutableListOf()
     var itemWidth = 100
+    var mIsTouching = false
+    var adapter: ThumnaiAdapter? = null
+
+    var effectTouching = false
+    var effectStartTime = 0L
+    var effectEndTime = 0L
+    var effectFliter: GlFilter? = null
+    var effectFilterPeriod: GlFilterPeriod? = null
+
+    var effectTouchListener = View.OnTouchListener { v, event ->
+        var option = v.tag as BottomDialogFragment.Option
+        val eventId = event.getAction()
+        when (eventId) {
+            MotionEvent.ACTION_DOWN -> {
+                effectTouching = true
+                effectStartTime = currentPlayTime
+//                Log.d(TAG, "effectStartTime: $effectStartTime")
+                beginOneEffect(option)
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                effectTouching = false
+                effectEndTime = currentPlayTime
+//                Log.d(TAG, "effectEndTime: $effectEndTime")
+                endOneEffect()
+            }
+        }
+        true
+    }
 
     var handler = object : Handler() {
         override fun handleMessage(msg: Message?) {
@@ -64,13 +92,13 @@ class VideoEditActivity : AppCompatActivity() {
         millsecPerThumbnail = 500
         thumbnailCount = Math.ceil(((mediaDuration * 1f / millsecPerThumbnail).toDouble())).toInt()
         Log.d(TAG, "thumbnailCount:$thumbnailCount,  millsecPerThumbnail:$millsecPerThumbnail")
-        for(i in 0 until  thumbnailCount){
+        for (i in 0 until thumbnailCount) {
             list.add(i, "")
         }
         var screenW = resources.displayMetrics.widthPixels
         itemWidth = screenW / 12
 
-        var adapter = MyAdapter()
+        adapter = ThumnaiAdapter(list, itemWidth)
         recyclerview.adapter = adapter
         var layoutManager = LinearLayoutManager(this).apply {
             orientation = LinearLayoutManager.HORIZONTAL
@@ -84,9 +112,9 @@ class VideoEditActivity : AppCompatActivity() {
         recyclerview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                Log.d(TAG, "onScrolled  dx:" + dx)
+//                Log.d(TAG, "onScrolled  dx:" + dx)
                 val (position, itemLeft, scrollX) = recyclerView.getScollXDistance()
-                var total = itemWidth * adapter.itemCount
+                var total = itemWidth * adapter!!.itemCount
                 var rate = 1f * (scrollX + padding) / total
                 if (position == -1) {
                     rate = 1f
@@ -96,26 +124,87 @@ class VideoEditActivity : AppCompatActivity() {
             }
         })
 
+        recyclerview.setOnTouchListener { v, event ->
+            val eventId = event.getAction()
+            when (eventId) {
+                MotionEvent.ACTION_DOWN -> mIsTouching = true
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> mIsTouching = false
+            }
+            false
+        }
+
         player_view_exo_thumbnail.setDataSource(mediaPath, millsecPerThumbnail, thumbnailCount) { bitmap: String, index: Int ->
             Log.d(TAG, "[$index]bitmap:$bitmap")
             handler.post {
                 list.set(index, bitmap)
-                adapter.notifyDataSetChanged()
+                adapter!!.notifyDataSetChanged()
             }
         }
 
+        player_view_mp.setProgressListener() { timeMs ->
+            onPlayPositionChanged(timeMs)
+        }
+    }
+
+    var currentPlayTime = 0L
+    var lastTimeMs = 0L
+    private fun onPlayPositionChanged(timeMs: Long) {
+        if (mIsTouching) {
+            lastTimeMs = timeMs
+            return
+        }
+        var diff = timeMs - lastTimeMs
+        var rate = diff * 1f / mediaDuration
+        var total = itemWidth * (adapter?.itemCount ?: 0)
+        var widthDiff = total * 1f * rate
+//        Log.d(TAG, "playing timeMs:$timeMs, rate:$rate, widthDiff:$widthDiff")
+        recyclerview.scrollBy(widthDiff.toInt(), 0)
+
+        lastTimeMs = timeMs
+        currentPlayTime = timeMs
+    }
+
+    fun onPreview(rate: Float) {
+        var timems = mediaDuration * rate
+//        Log.d(TAG, "onPreview  time:$timems")
+        if (mIsTouching) {
+            player_view_mp.seekTo(timems.toLong())
+            lastTimeMs = timems.toLong()
+        }
 
     }
 
-    fun onPreview(rate:Float){
-        var timems = mediaDuration*rate
-        Log.d(TAG, "onPreview  time:$timems")
-        player_view_mp.seekTo(timems.toLong())
+
+    private fun beginOneEffect(option: BottomDialogFragment.Option) {
+        val filter = getEffectFilterByName(option.optionName, applicationContext)
+        Log.d(TAG, "beginOneEffect option:${option.optionName}  effectStartTime:$effectStartTime, filter:$filter")
+
+        effectFilterPeriod = player_view_mp.addFiler(effectStartTime, mediaDuration, filter)
+        effectFliter = filter
+    }
+
+    private fun endOneEffect() {
+        Log.d(TAG, "endOneEffect effectEndTime:$effectEndTime")
+        effectFilterPeriod!!.endTimeMs = effectEndTime
     }
 
     private fun switchToEffectEdit() {
+        showToast("特效还为开发完成")
         player_view_mp.scale()
+        var options = createEffectOptions()
 
+        hs_effect_list.visibility = View.VISIBLE
+
+        options.forEachIndexed { index, option ->
+            val itemView = LayoutInflater.from(this).inflate(R.layout.item_record_beauty, null)
+            itemView.findViewById<ImageView>(R.id.iv_beauty_image).setImageResource(option.iconResId)
+            itemView.findViewById<TextView>(R.id.tv_beauty_text).text = option.optionName
+            itemView.tag = option
+            option.index = index
+            ll_container.addView(itemView)
+
+            itemView.setOnTouchListener(effectTouchListener)
+        }
     }
 
     override fun onResume() {
@@ -147,41 +236,7 @@ class VideoEditActivity : AppCompatActivity() {
 
     private fun getSelection() = getInt(this, "filter_selection", 0)
 
-    inner class VH : RecyclerView.ViewHolder {
-        var title: TextView
-        var image: ImageView
 
-        constructor(itemview: View) : super(itemview) {
-            title = itemview.findViewById(R.id.title)
-            image = itemview.findViewById(R.id.image)
-        }
-    }
-
-
-    inner class MyAdapter() : RecyclerView.Adapter<VH>() {
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-            val v = LayoutInflater.from(parent.context).inflate(R.layout.item_layout, parent, false)
-            return VH(v)
-        }
-
-        override fun getItemCount() = list.size
-
-        override fun onBindViewHolder(viewholder: VH, position: Int) {
-            val layoutParams = viewholder.itemView.layoutParams
-            layoutParams.width = itemWidth
-            viewholder.itemView.layoutParams = layoutParams
-//            viewholder.title.setText("$position")
-            if (!list[position].isNullOrEmpty()) {
-                viewholder.image.setImageBitmap(decodeFile(list[position]!!))
-            } else {
-                viewholder.image.setImageResource(R.drawable.ic_launcher_background)
-            }
-
-        }
-
-
-    }
 }
 
 

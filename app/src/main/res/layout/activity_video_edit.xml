@@ -24,13 +24,6 @@
 
     </LinearLayout>
 
-
-
-    <com.daasuu.epf.GlPlayerView
-        android:id="@+id/player_view_mp"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerview"
         android:layout_width="wrap_content"
@@ -50,6 +43,15 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="112dp"
         android:background="#4ae3ff"/>
+
+
+    <com.daasuu.epf.GlPlayerView
+        android:id="@+id/player_view_mp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+
 
     <ImageView
         android:id="@+id/iv_back"
@@ -110,6 +112,22 @@
 
 
 
+    <HorizontalScrollView
+        android:id="@+id/hs_effect_list"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:scrollbars="none"
+        android:visibility="invisible">
 
+        <LinearLayout
+            android:id="@+id/ll_container"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="14dp" />
+
+    </HorizontalScrollView>
 
 </RelativeLayout>

@@ -48,3 +48,28 @@ fun getFilterPngByType(type:String):String{
         else -> "filter_white"
     }
 }
+
+//-------------------------------------    #####特效 #######-----------------------
+fun createEffectOptions(): List<BottomDialogFragment.Option> {
+    return arrayListOf(
+            BottomDialogFragment.Option(R.drawable.ic_beauty_no, "无特效"),
+            BottomDialogFragment.Option(R.drawable.ic_beauty_white, "动感光波"),
+            BottomDialogFragment.Option(R.drawable.ic_beauty_white, "暗黑幻境"),
+            BottomDialogFragment.Option(R.drawable.ic_filter_langman, "灵魂出窍"),
+            BottomDialogFragment.Option(R.drawable.ic_filter_qinxin, "画面分裂"),
+            BottomDialogFragment.Option(R.drawable.ic_filter_weimei, "百叶窗"),
+            BottomDialogFragment.Option(R.drawable.ic_filter_fennen, "鬼影"),
+            BottomDialogFragment.Option(R.drawable.ic_filter_huaijiu, "幻影"),
+            BottomDialogFragment.Option(R.drawable.ic_filter_landiao, "幽灵"),
+            BottomDialogFragment.Option(R.drawable.ic_filter_qingliang, "闪电"),
+            BottomDialogFragment.Option(R.drawable.ic_filter_rixi, "镜像"),
+            BottomDialogFragment.Option(R.drawable.ic_filter_rixi, "幻觉")
+    )
+}
+fun getEffectFilterByName(name:String, context:Context): GlFilter{
+    return  when{
+        name.equals("无特效")    ->  GlFilter()
+        name.equals("动感光波")  ->  GLImageComplexionBeautyFilter(context)
+        else                -> GlPngFliter(context, getFilterPngByType(name))
+    }
+}
