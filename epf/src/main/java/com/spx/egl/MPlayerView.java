@@ -5,6 +5,8 @@ import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Build;
+import android.os.HandlerThread;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Surface;
@@ -14,9 +16,12 @@ import android.widget.FrameLayout;
 
 import com.daasuu.epf.filter.GlFilter;
 import com.daasuu.epf.filter.GlFilterList;
+import com.daasuu.epf.filter.GlFilterPeriod;
 import com.spx.library.player.mp.TextureSurfaceRenderer2;
 
 import java.io.IOException;
+
+import static android.media.MediaPlayer.SEEK_CLOSEST;
 
 /**
  * by shaopx 2018.11.5
@@ -56,6 +61,13 @@ public abstract class MPlayerView extends FrameLayout implements
         this.addView(mContainer, params);
 
         filterList = new GlFilterList();
+//        filterList.setup();
+    }
+
+    public void setFiler(long startTimeMs, long endTimeMs, GlFilter glFilter){
+
+        GlFilterPeriod period = new GlFilterPeriod(startTimeMs, endTimeMs, glFilter);
+        filterList.putGlFilter(period);
     }
 
     public void setDataSource(String url) {
@@ -135,7 +147,7 @@ public abstract class MPlayerView extends FrameLayout implements
 //        videoRenderer = getVideoRender(surface, surfaceWidth, surfaceHeight);
 
 
-        new Thread(new Runnable() {
+        Thread th = new Thread(new Runnable() {
             @Override
             public void run() {
 
@@ -159,7 +171,8 @@ public abstract class MPlayerView extends FrameLayout implements
                 });
                 poll();
             }
-        }).start();
+        });
+        th.start();
 
 
     }
@@ -170,7 +183,13 @@ public abstract class MPlayerView extends FrameLayout implements
     private void poll() {
         while (notDestroyed) {
             if (running) {
-                decoderSurface.awaitNewImage();
+                try {
+                    decoderSurface.awaitNewImage();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+//                    throw ex;
+                    return;
+                }
                 decoderSurface.drawImage(0l);
                 encoderSurface.setPresentationTime(System.currentTimeMillis());
                 encoderSurface.swapBuffers();
@@ -187,7 +206,8 @@ public abstract class MPlayerView extends FrameLayout implements
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        notDestroyed = true;
+        notDestroyed = false;
+        running = false;
     }
 
     public abstract TextureSurfaceRenderer2 getVideoRender(SurfaceTexture surface, int surfaceWidth, int surfaceHeight);
@@ -200,21 +220,33 @@ public abstract class MPlayerView extends FrameLayout implements
     }
 
     public void resumePlay() {
+        running = true;
         if (mMediaPlayer != null && !mMediaPlayer.isPlaying()) {
             mMediaPlayer.start();
         }
     }
 
     public void pausePlay() {
+        running = false;
         if (mMediaPlayer != null) {
             mMediaPlayer.pause();
         }
     }
 
     public void release() {
+        notDestroyed = false;
         if (mMediaPlayer != null) {
             mMediaPlayer.release();
         }
     }
 
+    public void seekTo(long timems) {
+        if(mMediaPlayer!=null){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                mMediaPlayer.seekTo(timems, SEEK_CLOSEST);
+            } else {
+                mMediaPlayer.seekTo((int) timems);
+            }
+        }
+    }
 }

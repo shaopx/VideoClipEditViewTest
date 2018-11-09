@@ -84,6 +84,7 @@ public class GlFilter {
     private final String vertexShaderSource;
     private final String fragmentShaderSource;
     protected Context mContext;
+    protected boolean hasSetUp = false;
 
     protected int mProgramHandle;
     protected int mMVPMatrixHandle;
@@ -126,9 +127,12 @@ public class GlFilter {
         vertexShader = EglUtil.loadShader(vertexShaderSource, GL_VERTEX_SHADER);
         fragmentShader = EglUtil.loadShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
         mProgramHandle = EglUtil.createProgram(vertexShader, fragmentShader);
+        Log.d(TAG, "setup: "+getName()+", mProgramHandle:"+mProgramHandle);
         vertexBufferName = EglUtil.createBuffer(VERTICES_DATA);
 
         initProgramHandle();
+
+        hasSetUp = true;
     }
 
     public void onDrawFrameBegin() {
@@ -171,6 +175,7 @@ public class GlFilter {
         }
     }
     public int draw(final int sourceTextId, final EFramebufferObject fbo, Map<String,Integer> extraTextureIds) {
+        checkSetUp();
         useProgram();
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vertexBufferName);
         GLES20.glEnableVertexAttribArray(getHandle("aPosition"));
@@ -195,13 +200,19 @@ public class GlFilter {
         return -1;
     }
 
+    private void checkSetUp() {
+        if(!hasSetUp){
+            setup();
+        }
+    }
+
     protected void onDraw() {
     }
     protected void onDraw( Map<String,Integer> extraTextureIds) {
     }
 
     protected final void useProgram() {
-        Log.d(TAG, "useProgram: mProgramHandle:"+mProgramHandle);
+//        Log.d(TAG, "useProgram: mProgramHandle:"+mProgramHandle);
         glUseProgram(mProgramHandle);
     }
 

@@ -103,7 +103,16 @@ fun writeToFile(bitmap: Bitmap, outBitmap: String, quality: Int = 50): Boolean {
 }
 
 fun decodeFile(file:  String): Bitmap? {
-    return decodeInputStream(FileInputStream(file))
+    var fileInputStream: FileInputStream? = null
+    try {
+        fileInputStream = FileInputStream(file)
+        return decodeInputStream(fileInputStream)
+    } finally {
+        fileInputStream?.run {
+            close()
+        }
+    }
+
 }
 
 fun decodeInputStream(inputStream:  InputStream): Bitmap? {
@@ -123,7 +132,7 @@ fun decodeInputStream(inputStream:  InputStream): Bitmap? {
 
 fun View.scale(){
     var margin: Int = 120
-    var bottomMargin: Int = 400
+    var bottomMargin: Int = 430
     val anim = ValueAnimator.ofFloat(0f, 1f)
     anim.duration = 500
     anim.interpolator = LinearInterpolator()

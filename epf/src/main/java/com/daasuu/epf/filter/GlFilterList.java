@@ -41,7 +41,7 @@ public class GlFilterList {
     }
 
     public void draw(int texName, EFramebufferObject fbo, long presentationTimeUs, Map<String, Integer> extraTextureIds) {
-        Log.d(TAG, "draw: presentationTimeUs:"+presentationTimeUs+", glFilerPeriod:"+glFilerPeriod);
+//        Log.d(TAG, "draw: presentationTimeUs:"+presentationTimeUs+", glFilerPeriod:"+glFilerPeriod);
         for (GlFilterPeriod glFilterPeriod : glFilerPeriod) {
             if (glFilterPeriod.contains(presentationTimeUs / 1000)) {
                 glFilterPeriod.filter.draw(texName, fbo, extraTextureIds);

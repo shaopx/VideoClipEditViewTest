@@ -24,7 +24,4 @@ public class GlPlayerView extends MPlayerView {
         return renderer;
     }
 
-    public void setGlFilter(GlFilter glFilter){
-
-    }
 }

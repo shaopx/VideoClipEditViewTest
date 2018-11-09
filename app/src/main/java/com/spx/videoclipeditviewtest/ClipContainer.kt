@@ -583,6 +583,9 @@ fun RecyclerView.getScollXDistance(): Triple<Int, Int, Int> {
     var layoutManager = getLayoutManager() as LinearLayoutManager
     var position = layoutManager.findFirstVisibleItemPosition()
     var firstVisiableChildView = layoutManager.findViewByPosition(position)
-    var itemwidth = firstVisiableChildView!!.width
-    return Triple(position, -firstVisiableChildView.left, (position) * itemwidth - firstVisiableChildView.left)
+    firstVisiableChildView?.run {
+        var itemwidth = this.width
+        return Triple(position, -this.left, (position) * itemwidth - this.left)
+    }
+    return Triple(position, 0, 0)
 }
