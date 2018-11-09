@@ -8,8 +8,10 @@ import android.opengl.GLES30;
 import android.opengl.GLUtils;
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 
 public class GlUtil {
     private static final String TAG = "GlUtil";
@@ -72,5 +74,27 @@ public class GlUtil {
 //            throw new RuntimeException("Error loading texture.");
         }
         return textureHandle[0];
+    }
+
+    public static String raw(InputStream inputStream){
+        try{
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            int ch = inputStream.read();
+            while (ch != -1) {
+                outputStream.write(ch);
+                ch = inputStream.read();
+            }
+            byte[] bytes = outputStream.toByteArray();
+            String result = new String(bytes, Charset.defaultCharset());
+            result = result.replace("\\r\\n", "\n");
+
+            outputStream.close();
+            inputStream.close();
+            return result;
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+
+        return "";
     }
 }

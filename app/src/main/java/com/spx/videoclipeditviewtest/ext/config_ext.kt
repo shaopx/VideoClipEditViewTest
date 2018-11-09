@@ -2,7 +2,7 @@ package com.spx.videoclipeditviewtest.ext
 
 import android.content.Context
 import com.cgfay.filterlibrary.glfilter.advanced.beauty.GLImageComplexionBeautyFilter
-import com.daasuu.epf.custfilter.GlPngFliter
+import com.daasuu.epf.custfilter.*
 import com.daasuu.epf.filter.GlFilter
 import com.daasuu.epf.filter.GlFilterGroup
 import com.daasuu.epf.filter.GlGrayScaleFilter
@@ -26,16 +26,16 @@ fun createFilterOptions(): List<BottomDialogFragment.Option> {
     )
 }
 
-fun getFilterByName(name:String, context:Context): GlFilter{
-    return  when{
-        name.equals("无")    ->  GlFilter()
-        name.equals("美颜")  ->  GLImageComplexionBeautyFilter(context)
-        else                -> GlPngFliter(context, getFilterPngByType(name))
+fun getFilterByName(name: String, context: Context): GlFilter {
+    return when {
+        name.equals("无") -> GlFilter()
+        name.equals("美颜") -> GLImageComplexionBeautyFilter(context)
+        else -> GlPngFliter(context, getFilterPngByType(name))
     }
 }
 
-fun getFilterPngByType(type:String):String{
-    return when(type){
+fun getFilterPngByType(type: String): String {
+    return when (type) {
         "美白" -> "filter_white"
         "浪漫" -> "filter_langman"
         "清新" -> "filter_qingxin"
@@ -53,9 +53,12 @@ fun getFilterPngByType(type:String):String{
 fun createEffectOptions(): List<BottomDialogFragment.Option> {
     return arrayListOf(
             BottomDialogFragment.Option(R.drawable.ic_beauty_no, "无特效"),
+            BottomDialogFragment.Option(R.drawable.ic_filter_langman, "灵魂出窍"),
+            BottomDialogFragment.Option(R.drawable.ic_filter_langman, "缩放"),
+            BottomDialogFragment.Option(R.drawable.ic_filter_langman, "抖动"),
+            BottomDialogFragment.Option(R.drawable.ic_filter_langman, "四分镜"),
             BottomDialogFragment.Option(R.drawable.ic_beauty_white, "动感光波"),
             BottomDialogFragment.Option(R.drawable.ic_beauty_white, "暗黑幻境"),
-            BottomDialogFragment.Option(R.drawable.ic_filter_langman, "灵魂出窍"),
             BottomDialogFragment.Option(R.drawable.ic_filter_qinxin, "画面分裂"),
             BottomDialogFragment.Option(R.drawable.ic_filter_weimei, "百叶窗"),
             BottomDialogFragment.Option(R.drawable.ic_filter_fennen, "鬼影"),
@@ -66,10 +69,14 @@ fun createEffectOptions(): List<BottomDialogFragment.Option> {
             BottomDialogFragment.Option(R.drawable.ic_filter_rixi, "幻觉")
     )
 }
-fun getEffectFilterByName(name:String, context:Context): GlFilter{
-    return  when{
-        name.equals("无特效")    ->  GlFilter()
-        name.equals("动感光波")  ->  GLImageComplexionBeautyFilter(context)
-        else                -> GlPngFliter(context, getFilterPngByType(name))
+
+fun getEffectFilterByName(name: String, context: Context): GlFilter {
+    return when {
+        name.equals("无特效") -> GlFilter()
+        name.equals("缩放") -> GlScaleFilter(context)
+        name.equals("抖动") -> GlShakeFilter(context)
+        name.equals("四分镜") -> Gl4SplitFilter(context)
+        name.equals("灵魂出窍") -> GlSoulOutFilter(context)
+        else -> GLImageComplexionBeautyFilter(context)
     }
 }

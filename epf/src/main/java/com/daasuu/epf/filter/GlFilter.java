@@ -21,6 +21,7 @@ import static android.opengl.GLES20.GL_VERTEX_SHADER;
 import static android.opengl.GLES20.glGetAttribLocation;
 import static android.opengl.GLES20.glGetUniformLocation;
 import static android.opengl.GLES20.glUseProgram;
+import static com.spx.library.util.GlUtil.raw;
 
 /**
  * Created by sudamasayuki on 2017/05/16.
@@ -103,8 +104,13 @@ public class GlFilter {
     }
 
     public GlFilter(final Resources res, final int vertexShaderSourceResId, final int fragmentShaderSourceResId) {
-        this(res.getString(vertexShaderSourceResId), res.getString(fragmentShaderSourceResId));
+        this(raw(res.openRawResource(vertexShaderSourceResId)),
+                raw(res.openRawResource(fragmentShaderSourceResId)));
     }
+
+//    public GlFilter(final Resources res, final int vertexShaderSourceResId, final int fragmentShaderSourceResId) {
+//        this(res.getString(vertexShaderSourceResId), res.getString(fragmentShaderSourceResId));
+//    }
     public GlFilter(final Context context,final String vertexShaderSource, final String fragmentShaderSource) {
         this.mContext = context;
         this.vertexShaderSource = vertexShaderSource;
