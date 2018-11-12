@@ -77,6 +77,8 @@ fun getEffectFilterByName(name: String, context: Context): GlFilter {
         name.equals("抖动") -> GlShakeFilter(context)
         name.equals("四分镜") -> Gl4SplitFilter(context)
         name.equals("灵魂出窍") -> GlSoulOutFilter(context)
-        else -> GLImageComplexionBeautyFilter(context)
+        else -> {
+            GLImageComplexionBeautyFilter(context)
+        }
     }
 }

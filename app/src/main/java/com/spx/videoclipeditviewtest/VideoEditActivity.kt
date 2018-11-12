@@ -17,6 +17,7 @@ import com.daasuu.epf.filter.GlFilterPeriod
 import com.spx.library.getVideoDuration
 import com.spx.library.scale
 import com.spx.library.showToast
+import com.spx.library.toTime
 import com.spx.videoclipeditviewtest.ext.*
 import com.spx.videoclipeditviewtest.util.ThumnaiAdapter
 import com.spx.videoclipeditviewtest.view.BottomDialogFragment
@@ -27,6 +28,9 @@ class VideoEditActivity : AppCompatActivity() {
 
     companion object {
         const val TAG = "VideoEditActivity"
+        const val STATE_NORMAL = 0
+        const val STATE_FILTER = 1
+        const val STATE_EFFECT = 2
     }
 
     lateinit var mediaPath: String
@@ -43,6 +47,8 @@ class VideoEditActivity : AppCompatActivity() {
     var effectEndTime = 0L
     var effectFliter: GlFilter? = null
     var effectFilterPeriod: GlFilterPeriod? = null
+
+    var state = STATE_NORMAL
 
     var effectTouchListener = View.OnTouchListener { v, event ->
         var option = v.tag as BottomDialogFragment.Option
@@ -149,6 +155,9 @@ class VideoEditActivity : AppCompatActivity() {
     var currentPlayTime = 0L
     var lastTimeMs = 0L
     private fun onPlayPositionChanged(timeMs: Long) {
+
+        tv_play_position.text = timeMs.toTime()
+
         if (mIsTouching) {
             lastTimeMs = timeMs
             return
@@ -189,8 +198,18 @@ class VideoEditActivity : AppCompatActivity() {
     }
 
     private fun switchToEffectEdit() {
-        showToast("特效还为开发完成")
-        player_view_mp.scale()
+//        showToast("特效还为开发完成")
+        if (state == STATE_EFFECT) {
+            state = STATE_NORMAL
+            recyclerview.visibility = View.INVISIBLE
+            iv_effect_framebar.visibility = View.INVISIBLE
+            hs_effect_list.visibility = View.INVISIBLE
+            return
+        }
+//        player_view_mp.scale()
+        recyclerview.visibility = View.VISIBLE
+        iv_effect_framebar.visibility = View.VISIBLE
+
         var options = createEffectOptions()
 
         hs_effect_list.visibility = View.VISIBLE
@@ -205,6 +224,8 @@ class VideoEditActivity : AppCompatActivity() {
 
             itemView.setOnTouchListener(effectTouchListener)
         }
+
+        state = STATE_EFFECT
     }
 
     override fun onResume() {

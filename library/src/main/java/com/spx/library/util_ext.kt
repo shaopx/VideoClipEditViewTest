@@ -151,3 +151,9 @@ fun View.scale(){
     }
     anim.start()
 }
+
+fun Long.toTime():String{
+    var sec = this/1000
+    var leftMs = this%1000
+    return "$sec.$leftMs s"
+}

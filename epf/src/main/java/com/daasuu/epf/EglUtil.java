@@ -55,11 +55,15 @@ public class EglUtil {
         }
 
         GLES20.glAttachShader(program, vertexShader);
+        EglUtil.checkEglError("createProgram() attach vertext Shader");
+
         GLES20.glAttachShader(program, pixelShader);
+        EglUtil.checkEglError("createProgram() attach fragment Shader");
 
         GLES20.glLinkProgram(program);
         final int[] linkStatus = new int[1];
         GLES20.glGetProgramiv(program, GL_LINK_STATUS, linkStatus, 0);
+        checkEglError("glLinkProgram");
         if (linkStatus[0] != GL_TRUE) {
             GLES20.glDeleteProgram(program);
             throw new RuntimeException("Could not link program");

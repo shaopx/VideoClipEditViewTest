@@ -130,8 +130,15 @@ public class GlFilter {
 
     public void setup() {
         release();
+        EglUtil.checkEglError("setup() release");
         vertexShader = EglUtil.loadShader(vertexShaderSource, GL_VERTEX_SHADER);
+        EglUtil.checkEglError("setup() load vertex Shader");
+
+        Log.d(TAG, "setup: "+getName()+", vertexShader:"+vertexShader);
         fragmentShader = EglUtil.loadShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
+        EglUtil.checkEglError("setup() load fragment Shader");
+
+        Log.d(TAG, "setup: "+getName()+", fragmentShader:"+fragmentShader);
         mProgramHandle = EglUtil.createProgram(vertexShader, fragmentShader);
         Log.d(TAG, "setup: "+getName()+", mProgramHandle:"+mProgramHandle);
         vertexBufferName = EglUtil.createBuffer(VERTICES_DATA);

@@ -24,6 +24,14 @@
 
     </LinearLayout>
 
+
+
+
+    <com.daasuu.epf.GlPlayerView
+        android:id="@+id/player_view_mp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerview"
         android:layout_width="wrap_content"
@@ -32,25 +40,20 @@
         android:layout_marginRight="0dp"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="120dp"
-        android:clipToPadding="false">
+        android:clipToPadding="false"
+        android:visibility="gone">
 
     </android.support.v7.widget.RecyclerView>
 
     <ImageView
+        android:id="@+id/iv_effect_framebar"
         android:layout_width="3dp"
         android:layout_height="48dp"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="112dp"
-        android:background="#4ae3ff"/>
-
-
-    <com.daasuu.epf.GlPlayerView
-        android:id="@+id/player_view_mp"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-
+        android:background="#4ae3ff"
+        android:visibility="gone"/>
 
 
     <ImageView
@@ -60,6 +63,15 @@
         android:layout_marginLeft="12dp"
         android:layout_marginTop="21dp"
         android:src="@drawable/ic_video_record_back" />
+
+    <TextView
+        android:id="@+id/tv_play_position"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="22dp"
+        android:textColor="#ffffff"/>
 
     <TextView
         android:id="@+id/btn_confirm"
