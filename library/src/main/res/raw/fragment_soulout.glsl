@@ -2,7 +2,8 @@ precision highp float;
 varying vec2 textureCoordinate;
 uniform sampler2D inputTexture;
 uniform float scale;
-void main() {
+void main()
+{
 vec2 uv = textureCoordinate.xy;
 // 输入纹理
 vec4 sourceColor = texture2D(inputTexture, fract(uv));

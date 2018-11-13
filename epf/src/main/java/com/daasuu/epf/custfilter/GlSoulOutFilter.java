@@ -16,7 +16,7 @@ public class GlSoulOutFilter extends GlFilter {
     private int mScaleHandle;
 
     public GlSoulOutFilter(Context context) {
-        super(context.getResources(), R.raw.def_vertext, R.raw.fragment_soulout);
+        super(context, R.raw.def_vertext, R.raw.fragment_soulout);
     }
 
     @Override

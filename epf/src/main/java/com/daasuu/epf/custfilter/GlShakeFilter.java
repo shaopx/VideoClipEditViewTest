@@ -15,7 +15,7 @@ public class GlShakeFilter extends GlFilter {
     private boolean plus = false;
 
     public GlShakeFilter(Context context) {
-        super(context.getResources(), R.raw.def_vertext, R.raw.fragment_shake);
+        super(context, R.raw.def_vertext, R.raw.fragment_shake);
     }
 
     @Override

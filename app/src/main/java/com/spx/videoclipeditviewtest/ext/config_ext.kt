@@ -54,6 +54,9 @@ fun createEffectOptions(): List<BottomDialogFragment.Option> {
     return arrayListOf(
             BottomDialogFragment.Option(R.drawable.ic_beauty_no, "无特效"),
             BottomDialogFragment.Option(R.drawable.ic_filter_langman, "灵魂出窍"),
+            BottomDialogFragment.Option(R.drawable.ic_filter_rixi, "幻觉"),
+            BottomDialogFragment.Option(R.drawable.ic_filter_qingliang, "闪电"),
+            BottomDialogFragment.Option(R.drawable.ic_filter_langman, "毛刺"),
             BottomDialogFragment.Option(R.drawable.ic_filter_langman, "缩放"),
             BottomDialogFragment.Option(R.drawable.ic_filter_langman, "抖动"),
             BottomDialogFragment.Option(R.drawable.ic_filter_langman, "四分镜"),
@@ -64,9 +67,8 @@ fun createEffectOptions(): List<BottomDialogFragment.Option> {
             BottomDialogFragment.Option(R.drawable.ic_filter_fennen, "鬼影"),
             BottomDialogFragment.Option(R.drawable.ic_filter_huaijiu, "幻影"),
             BottomDialogFragment.Option(R.drawable.ic_filter_landiao, "幽灵"),
-            BottomDialogFragment.Option(R.drawable.ic_filter_qingliang, "闪电"),
-            BottomDialogFragment.Option(R.drawable.ic_filter_rixi, "镜像"),
-            BottomDialogFragment.Option(R.drawable.ic_filter_rixi, "幻觉")
+            BottomDialogFragment.Option(R.drawable.ic_filter_rixi, "镜像")
+
     )
 }
 
@@ -77,6 +79,9 @@ fun getEffectFilterByName(name: String, context: Context): GlFilter {
         name.equals("抖动") -> GlShakeFilter(context)
         name.equals("四分镜") -> Gl4SplitFilter(context)
         name.equals("灵魂出窍") -> GlSoulOutFilter(context)
+        name.equals("幻觉") -> GlHuanJueFliter(context)
+        name.equals("闪电") -> GlFlashFliter(context)
+        name.equals("毛刺") -> GlItchFilter(context)
         else -> {
             GLImageComplexionBeautyFilter(context)
         }

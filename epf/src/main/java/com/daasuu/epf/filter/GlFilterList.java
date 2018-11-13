@@ -21,6 +21,7 @@ public class GlFilterList {
 
     private static final String TAG = "GlFilterList";
     private final LinkedList<GlFilterPeriod> glFilerPeriod = new LinkedList<>();
+    private boolean needLastFrame = false;
 
     public GlFilterList() {
         glFilerPeriod.add(0, new GlFilterPeriod(0, 600 * 1000, new GlFilter()));
@@ -44,6 +45,7 @@ public class GlFilterList {
 //        Log.d(TAG, "draw: presentationTimeUs:"+presentationTimeUs+", glFilerPeriod:"+glFilerPeriod);
         for (GlFilterPeriod glFilterPeriod : glFilerPeriod) {
             if (glFilterPeriod.contains(presentationTimeUs / (1000*1000))) {
+                needLastFrame = glFilterPeriod.filter.needLastFrame();
                 glFilterPeriod.filter.draw(texName, fbo, extraTextureIds);
                 return;
             }
@@ -66,5 +68,9 @@ public class GlFilterList {
         for (GlFilterPeriod glFilterPeriod : glFilerPeriod) {
             glFilterPeriod.filter.setup();
         }
+    }
+
+    public boolean needLastFrame() {
+        return needLastFrame;
     }
 }

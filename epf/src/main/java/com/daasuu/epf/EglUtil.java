@@ -2,6 +2,7 @@ package com.daasuu.epf;
 
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
+import android.opengl.GLES30;
 import android.opengl.GLException;
 import android.opengl.GLUtils;
 import android.util.Log;
@@ -10,10 +11,13 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
+import javax.microedition.khronos.opengles.GL10;
+
 import static android.opengl.GLES20.GL_ARRAY_BUFFER;
 import static android.opengl.GLES20.GL_CLAMP_TO_EDGE;
 import static android.opengl.GLES20.GL_LINK_STATUS;
 import static android.opengl.GLES20.GL_STATIC_DRAW;
+import static android.opengl.GLES20.GL_TEXTURE_2D;
 import static android.opengl.GLES20.GL_TEXTURE_MAG_FILTER;
 import static android.opengl.GLES20.GL_TEXTURE_MIN_FILTER;
 import static android.opengl.GLES20.GL_TEXTURE_WRAP_S;
@@ -86,6 +90,17 @@ public class EglUtil {
         GLES20.glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
+    public static int genLutTexture() {
+        int[] genBuf = new int[1];
+        GLES20.glGenTextures(1, genBuf, 0);
+        GLES20.glBindTexture(GL_TEXTURE_2D, genBuf[0]);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_NEAREST);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_NEAREST);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_REPEAT);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_REPEAT);
+        return genBuf[0];
+    }
+
 
     public static int createBuffer(final float[] data) {
         return createBuffer(toFloatBuffer(data));
@@ -138,5 +153,24 @@ public class EglUtil {
             img.recycle();
         }
         return textures[0];
+    }
+
+    private static final int mPixelStride = 4;
+    public static int[] genPbo(int size, int width, int height){
+        final int[] buffers = new int[size];
+        final int align = 128;//128字节对齐
+        int mRowStride = (width * mPixelStride + (align - 1)) & ~(align - 1);
+
+        int mPboSize = mRowStride * height;
+
+        GLES20.glGenBuffers(buffers.length, buffers, 0);
+        for (int i = 0; i < size; i++) {
+            GLES30.glBindBuffer(GLES30.GL_PIXEL_PACK_BUFFER, buffers[i]);
+            GLES30.glBufferData(GLES30.GL_PIXEL_PACK_BUFFER, mPboSize, null, GLES30.GL_STATIC_READ);
+        }
+
+        GLES30.glBindBuffer(GLES30.GL_PIXEL_PACK_BUFFER, 0);
+
+        return buffers;
     }
 }

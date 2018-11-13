@@ -11,7 +11,7 @@ public class Gl4SplitFilter extends GlFilter {
 
 
     public Gl4SplitFilter(Context context) {
-        super(context.getResources(), R.raw.def_vertext, R.raw.fragment_split4);
+        super(context, R.raw.def_vertext, R.raw.fragment_split4);
     }
 
 }

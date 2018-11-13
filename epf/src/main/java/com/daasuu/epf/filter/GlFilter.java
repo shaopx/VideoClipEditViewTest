@@ -99,13 +99,15 @@ public class GlFilter {
     // 变换矩阵
     protected float[] mMVPMatrix = new float[16];
 
+    protected int mWidth, mHeight;
+
     public GlFilter() {
         this(DEFAULT_VERTEX_SHADER, DEFAULT_FRAGMENT_SHADER);
     }
 
-    public GlFilter(final Resources res, final int vertexShaderSourceResId, final int fragmentShaderSourceResId) {
-        this(raw(res.openRawResource(vertexShaderSourceResId)),
-                raw(res.openRawResource(fragmentShaderSourceResId)));
+    public GlFilter(final Context context, final int vertexShaderSourceResId, final int fragmentShaderSourceResId) {
+        this(context, raw(context.getResources().openRawResource(vertexShaderSourceResId)),
+                raw(context.getResources().openRawResource(fragmentShaderSourceResId)));
     }
 
 //    public GlFilter(final Resources res, final int vertexShaderSourceResId, final int fragmentShaderSourceResId) {
@@ -160,6 +162,8 @@ public class GlFilter {
     }
 
     public void setFrameSize(final int width, final int height) {
+        mWidth = width;
+        mHeight = height;
     }
     public void onDisplaySizeChanged(final int width, final int height) {
         setFrameSize(width, height);
@@ -275,4 +279,7 @@ public class GlFilter {
             "    textureCoordinate = aTextureCoord.xy;                  \n" +
             "}                                                          \n";
 
+    public boolean needLastFrame() {
+        return false;
+    }
 }

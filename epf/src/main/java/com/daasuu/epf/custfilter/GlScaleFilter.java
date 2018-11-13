@@ -15,7 +15,7 @@ public class GlScaleFilter extends GlFilter {
     private boolean plus = false;
 
     public GlScaleFilter(Context context) {
-        super(context.getResources(), R.raw.def_vertext, R.raw.fragment_scale);
+        super(context, R.raw.def_vertext, R.raw.fragment_scale);
     }
 
     @Override

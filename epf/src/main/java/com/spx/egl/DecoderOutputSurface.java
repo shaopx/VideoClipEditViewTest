@@ -16,6 +16,8 @@ import com.daasuu.mp4compose.FillModeCustomItem;
 import com.daasuu.mp4compose.Rotation;
 import com.daasuu.mp4compose.composer.FrameBufferObjectOutputSurface;
 
+import java.util.Map;
+
 import static android.opengl.GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
 import static android.opengl.GLES20.GL_LINEAR;
@@ -26,7 +28,7 @@ import static android.opengl.GLES20.glViewport;
 public class DecoderOutputSurface extends FrameBufferObjectOutputSurface {
     private static final String TAG = "DecoderSurface";
     private static final boolean VERBOSE = true;
-//    private EGLDisplay eglDisplay = EGL14.EGL_NO_DISPLAY;
+    //    private EGLDisplay eglDisplay = EGL14.EGL_NO_DISPLAY;
 //    private EGLContext eglContext = EGL14.EGL_NO_CONTEXT;
 //    private EGLSurface eglSurface = EGL14.EGL_NO_SURFACE;
     private Surface surface;
@@ -37,6 +39,8 @@ public class DecoderOutputSurface extends FrameBufferObjectOutputSurface {
     private float[] ProjMatrix = new float[16];
     private float[] MMatrix = new float[16];
     private float[] VMatrix = new float[16];
+
+
 
     private Rotation rotation = Rotation.NORMAL;
     private Resolution outputResolution;
@@ -83,7 +87,9 @@ public class DecoderOutputSurface extends FrameBufferObjectOutputSurface {
      * with the SurfaceTexture.
      */
     public void setup() {
-        Log.d(TAG, "setup: width:"+outputResolution.width()+", height:"+outputResolution.height());
+        int width = outputResolution.width();
+        int height = outputResolution.height();
+        Log.d(TAG, "setup: width:" + width + ", height:" + height);
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         int[] textures = new int[1];
@@ -97,7 +103,7 @@ public class DecoderOutputSurface extends FrameBufferObjectOutputSurface {
 
 
         glFilterFrameBuffer = new EFramebufferObject();
-        glFilterFrameBuffer.setup(outputResolution.width(),outputResolution.height());
+        glFilterFrameBuffer.setup(outputResolution.width(), outputResolution.height());
 
         previewFilter = new GlPreviewFilter(GL_TEXTURE_EXTERNAL_OES);
         previewFilter.setup();
@@ -131,19 +137,9 @@ public class DecoderOutputSurface extends FrameBufferObjectOutputSurface {
      * Discard all resources held by this class, notably the EGL context.
      */
     public void release() {
-//        if (eglDisplay != EGL14.EGL_NO_DISPLAY) {
-//            EGL14.eglDestroySurface(eglDisplay, eglSurface);
-//            EGL14.eglDestroyContext(eglDisplay, eglContext);
-//            EGL14.eglReleaseThread();
-//            EGL14.eglTerminate(eglDisplay);
-//        }
+
         surface.release();
-        // this causes a bunch of warnings that appear harmless but might confuse someone:
-        //  W BufferQueue: [unnamed-3997-2] cancelBuffer: BufferQueue has been abandoned!
-        //surfaceTexture.release();
-//        eglDisplay = EGL14.EGL_NO_DISPLAY;
-//        eglContext = EGL14.EGL_NO_CONTEXT;
-//        eglSurface = EGL14.EGL_NO_SURFACE;
+
         if (filterList != null) {
             filterList.release();
         }
@@ -162,13 +158,13 @@ public class DecoderOutputSurface extends FrameBufferObjectOutputSurface {
     }
 
 
-
     /**
      * Draws the data from SurfaceTexture onto the current EGL surface.
      *
      * @param presentationTimeUs
+     * @param extraTextureIds
      */
-    public void onDrawFrame(EFramebufferObject fbo, long presentationTimeUs) {
+    public void onDrawFrame(EFramebufferObject fbo, long presentationTimeUs, Map<String, Integer> extraTextureIds) {
 
         Matrix.setIdentityM(MVPMatrix, 0);
 
@@ -236,16 +232,23 @@ public class DecoderOutputSurface extends FrameBufferObjectOutputSurface {
             glViewport(0, 0, glFilterFrameBuffer.getWidth(), glFilterFrameBuffer.getHeight());
         }
         surfaceTexture.getTransformMatrix(STMatrix);
+
+        // 这句绘制的目的地是哪?  --如果glFilterFrameBuffer没有启用, 那就fbo, 否则就是glFilterFrameBuffer
         previewFilter.draw(textureID, MVPMatrix, STMatrix, 1.0f);
 
         if (filterList != null) {
             fbo.enable();  // 重新启用了最外层的fbo , 那么glFilter的输出就到了这个fbo .
             GLES20.glClear(GL_COLOR_BUFFER_BIT);
-            filterList.draw(glFilterFrameBuffer.getTexName(), fbo, presentationTimeUs, null);
+            filterList.draw(glFilterFrameBuffer.getTexName(), fbo, presentationTimeUs, extraTextureIds);
         }
     }
 
-
+    protected boolean needLastFrame() {
+        if (filterList != null) {
+            return filterList.needLastFrame();
+        }
+        return false;
+    }
 
     public void setRotation(Rotation rotation) {
         this.rotation = rotation;
