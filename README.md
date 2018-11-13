@@ -6,7 +6,8 @@
 2. 视频裁剪    
 3. 视频帧预览   
 4. 裁剪区间动态可选择.   
-5. opengl特效   
+5. 美颜滤镜
+6. opengl特效. 特效叠加后视频生成   
 
 
 ####  使用
@@ -15,7 +16,7 @@
 
 
 
-![效果图](https://github.com/shaopx/VideoClipEditViewTest/blob/master/7018022-12e8bea5ecb5edbf.png)
-![效果图](https://github.com/shaopx/VideoClipEditViewTest/blob/master/device-2018-10-30-194415.png)
+![效果图](https://github.com/shaopx/VideoClipEditViewTest/blob/master/screensnap1.png)
+![效果图](https://github.com/shaopx/VideoClipEditViewTest/blob/master/screensnap2.png)
 
 
