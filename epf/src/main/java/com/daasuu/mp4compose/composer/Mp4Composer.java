@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.daasuu.epf.filter.GlFilter;
-import com.daasuu.epf.filter.GlFilterList;
+import com.spx.egl.GlFilterList;
 import com.daasuu.mp4compose.FillMode;
 import com.daasuu.mp4compose.FillModeCustomItem;
 import com.spx.egl.Resolution;
@@ -60,6 +60,7 @@ public class Mp4Composer {
 
     public Mp4Composer filterList(@NonNull GlFilterList filterList) {
         this.filterList = filterList;
+        Log.d(TAG, "set filterList = " + this.filterList);
         return this;
     }
 
@@ -211,6 +212,7 @@ public class Mp4Composer {
                     timeScale = 1;
                 }
 
+                Log.d(TAG, "filterList = " + filterList);
                 Log.d(TAG, "rotation = " + (rotation.getRotation() + videoRotate));
                 Log.d(TAG, "inputResolution width = " + srcVideoResolution.width() + " height = " + srcVideoResolution.height());
                 outputResolution = new Resolution((int) (outputResolution.width() * resolutionScale), (int) (outputResolution.height() * resolutionScale));

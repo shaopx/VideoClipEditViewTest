@@ -8,6 +8,7 @@ import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
 
+import java.io.Serializable;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -126,6 +127,15 @@ public class GlFilter {
     public String getName(){
         return this.getClass().getSimpleName();
     }
+
+    public FilterType getType(){
+        return this.getFilterType();
+    }
+
+    public FilterType getFilterType() {
+        return FilterType.DEFAULT;
+    }
+
     public void initProgramHandle() {
 
     }

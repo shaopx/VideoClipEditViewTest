@@ -1,12 +1,12 @@
-package com.cgfay.filterlibrary.glfilter.advanced.beauty;
+package com.spx.egl;
 
 import android.content.Context;
 import android.opengl.GLES30;
 import android.util.Log;
 
-import com.cgfay.filterlibrary.glfilter.base.GLImageFilter;
-import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
+import com.daasuu.epf.filter.FilterType;
 import com.daasuu.epf.filter.GlFilter;
+import com.spx.library.util.GlUtil;
 
 /**
  * 美肤滤镜
@@ -93,6 +93,11 @@ public class GLImageComplexionBeautyFilter extends GlFilter {
     }
 
     @Override
+    public FilterType getFilterType() {
+        return FilterType.BEAUTY_CUS;
+    }
+
+    @Override
     public void initProgramHandle() {
         super.initProgramHandle();
         grayTextureLoc = GLES30.glGetUniformLocation(mProgramHandle, "grayTexture");
@@ -110,8 +115,8 @@ public class GLImageComplexionBeautyFilter extends GlFilter {
 
     private void createTexture() {
         Log.d(TAG, "createTexture: ....");
-        mGrayTexture = OpenGLUtils.createTextureFromAssets(mContext, "filters/skin_gray.png");
-        mLookupTexture = OpenGLUtils.createTextureFromAssets(mContext, "filters/skin_lookup.png");
+        mGrayTexture = GlUtil.createTextureFromAssets(mContext, "filters/skin_gray.png");
+        mLookupTexture = GlUtil.createTextureFromAssets(mContext, "filters/skin_lookup.png");
 //        mLookupTexture = OpenGLUtils.createTextureFromAssets(mContext, "filters/filter_langman.png");
         Log.d(TAG, "createTexture: ....mGrayTexture:"+mGrayTexture+",mLookupTexture:"+mLookupTexture);
     }

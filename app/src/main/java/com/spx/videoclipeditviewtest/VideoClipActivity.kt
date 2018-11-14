@@ -10,9 +10,12 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.SeekBar
 import android.widget.Toast
-import com.cgfay.filterlibrary.glfilter.advanced.beauty.GLImageComplexionBeautyFilter
-import com.daasuu.epf.filter.*
+import com.daasuu.epf.custfilter.GlFlashFliter
+import com.daasuu.epf.custfilter.GlShakeFilter
+import com.daasuu.epf.custfilter.GlSoulOutFilter
 import com.daasuu.mp4compose.composer.Mp4Composer
+import com.spx.egl.GlFilterList
+import com.spx.egl.GlFilterPeriod
 import com.spx.library.log
 import com.spx.videoclipeditviewtest.Config.Companion.DEFAULT_FRAME_COUNT
 import com.spx.videoclipeditviewtest.Config.Companion.DEFAULT_TEMP_VIDEO_LOCATION
@@ -136,6 +139,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 
 
     private fun startProcess() {
+
         var mp4Composer = Mp4Composer(videoPathInput, videoPlayUrl)
                 .frameRate(5)
                 .listener(object : Mp4Composer.Listener {
@@ -392,10 +396,15 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 //        glFilterList.putGlFilter(GlFilterPeriod(3000, 6000, GLImageComplexionBeautyFilter(this)))
 //        glFilterList.putGlFilter(GlFilterPeriod(6000, 9000, GlInvertFilter()))
 
+        var glFilterList = GlFilterList()
+        glFilterList.putGlFilter(GlFilterPeriod(0, 2000, GlSoulOutFilter(this)))
+        glFilterList.putGlFilter(GlFilterPeriod(2000, 4000, GlFlashFliter(this)))
+        glFilterList.putGlFilter(GlFilterPeriod(4000, 6000, GlShakeFilter(this)))
+
         Mp4Composer(videoPathInput, videoPlayUrl)
                 .frameRate(8)
 //                .filter(GLImageComplexionBeautyFilter(this))
-//                .filterList(glFilterList)
+                .filterList(glFilterList)
                 .size(540, 960)
                 .clip(startMillSec, endMillSec)
                 .listener(object : Mp4Composer.Listener {

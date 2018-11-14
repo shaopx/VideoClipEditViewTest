@@ -5,6 +5,7 @@ import android.opengl.GLES30;
 import android.util.Log;
 
 import com.daasuu.epf.R;
+import com.daasuu.epf.filter.FilterType;
 import com.daasuu.epf.filter.GlFilter;
 import com.spx.library.util.GlUtil;
 
@@ -21,6 +22,11 @@ public class GlHuanJueFliter extends GlFilter {
 
     public GlHuanJueFliter(Context context) {
         super(context, R.raw.def_vertext, R.raw.fragment_canying);
+    }
+
+    @Override
+    public FilterType getFilterType() {
+        return FilterType.SPX_LUCION;
     }
 
     @Override

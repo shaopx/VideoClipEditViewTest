@@ -1,6 +1,10 @@
-package com.daasuu.epf.filter;
+package com.spx.egl;
 
-public class GlFilterPeriod {
+import com.daasuu.epf.filter.GlFilter;
+
+import java.io.Serializable;
+
+public class GlFilterPeriod implements Serializable {
     public long startTimeMs;
     public long endTimeMs;
     public GlFilter filter;
@@ -22,5 +26,10 @@ public class GlFilterPeriod {
     @Override
     public String toString() {
         return "[" + startTimeMs + "," + endTimeMs + "]" + filter.getName() + ";";
+    }
+
+    public GlFilterPeriod copy() {
+        GlFilterPeriod period = new GlFilterPeriod(startTimeMs, endTimeMs, filter);
+        return period;
     }
 }

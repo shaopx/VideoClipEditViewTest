@@ -1,39 +1,23 @@
-package com.spx.videoclipeditviewtest.util;
+package com.daasuu.epf.filter;
 
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import com.cgfay.filterlibrary.glfilter.advanced.beauty.GLImageComplexionBeautyFilter;
-import com.cgfay.filterlibrary.glfilter.advanced.colors.GLImageFairyTaleFilter;
-import com.daasuu.epf.custfilter.GLImageBeautyHighPassFilter;
-import com.daasuu.epf.custfilter.GLImageBlackWhiteFilter;
-import com.daasuu.epf.custfilter.GLImageGaussPassFilter;
+import com.daasuu.epf.custfilter.Gl4SplitFilter;
 import com.daasuu.epf.custfilter.GlBeautyFilter;
+import com.daasuu.epf.custfilter.GlFlashFliter;
+import com.daasuu.epf.custfilter.GlHuanJueFliter;
+import com.daasuu.epf.custfilter.GlItchFilter;
 import com.daasuu.epf.custfilter.GlPngFliter;
-import com.daasuu.epf.filter.GlBilateralFilter;
-import com.daasuu.epf.filter.GlBoxBlurFilter;
-import com.daasuu.epf.filter.GlBulgeDistortionFilter;
-import com.daasuu.epf.filter.GlCGAColorspaceFilter;
-import com.daasuu.epf.filter.GlFilter;
-import com.daasuu.epf.filter.GlFilterGroup;
-import com.daasuu.epf.filter.GlGaussianBlurFilter;
-import com.daasuu.epf.filter.GlGrayScaleFilter;
-import com.daasuu.epf.filter.GlHazeFilter;
-import com.daasuu.epf.filter.GlInvertFilter;
-import com.daasuu.epf.filter.GlLookUpTableFilter;
-import com.daasuu.epf.filter.GlMonochromeFilter;
-import com.daasuu.epf.filter.GlSepiaFilter;
-import com.daasuu.epf.filter.GlSharpenFilter;
-import com.daasuu.epf.filter.GlSphereRefractionFilter;
-import com.daasuu.epf.filter.GlToneCurveFilter;
-import com.daasuu.epf.filter.GlVignetteFilter;
-import com.spx.videoclipeditviewtest.R;
+import com.daasuu.epf.custfilter.GlScaleFilter;
+import com.daasuu.epf.custfilter.GlShakeFilter;
+import com.daasuu.epf.custfilter.GlSoulOutFilter;
+import com.spx.egl.GLImageComplexionBeautyFilter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,9 +25,16 @@ import java.util.List;
  * Created by sudamasayuki on 2017/05/18.
  */
 
-public enum FilterType {
+public enum FilterType implements Serializable {
     DEFAULT,
     BEAUTY_CUS,
+    SPX_SOULOUT,
+    SPX_LUCION,
+    SPX_FLASH,
+    SPX_ITCH,
+    SPX_SCALE,
+    SPX_SHAKE,
+    SPX_4SPLIT,
     PNG_CUS,
     BILATERAL_BLUR,
     BOX_BLUR,
@@ -97,7 +88,15 @@ public enum FilterType {
                 return new GlFilter();
             case BEAUTY_CUS:
 //                return new GlFilterGroup(new GLImageGaussPassFilter(0), new GLImageGaussPassFilter(1) );
+//                return new GLImageComplexionBeautyFilter(context);
                 return new GLImageComplexionBeautyFilter(context);
+            case SPX_SOULOUT: return new GlSoulOutFilter(context);
+            case SPX_LUCION: return new GlHuanJueFliter(context);
+            case SPX_FLASH: return new GlFlashFliter(context);
+            case SPX_ITCH: return new GlItchFilter(context);
+            case SPX_SCALE: return new GlScaleFilter(context);
+            case SPX_SHAKE: return new GlShakeFilter(context);
+            case SPX_4SPLIT: return new Gl4SplitFilter(context);
             case PNG_CUS:
                 return new GlPngFliter(context, args);
             case SEPIA:

@@ -7,7 +7,7 @@ import android.media.MediaFormat;
 import android.util.Log;
 
 import com.daasuu.epf.filter.GlFilter;
-import com.daasuu.epf.filter.GlFilterList;
+import com.spx.egl.GlFilterList;
 import com.daasuu.mp4compose.FillMode;
 import com.daasuu.mp4compose.FillModeCustomItem;
 import com.spx.egl.Resolution;
@@ -234,7 +234,7 @@ class VideoComposer {
         decoder.releaseOutputBuffer(result, doRender);
         if (doRender) {
             decoderSurface.awaitNewImage();
-            decoderSurface.drawImage(bufferInfo.presentationTimeUs);
+            decoderSurface.drawImage(bufferInfo.presentationTimeUs* 1000);
             encoderSurface.setPresentationTime(bufferInfo.presentationTimeUs * 1000);
             encoderSurface.swapBuffers();
         }

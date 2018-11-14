@@ -6,8 +6,6 @@ import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Surface;
@@ -16,8 +14,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.daasuu.epf.filter.GlFilter;
-import com.daasuu.epf.filter.GlFilterList;
-import com.daasuu.epf.filter.GlFilterPeriod;
 import com.spx.library.player.mp.TextureSurfaceRenderer2;
 
 import java.io.IOException;
@@ -44,7 +40,7 @@ public abstract class MPlayerView extends FrameLayout implements
     private DecoderOutputSurface decoderSurface;
     private GlFilterList filterList = null;
 
-    protected long currentPostion= 0L;
+    protected long currentPostion = 0L;
 
 //    private Handler uiHandler = new Handler();
 
@@ -69,14 +65,18 @@ public abstract class MPlayerView extends FrameLayout implements
 //        filterList.setup();
     }
 
-    public GlFilterPeriod setFiler(long startTimeMs, long endTimeMs, GlFilter glFilter){
+    public GlFilterList getFilterList() {
+        return filterList;
+    }
+
+    public GlFilterPeriod setFiler(long startTimeMs, long endTimeMs, GlFilter glFilter) {
 
         GlFilterPeriod period = new GlFilterPeriod(startTimeMs, endTimeMs, glFilter);
         filterList.putGlFilter(period);
         return period;
     }
 
-    public GlFilterPeriod addFiler(long startTimeMs, long endTimeMs, GlFilter glFilter){
+    public GlFilterPeriod addFiler(long startTimeMs, long endTimeMs, GlFilter glFilter) {
         GlFilterPeriod period = new GlFilterPeriod(startTimeMs, endTimeMs, glFilter);
         filterList.putGlFilter(period);
         return period;
@@ -202,7 +202,7 @@ public abstract class MPlayerView extends FrameLayout implements
 //                    throw ex;
                     return;
                 }
-                decoderSurface.drawImage(currentPostion*1000*1000);
+                decoderSurface.drawImage(currentPostion * 1000 * 1000);
                 encoderSurface.setPresentationTime(System.currentTimeMillis());
                 encoderSurface.swapBuffers();
             } else {
@@ -220,6 +220,7 @@ public abstract class MPlayerView extends FrameLayout implements
         super.onDetachedFromWindow();
         notDestroyed = false;
         running = false;
+        decoderSurface.stopRun();
     }
 
     public abstract TextureSurfaceRenderer2 getVideoRender(SurfaceTexture surface, int surfaceWidth, int surfaceHeight);
@@ -241,7 +242,10 @@ public abstract class MPlayerView extends FrameLayout implements
     public void pausePlay() {
         running = false;
         if (mMediaPlayer != null) {
-            mMediaPlayer.pause();
+            try {
+                mMediaPlayer.pause();
+            } catch (Exception ex) {
+            }
         }
     }
 
@@ -250,10 +254,11 @@ public abstract class MPlayerView extends FrameLayout implements
         if (mMediaPlayer != null) {
             mMediaPlayer.release();
         }
+        decoderSurface.stopRun();
     }
 
     public void seekTo(long timems) {
-        if(mMediaPlayer!=null){
+        if (mMediaPlayer != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 mMediaPlayer.seekTo(timems, SEEK_CLOSEST);
             } else {

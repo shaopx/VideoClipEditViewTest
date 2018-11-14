@@ -1,5 +1,6 @@
 package com.spx.videoclipeditviewtest
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
@@ -12,11 +13,11 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import com.daasuu.epf.filter.GlFilter
-import com.daasuu.epf.filter.GlFilterPeriod
+import com.spx.egl.GlFilterConfig
+import com.spx.egl.GlFilterList
+import com.spx.egl.GlFilterPeriod
+import com.spx.egl.VideoProcessConfig
 import com.spx.library.getVideoDuration
-import com.spx.library.scale
-import com.spx.library.showToast
 import com.spx.library.toTime
 import com.spx.videoclipeditviewtest.ext.*
 import com.spx.videoclipeditviewtest.util.ThumnaiAdapter
@@ -45,10 +46,15 @@ class VideoEditActivity : AppCompatActivity() {
     var effectTouching = false
     var effectStartTime = 0L
     var effectEndTime = 0L
-    var effectFliter: GlFilter? = null
+    //    var effectFliter: GlFilter? = null
     var effectFilterPeriod: GlFilterPeriod? = null
 
     var state = STATE_NORMAL
+
+    lateinit var videoProcessConfig :VideoProcessConfig
+    lateinit var filterConfigList:MutableList<GlFilterConfig>
+
+//    var glFilterList = GlFilterList()
 
     var effectTouchListener = View.OnTouchListener { v, event ->
         var option = v.tag as BottomDialogFragment.Option
@@ -88,8 +94,27 @@ class VideoEditActivity : AppCompatActivity() {
 
         tv_filter.setOnClickListener { showFilterDialog() }
         tv_effect.setOnClickListener { switchToEffectEdit() }
+        tv_next.setOnClickListener { generateVideo() }
 
         initEditInfo()
+
+        videoProcessConfig = VideoProcessConfig(mediaPath, VideoClipActivity.videoPlayUrl)
+        filterConfigList = videoProcessConfig.filterConfigList
+    }
+
+    private fun generateVideo() {
+
+        player_view_mp.pausePlay()
+        player_view_mp.release()
+
+        startActivity(Intent(this, VideoProgressActivity::class.java).apply {
+            putExtra("videoProcessConfig", videoProcessConfig)
+        })
+        finish()
+    }
+
+    private fun doGenerate() {
+
     }
 
     private fun initEditInfo() {
@@ -189,13 +214,17 @@ class VideoEditActivity : AppCompatActivity() {
         Log.d(TAG, "beginOneEffect option:${option.optionName}  effectStartTime:$effectStartTime, filter:$filter")
 
         effectFilterPeriod = player_view_mp.addFiler(effectStartTime, mediaDuration, filter)
-        effectFliter = filter
+//        effectFliter = filter
+
     }
 
     private fun endOneEffect() {
         Log.d(TAG, "endOneEffect effectEndTime:$effectEndTime")
         effectFilterPeriod!!.endTimeMs = effectEndTime
+//        glFilterList.putGlFilter(GlFilterPeriod(effectFilterPeriod!!.startTimeMs, effectEndTime, effectFilterPeriod!!.filter))
+        filterConfigList.add(GlFilterConfig(effectFilterPeriod!!.filter.type, effectFilterPeriod!!.startTimeMs, effectEndTime))
     }
+
 
     private fun switchToEffectEdit() {
 //        showToast("特效还为开发完成")
@@ -251,6 +280,8 @@ class VideoEditActivity : AppCompatActivity() {
             val filter = getFilterByName(option.optionName, applicationContext)
             Log.d(TAG, "selection:$selection, filter:$filter")
             player_view_mp.setFiler(0, mediaDuration, filter)
+//            glFilterList.putGlFilter(GlFilterPeriod(0, mediaDuration, filter))
+            filterConfigList.add(GlFilterConfig(filter.type, 0, mediaDuration))
         }
         dialogFragment.show(supportFragmentManager, "filter_dialog")
     }

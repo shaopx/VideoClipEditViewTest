@@ -9,7 +9,6 @@ import android.view.Surface;
 import com.daasuu.epf.EFramebufferObject;
 import com.daasuu.epf.EglUtil;
 import com.daasuu.epf.filter.GlFilter;
-import com.daasuu.epf.filter.GlFilterList;
 import com.daasuu.epf.filter.GlPreviewFilter;
 import com.daasuu.mp4compose.FillMode;
 import com.daasuu.mp4compose.FillModeCustomItem;
@@ -173,7 +172,7 @@ public class DecoderOutputSurface extends FrameBufferObjectOutputSurface {
 
         if (isNewFilter) {
             if (filterList != null) {
-                filterList.setup();
+//                filterList.setup();
                 filterList.setFrameSize(fbo.getWidth(), fbo.getHeight());
             }
             isNewFilter = false;
@@ -226,7 +225,7 @@ public class DecoderOutputSurface extends FrameBufferObjectOutputSurface {
             default:
                 break;
         }
-        Log.d(TAG, "onDrawFrame: ...");
+        Log.d(TAG, "onDrawFrame: ...filterList:"+filterList);
         if (filterList != null) {
             glFilterFrameBuffer.enable();
             glViewport(0, 0, glFilterFrameBuffer.getWidth(), glFilterFrameBuffer.getHeight());

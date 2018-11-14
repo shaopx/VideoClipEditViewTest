@@ -1,16 +1,14 @@
-package com.daasuu.epf.filter;
+package com.spx.egl;
 
 import android.util.Log;
 
 import com.daasuu.epf.EFramebufferObject;
+import com.daasuu.epf.filter.GlFilter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by shaopx on 2018/11/05.
@@ -42,10 +40,11 @@ public class GlFilterList {
     }
 
     public void draw(int texName, EFramebufferObject fbo, long presentationTimeUs, Map<String, Integer> extraTextureIds) {
-//        Log.d(TAG, "draw: presentationTimeUs:"+presentationTimeUs+", glFilerPeriod:"+glFilerPeriod);
+        Log.d(TAG, "draw: presentationTimeUs:"+presentationTimeUs+", glFilerPeriod:"+glFilerPeriod);
         for (GlFilterPeriod glFilterPeriod : glFilerPeriod) {
             if (glFilterPeriod.contains(presentationTimeUs / (1000*1000))) {
                 needLastFrame = glFilterPeriod.filter.needLastFrame();
+                Log.d(TAG, "draw: filter:"+glFilterPeriod.filter.getName());
                 glFilterPeriod.filter.draw(texName, fbo, extraTextureIds);
                 return;
             }
@@ -72,5 +71,14 @@ public class GlFilterList {
 
     public boolean needLastFrame() {
         return needLastFrame;
+    }
+
+    @NotNull
+    public GlFilterList copy() {
+        GlFilterList filterList = new GlFilterList();
+        for (GlFilterPeriod glFilterPeriod : glFilerPeriod) {
+            filterList.putGlFilter(glFilterPeriod.copy());
+        }
+        return filterList;
     }
 }

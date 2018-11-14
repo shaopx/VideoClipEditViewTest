@@ -5,6 +5,7 @@ import android.opengl.GLES20;
 import android.opengl.GLES30;
 
 import com.daasuu.epf.R;
+import com.daasuu.epf.filter.FilterType;
 import com.daasuu.epf.filter.GlFilter;
 
 import static com.spx.library.util.GlUtil.raw;
@@ -17,6 +18,11 @@ public class GlSoulOutFilter extends GlFilter {
 
     public GlSoulOutFilter(Context context) {
         super(context, R.raw.def_vertext, R.raw.fragment_soulout);
+    }
+
+    @Override
+    public FilterType getFilterType() {
+        return FilterType.SPX_SOULOUT;
     }
 
     @Override

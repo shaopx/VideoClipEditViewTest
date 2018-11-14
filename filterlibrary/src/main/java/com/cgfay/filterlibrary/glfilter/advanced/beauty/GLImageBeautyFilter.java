@@ -6,6 +6,7 @@ import android.opengl.GLES30;
 import com.cgfay.filterlibrary.glfilter.base.GLImageFilter;
 import com.cgfay.filterlibrary.glfilter.model.Beauty;
 import com.cgfay.filterlibrary.glfilter.model.IBeautify;
+import com.spx.egl.GLImageComplexionBeautyFilter;
 
 import java.nio.FloatBuffer;
 

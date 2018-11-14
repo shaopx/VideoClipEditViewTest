@@ -9,6 +9,7 @@ import com.cgfay.filterlibrary.glfilter.base.GLImageFilter;
 import com.cgfay.filterlibrary.glfilter.model.Beauty;
 import com.cgfay.filterlibrary.glfilter.model.IBeautify;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
+import com.spx.egl.GLImageComplexionBeautyFilter;
 
 import java.nio.FloatBuffer;
 

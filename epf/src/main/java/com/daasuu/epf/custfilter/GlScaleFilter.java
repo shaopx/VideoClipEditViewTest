@@ -5,6 +5,7 @@ import android.opengl.GLES20;
 import android.opengl.GLES30;
 
 import com.daasuu.epf.R;
+import com.daasuu.epf.filter.FilterType;
 import com.daasuu.epf.filter.GlFilter;
 
 public class GlScaleFilter extends GlFilter {
@@ -16,6 +17,11 @@ public class GlScaleFilter extends GlFilter {
 
     public GlScaleFilter(Context context) {
         super(context, R.raw.def_vertext, R.raw.fragment_scale);
+    }
+
+    @Override
+    public FilterType getFilterType() {
+        return FilterType.SPX_SCALE;
     }
 
     @Override

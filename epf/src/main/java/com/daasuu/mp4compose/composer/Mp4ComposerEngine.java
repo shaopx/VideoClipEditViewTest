@@ -8,7 +8,7 @@ import android.media.MediaMuxer;
 import android.util.Log;
 
 import com.daasuu.epf.filter.GlFilter;
-import com.daasuu.epf.filter.GlFilterList;
+import com.spx.egl.GlFilterList;
 import com.daasuu.mp4compose.FillMode;
 import com.daasuu.mp4compose.FillModeCustomItem;
 import com.spx.egl.Resolution;

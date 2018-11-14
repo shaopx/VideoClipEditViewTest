@@ -5,6 +5,7 @@ import android.opengl.GLES20;
 import android.opengl.GLES30;
 
 import com.daasuu.epf.R;
+import com.daasuu.epf.filter.FilterType;
 import com.daasuu.epf.filter.GlFilter;
 
 import static android.opengl.GLES20.glGetUniformLocation;
@@ -35,6 +36,11 @@ public class GlItchFilter extends GlFilter {
 
     public GlItchFilter(Context context) {
         super(context, R.raw.def_vertext, R.raw.fragment_itch);
+    }
+
+    @Override
+    public FilterType getFilterType() {
+        return FilterType.SPX_ITCH;
     }
 
     @Override

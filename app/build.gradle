@@ -48,5 +48,5 @@ dependencies {
 //    implementation project(':mp4compose')
     implementation project(':library')
     implementation project(':epf')
-    implementation project(':filterlibrary')
+//    implementation project(':filterlibrary')
 }
