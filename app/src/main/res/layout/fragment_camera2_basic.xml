@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.opengl.GLSurfaceView
+        android:id="@+id/glsurfaceview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
+
+    <ImageView
+        android:id="@+id/iv_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="21dp"
+        android:src="@drawable/ic_video_record_back" />
+
+
+    <TextView
+        android:id="@+id/tv_next"
+        android:layout_width="64dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="13dp"
+        android:background="@drawable/ic_bg_video_next"
+        android:gravity="center"
+        android:text="下一步"
+        android:textColor="#ffffff"
+        android:textSize="15dp" />
+
+    <LinearLayout
+        android:id="@+id/ll_render_area"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="12dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/ic_record_filter"
+            android:drawablePadding="4dp"
+            android:gravity="center_horizontal"
+            android:text="滤镜"
+            android:textColor="#ffffff"
+            android:textSize="13sp" />
+
+
+    </LinearLayout>
+
+
+    <!--<SeekBar-->
+    <!--android:id="@+id/saturation_seakbar"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_alignParentBottom="true"-->
+    <!--android:layout_marginBottom="32dp"-->
+    <!--android:progress="100" />-->
+    <!--<TextView-->
+    <!--android:id="@+id/saturation_tv"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_marginLeft="16dp"-->
+    <!--android:layout_marginTop="32dp"-->
+    <!--android:layout_above="@+id/saturation_seakbar"-->
+    <!--android:layout_marginBottom="16dp"-->
+    <!--android:text="饱和度: " />-->
+
+    <!--<SeekBar-->
+    <!--android:id="@+id/beauty_skin_seakbar"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_above="@+id/saturation_tv"-->
+    <!--android:layout_marginBottom="32dp"-->
+    <!--android:progress="50" />-->
+    <!--<TextView-->
+    <!--android:id="@+id/beauty_skin_tv"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_marginLeft="16dp"-->
+    <!--android:layout_marginTop="32dp"-->
+    <!--android:layout_above="@+id/beauty_skin_seakbar"-->
+    <!--android:layout_marginBottom="16dp"-->
+    <!--android:text="磨皮: " />-->
+
+</RelativeLayout>

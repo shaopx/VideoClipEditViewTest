@@ -79,7 +79,7 @@ public class EglUtil {
         if (!BuildConfig.DEBUG) return;
         int error;
         while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-            throw new RuntimeException(operation + ": glError " + error);
+//            throw new RuntimeException(operation + ": glError " + error);
         }
     }
 

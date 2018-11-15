@@ -26,6 +26,8 @@ abstract class EFrameBufferObjectRenderer implements GLSurfaceView.Renderer {
 
     private final Queue<Runnable> runOnDraw;
 
+    private boolean useFBO = true;
+
 
     EFrameBufferObjectRenderer() {
         runOnDraw = new LinkedList<Runnable>();
@@ -54,18 +56,23 @@ abstract class EFrameBufferObjectRenderer implements GLSurfaceView.Renderer {
                 runOnDraw.poll().run();
             }
         }
-        framebufferObject.enable();
+        if (useFBO) {
+            framebufferObject.enable();
+        }
+//
         GLES20.glViewport(0, 0, framebufferObject.getWidth(), framebufferObject.getHeight());
 
         onDrawFrame(framebufferObject);
 
+        if (useFBO) {
+            // 在最外层, 最终把输出从屏幕输出
+            GLES20.glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            GLES20.glViewport(0, 0, framebufferObject.getWidth(), framebufferObject.getHeight());
 
-        // 在最外层, 最终把输出从屏幕输出
-        GLES20.glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        GLES20.glViewport(0, 0, framebufferObject.getWidth(), framebufferObject.getHeight());
+            GLES20.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            normalShader.draw(framebufferObject.getTexName(), null, null);
+        }
 
-        GLES20.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        normalShader.draw(framebufferObject.getTexName(), null, null);
 
     }
 

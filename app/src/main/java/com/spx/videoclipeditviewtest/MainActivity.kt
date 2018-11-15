@@ -29,6 +29,19 @@ class MainActivity : AppCompatActivity() {
 
         // 编辑视频(特效 滤镜)
         tv_local_video_edit.setOnClickListener { selectVideo(REQUEST_PICK_EDIT_CODE) }
+
+
+        tv_camera_preview.setOnClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                val intent = Intent(this, CameraEffectActivity::class.java)
+                startActivity(intent)
+            } else {
+                Toast.makeText(this@MainActivity, "目前摄像头预览滤镜效果只支持L以上版本", Toast.LENGTH_LONG).show()
+            }
+
+        }
+
+
     }
 
     override fun onResume() {

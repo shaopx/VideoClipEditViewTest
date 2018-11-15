@@ -227,7 +227,7 @@ public class GlFilter {
         return -1;
     }
 
-    private void checkSetUp() {
+    protected void checkSetUp() {
         if(!hasSetUp){
             setup();
         }

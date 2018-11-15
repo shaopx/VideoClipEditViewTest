@@ -1,10 +1,14 @@
 package com.daasuu.epf.filter;
 
+import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.opengl.Matrix;
+import android.util.Log;
 
 import com.spx.library.util.GlUtil;
 
+import static android.opengl.GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
 import static android.opengl.GLES20.GL_ARRAY_BUFFER;
 import static android.opengl.GLES20.GL_FLOAT;
 import static android.opengl.GLES20.GL_TEXTURE0;
@@ -18,6 +22,14 @@ import static android.opengl.GLES20.GL_TRIANGLE_STRIP;
 public class GlPreviewFilter extends GlFilter {
 
     public static final int GL_TEXTURE_EXTERNAL_OES = 0x8D65;
+    private static final String TAG = "GlPreviewFilter";
+
+    private float[] MVPMatrix = new float[16];
+    private float[] ProjMatrix = new float[16];
+    private float[] MMatrix = new float[16];
+    private float[] VMatrix = new float[16];
+    private float[] STMatrix = new float[16];
+    private float aspectRatio = 1f;
 
     private static final String VERTEX_SHADER =
             "uniform mat4 uMVPMatrix;\n" +
@@ -35,11 +47,28 @@ public class GlPreviewFilter extends GlFilter {
                     "vTextureCoord = (uSTMatrix * aTextureCoord).xy;\n" +
                     "}\n";
 
-    private final int texTarget;
+    public int texTarget = GL_TEXTURE_EXTERNAL_OES;
 
     public GlPreviewFilter(final int texTarget) {
-        super(VERTEX_SHADER, createFragmentShaderSourceOESIfNeed(texTarget));
+        this(VERTEX_SHADER, createFragmentShaderSourceOESIfNeed(texTarget));
         this.texTarget = texTarget;
+    }
+
+    public GlPreviewFilter(final String vertexShaderSource, final String fragmentShaderSource) {
+        super(vertexShaderSource, fragmentShaderSource);
+    }
+
+
+    public void setup() {
+        super.setup();
+
+        Matrix.setIdentityM(STMatrix, 0);
+
+        Matrix.setLookAtM(VMatrix, 0,
+                0.0f, 0.0f, 5.0f,
+                0.0f, 0.0f, 0.0f,
+                0.0f, 1.0f, 0.0f
+        );
     }
 
     private static String createFragmentShaderSourceOESIfNeed(final int texTarget) {
@@ -50,6 +79,14 @@ public class GlPreviewFilter extends GlFilter {
                     .toString();
         }
         return DEFAULT_FRAGMENT_SHADER;
+    }
+
+    public void draw(final int texName) {
+
+        Matrix.multiplyMM(MVPMatrix, 0, VMatrix, 0, MMatrix, 0);
+        Matrix.multiplyMM(MVPMatrix, 0, ProjMatrix, 0, MVPMatrix, 0);
+
+        draw(texName, MVPMatrix, STMatrix, aspectRatio);
     }
 
     public void draw(final int texName, final float[] mvpMatrix, final float[] stMatrix, final float aspectRatio) {
@@ -76,5 +113,18 @@ public class GlPreviewFilter extends GlFilter {
         GLES20.glDisableVertexAttribArray(getHandle("aTextureCoord"));
         GLES20.glBindBuffer(GL_ARRAY_BUFFER, 0);
         GLES20.glBindTexture(GL_TEXTURE_2D, 0);
+
     }
+
+    public void onSurfaceChanged(int width, int height) {
+        aspectRatio = (float) width / height;
+        Matrix.frustumM(ProjMatrix, 0, -aspectRatio, aspectRatio, -1, 1, 5, 7);
+        Matrix.setIdentityM(MMatrix, 0);
+    }
+
+    public void updateTransform(SurfaceTexture previewTexture) {
+        previewTexture.getTransformMatrix(STMatrix);
+    }
+
+
 }

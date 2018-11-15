@@ -32,4 +32,17 @@
         android:text="视频编辑(特效,滤镜)"
         android:textSize="16sp"/>
 
+    <TextView
+        android:id="@+id/tv_camera_preview"
+        android:layout_width="@dimen/entry_textview_width"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_local_video_edit"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"
+        android:background="#33ff0000"
+        android:gravity="center"
+        android:padding="8dp"
+        android:text="摄像头预览"
+        android:textSize="16sp"/>
+
 </RelativeLayout>
