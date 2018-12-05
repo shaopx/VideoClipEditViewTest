@@ -1,6 +1,8 @@
 # VideoClipEditViewTest
 使用android原生的MediaExtractor,MediaCodec和opengl对视频进行编辑, 裁剪,滤镜, 特效等.
 
+最近忙其他的了,  后续的视频录制功能可能不会跟进了.  唉!  生活不易!
+
 ####  功能点
 1. 视频播放  (不使用ffmpeg)   
 2. 视频裁剪    
