@@ -2,7 +2,6 @@ package com.spx.library
 
 
 import android.content.Context
-import android.support.v4.view.ViewCompat
 import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
@@ -33,7 +32,7 @@ fun Context.showToast(desc: String) {
     val view = View.inflate(this, R.layout.baseres_toast_layout, null)
 
     val messageText = view.findViewById<TextView>(R.id.message)
-    ViewCompat.setElevation(messageText, 2.0f)
+//    ViewCompat.setElevation(messageText, 2.0f)
     if (!TextUtils.isEmpty(desc)) {
         messageText.text = desc
     }
