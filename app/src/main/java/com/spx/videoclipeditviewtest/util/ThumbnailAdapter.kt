@@ -1,6 +1,6 @@
 package com.spx.videoclipeditviewtest.util
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +9,7 @@ import android.widget.TextView
 import com.spx.library.decodeFile
 import com.spx.videoclipeditviewtest.R
 
-class VH : RecyclerView.ViewHolder {
+class VH : androidx.recyclerview.widget.RecyclerView.ViewHolder {
     var title: TextView
     var image: ImageView
 
@@ -20,7 +20,7 @@ class VH : RecyclerView.ViewHolder {
 }
 
 
-class ThumnaiAdapter(val list:MutableList<String?>, val itemWidth:Int) : RecyclerView.Adapter<VH>() {
+class ThumnaiAdapter(val list:MutableList<String?>, val itemWidth:Int) : androidx.recyclerview.widget.RecyclerView.Adapter<VH>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.item_layout, parent, false)

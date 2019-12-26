@@ -1,12 +1,12 @@
 package com.spx.videoclipeditviewtest.ext
 
-import android.support.v4.app.DialogFragment
+import androidx.fragment.app.DialogFragment
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.WindowManager
 import com.spx.videoclipeditviewtest.R
 
-fun DialogFragment.initBottomSettings(){
+fun androidx.fragment.app.DialogFragment.initBottomSettings(){
     val dialog = dialog
     val window = dialog.window
     window!!.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)

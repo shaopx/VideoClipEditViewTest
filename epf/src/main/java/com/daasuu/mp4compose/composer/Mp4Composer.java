@@ -1,7 +1,7 @@
 package com.daasuu.mp4compose.composer;
 
 import android.media.MediaMetadataRetriever;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import com.daasuu.epf.filter.GlFilter;

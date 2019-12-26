@@ -1,7 +1,7 @@
 package com.spx.videoclipeditviewtest.view
 
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
+import androidx.fragment.app.DialogFragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.bottom_dialog_fragment_layout.*
 import java.io.Serializable
 import java.util.*
 
-class BottomDialogFragment : DialogFragment() {
+class BottomDialogFragment : androidx.fragment.app.DialogFragment() {
 
 
     private var mType: Int = 0
@@ -45,7 +45,7 @@ class BottomDialogFragment : DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setStyle(DialogFragment.STYLE_NORMAL, R.style.recordBeautyDialogStyle)
+        setStyle(androidx.fragment.app.DialogFragment.STYLE_NORMAL, R.style.recordBeautyDialogStyle)
 
         arguments?.run {
             mType = getInt("type")

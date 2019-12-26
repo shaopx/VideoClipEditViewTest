@@ -20,11 +20,11 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
-import android.support.annotation.RequiresApi
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.DialogFragment
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
+import androidx.core.content.ContextCompat
 import android.util.Log
 import android.util.Size
 import android.util.SparseIntArray
@@ -56,7 +56,7 @@ import java.util.concurrent.TimeUnit
  * 没有考虑资源释放等各种边界条件, 只是为了演示camera2 + opengl的使用.
  */
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-class Camera2BasicFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback, EPlayerRenderer.RenderCallback, MyRenderer.RenderCallback {
+class Camera2BasicFragment : androidx.fragment.app.Fragment(), ActivityCompat.OnRequestPermissionsResultCallback, EPlayerRenderer.RenderCallback, MyRenderer.RenderCallback {
 
 
     val USE_MYRENDERER = false
@@ -508,7 +508,7 @@ class Camera2BasicFragment : Fragment(), ActivityCompat.OnRequestPermissionsResu
     /**
      * Shows an error message dialog.
      */
-    class ErrorDialog : DialogFragment() {
+    class ErrorDialog : androidx.fragment.app.DialogFragment() {
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val activity = activity
@@ -536,7 +536,7 @@ class Camera2BasicFragment : Fragment(), ActivityCompat.OnRequestPermissionsResu
     /**
      * Shows OK/Cancel confirmation dialog about camera permission.
      */
-    class ConfirmationDialog : DialogFragment() {
+    class ConfirmationDialog : androidx.fragment.app.DialogFragment() {
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val parent = parentFragment

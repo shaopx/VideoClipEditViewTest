@@ -4,9 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -131,8 +131,8 @@ class VideoEditActivity : AppCompatActivity() {
 
         adapter = ThumnaiAdapter(list, itemWidth)
         recyclerview.adapter = adapter
-        var layoutManager = LinearLayoutManager(this).apply {
-            orientation = LinearLayoutManager.HORIZONTAL
+        var layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this).apply {
+            orientation = androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL
         }
         recyclerview.layoutManager = layoutManager
 
@@ -140,8 +140,8 @@ class VideoEditActivity : AppCompatActivity() {
         recyclerview.setPaddingRelative(padding, 0, padding, 0)
         recyclerview.clipChildren = false
 
-        recyclerview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+        recyclerview.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
 //                Log.d(TAG, "onScrolled  dx:" + dx)
                 val (position, itemLeft, scrollX) = recyclerView.getScollXDistance()

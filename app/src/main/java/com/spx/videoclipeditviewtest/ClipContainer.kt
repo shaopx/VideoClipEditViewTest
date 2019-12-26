@@ -3,8 +3,8 @@ package com.spx.videoclipeditviewtest
 
 import android.content.Context
 import android.graphics.*
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
@@ -28,7 +28,7 @@ class ClipContainer : FrameLayout {
     }
 
 
-    lateinit var recyclerView: RecyclerView
+    lateinit var recyclerView: androidx.recyclerview.widget.RecyclerView
     lateinit var shadowPaint: Paint
     var framebarHeight: Int = 0
     var recyclerViewPadding: Int = 0
@@ -292,12 +292,12 @@ class ClipContainer : FrameLayout {
 
         adapter = MyAdapter()
         recyclerview.adapter = adapter
-        recyclerview.layoutManager = LinearLayoutManager(context).apply {
-            orientation = LinearLayoutManager.HORIZONTAL
+        recyclerview.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context).apply {
+            orientation = androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL
         }
 
-        recyclerview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+        recyclerview.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
                 Log.d(TAG, "onScrolled  dx:$dx, dy:$dy")
                 if (dx != 0) {
                     clipContainer.updateSelection()
@@ -542,7 +542,7 @@ class ClipContainer : FrameLayout {
 
 
 
-    inner class VH : RecyclerView.ViewHolder {
+    inner class VH : androidx.recyclerview.widget.RecyclerView.ViewHolder {
         var title: TextView
         var image: ImageView
 
@@ -553,7 +553,7 @@ class ClipContainer : FrameLayout {
     }
 
 
-    inner class MyAdapter() : RecyclerView.Adapter<VH>() {
+    inner class MyAdapter() : androidx.recyclerview.widget.RecyclerView.Adapter<VH>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
             val v = LayoutInflater.from(parent.context).inflate(R.layout.item_layout, parent, false)
@@ -579,8 +579,8 @@ class ClipContainer : FrameLayout {
 }
 
 
-fun RecyclerView.getScollXDistance(): Triple<Int, Int, Int> {
-    var layoutManager = getLayoutManager() as LinearLayoutManager
+fun androidx.recyclerview.widget.RecyclerView.getScollXDistance(): Triple<Int, Int, Int> {
+    var layoutManager = getLayoutManager() as androidx.recyclerview.widget.LinearLayoutManager
     var position = layoutManager.findFirstVisibleItemPosition()
     var firstVisiableChildView = layoutManager.findViewByPosition(position)
     firstVisiableChildView?.run {
