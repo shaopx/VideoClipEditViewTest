@@ -8,7 +8,7 @@ class Config{
         const val DEFAULT_TEMP_VIDEO_LOCATION = "/storage/emulated/0/movies/process.mp4"
 
         var MSG_UPDATE = 1
-        val USE_EXOPLAYER = false
+        val USE_EXOPLAYER = true
 
         // 对于长视频, 每隔3s截取一个缩略图
         val MAX_FRAME_INTERVAL_MS = 3 * 1000

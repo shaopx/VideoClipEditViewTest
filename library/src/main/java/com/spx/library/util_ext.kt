@@ -18,6 +18,7 @@ fun getVideoItem(contentResolver: ContentResolver, data: Intent): VideoItem? {
     var uri = data.getData()
     var cr = contentResolver
     var videoItem: VideoItem? = null
+    uri ?: return null
     /** 数据库查询操作。
      * 第一个参数 uri：为要查询的数据库+表的名称。
      * 第二个参数 projection ： 要查询的列。
@@ -25,7 +26,7 @@ fun getVideoItem(contentResolver: ContentResolver, data: Intent): VideoItem? {
      * 第三个参数 selectionArgs ： 查询条件的参数，相当于 ？。
      * 第四个参数 sortOrder ： 结果排序。
      */
-    var cursor = contentResolver.query(uri, null, null, null, null);
+    var cursor = contentResolver.query(uri!!, null, null, null, null);
     if (cursor != null) {
         if (cursor.moveToFirst()) {
             // 视频ID:MediaStore.Audio.Media._ID

@@ -24,14 +24,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"></SurfaceView>
 
-    <com.google.android.exoplayer2.ui.PlayerView
+    <com.google.android.exoplayer2.ui.StyledPlayerView
         android:id="@+id/player_view_exo"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:surface_type="texture_view"
         app:use_controller="false">
 
-    </com.google.android.exoplayer2.ui.PlayerView>
+    </com.google.android.exoplayer2.ui.StyledPlayerView>
 
 
     <com.spx.videoclipeditviewtest.ClipContainer

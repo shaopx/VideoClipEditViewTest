@@ -1,17 +1,13 @@
 package com.spx.library.player
 
 import android.content.Context
-import android.util.Log
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
-import com.google.android.exoplayer2.ui.PlayerView
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player.STATE_READY
-import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.ui.StyledPlayerView
 
 
-class VideoPlayerOfExoPlayer(val playerView: PlayerView) : VideoPlayer {
+class VideoPlayerOfExoPlayer(val playerView: StyledPlayerView) : VideoPlayer {
 
     companion object {
         val TAG = "VideoPlayerOfExoPlayer"
@@ -21,28 +17,28 @@ class VideoPlayerOfExoPlayer(val playerView: PlayerView) : VideoPlayer {
 
     var lastSeekingPosition = 0L
     var previewModeTimeMs = PREVIEW_MODE_MS_LONG
-    var exoPlayer: SimpleExoPlayer? = null
+    var exoPlayer: ExoPlayer? = null
 
     override fun enableFramePreviewMode() {
         previewModeTimeMs = PREVIEW_MODE_MS_SHORT
     }
 
-    var videoListener = object : SimpleExoPlayer.VideoListener {
-        override fun onVideoSizeChanged(width: Int, height: Int, _un: Int, _p: Float) {
-            if (width < height) {
-                return
-            }
-            playerView?.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT)
-        }
+//    var videoListener = object : SimpleExoPlayer.VideoListener {
+//        override fun onVideoSizeChanged(width: Int, height: Int, _un: Int, _p: Float) {
+//            if (width < height) {
+//                return
+//            }
+//            playerView?.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT)
+//        }
+//
+//        override fun onRenderedFirstFrame() {
+//        }
+//
+//    }
 
-        override fun onRenderedFirstFrame() {
-        }
-
-    }
-
-    var listener: Player.DefaultEventListener = object : Player.DefaultEventListener() {
-        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-            Log.d(TAG, "player state $playbackState")
+//    var listener: Player.DefaultEventListener = object : Player.DefaultEventListener() {
+//        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+//            Log.d(TAG, "player state $playbackState")
 //            when (playbackState) {
 //                Player.STATE_BUFFERING -> progressBar.visibility = View.VISIBLE
 //                Player.STATE_IDLE -> {
@@ -66,12 +62,12 @@ class VideoPlayerOfExoPlayer(val playerView: PlayerView) : VideoPlayer {
 //                    }
 //                }
 //            }
-
-        }
-    }
+//
+//        }
+//    }
 
     override fun setupPlayer(context: Context, mediaPath: String) {
-        exoPlayer = com.spx.library.player.initPlayer(context, mediaPath, playerView!!, listener)
+        exoPlayer =initPlayer(context, mediaPath, playerView!!)
         startPlayer()
     }
 
@@ -86,7 +82,6 @@ class VideoPlayerOfExoPlayer(val playerView: PlayerView) : VideoPlayer {
     override fun startPlayer() {
         exoPlayer?.playWhenReady = true
     }
-
 
     var lastSeekingTime = 0L
 
