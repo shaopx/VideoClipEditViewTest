@@ -55,6 +55,30 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/ll_switch_camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_above="@+id/ll_render_area"
+        android:layout_marginRight="14dp"
+        android:layout_marginBottom="32dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_switch_camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/ic_camera_switch"
+            android:drawablePadding="4dp"
+            android:gravity="center_horizontal"
+            android:text="切换"
+            android:textColor="#ffffff"
+            android:textSize="13sp" />
+
+
+    </LinearLayout>
+
 
     <!--<SeekBar-->
     <!--android:id="@+id/saturation_seakbar"-->

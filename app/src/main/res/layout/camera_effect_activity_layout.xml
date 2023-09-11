@@ -5,4 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000"
-    tools:context=".CameraEffectActivity" />
+    tools:context=".CameraEffectActivity" >
+    <ImageView
+        android:id="@+id/iv_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="21dp"
+        android:layout_gravity="left|top"
+        android:src="@drawable/ic_video_record_back" />
+</FrameLayout>

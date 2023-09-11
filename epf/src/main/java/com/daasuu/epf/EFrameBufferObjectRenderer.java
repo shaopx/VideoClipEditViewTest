@@ -28,11 +28,9 @@ abstract class EFrameBufferObjectRenderer implements GLSurfaceView.Renderer {
 
     private boolean useFBO = true;
 
-
     EFrameBufferObjectRenderer() {
         runOnDraw = new LinkedList<Runnable>();
     }
-
 
     @Override
     public final void onSurfaceCreated(final GL10 gl, final EGLConfig config) {
@@ -72,8 +70,6 @@ abstract class EFrameBufferObjectRenderer implements GLSurfaceView.Renderer {
             GLES20.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             normalShader.draw(framebufferObject.getTexName(), null, null);
         }
-
-
     }
 
     @Override

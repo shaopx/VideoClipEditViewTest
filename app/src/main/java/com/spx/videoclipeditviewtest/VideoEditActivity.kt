@@ -26,7 +26,6 @@ import kotlinx.android.synthetic.main.activity_video_edit.*
 
 class VideoEditActivity : AppCompatActivity() {
 
-
   companion object {
     const val TAG = "VideoEditActivity"
     const val STATE_NORMAL = 0
@@ -250,7 +249,6 @@ class VideoEditActivity : AppCompatActivity() {
     )
   }
 
-
   private fun switchToEffectEdit() {
 //        showToast("特效还为开发完成")
     if (state == STATE_EFFECT) {
@@ -300,7 +298,6 @@ class VideoEditActivity : AppCompatActivity() {
     player_view_mp.release()
   }
 
-
   private fun showFilterDialog() {
     var dialogFragment = BottomDialogFragment.getInstance(
       0, getSelection(),
@@ -317,7 +314,6 @@ class VideoEditActivity : AppCompatActivity() {
   }
 
   private fun getSelection() = getInt(this, "filter_selection", 0)
-
 
 }
 
