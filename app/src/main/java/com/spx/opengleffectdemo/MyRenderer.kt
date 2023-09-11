@@ -21,6 +21,10 @@ class MyRenderer : GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListen
 
     var TAG = "MyRenderer"
 
+    constructor(){
+        initCoord()
+    }
+
     interface RenderCallback {
         fun onRenderCreated(surfaceTexture: SurfaceTexture, width:Int, height:Int)
     }
@@ -33,35 +37,23 @@ class MyRenderer : GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListen
     private var saturationLocation: Int = 0
     private var matrixLocation: Int = 0
 
-    private val bPos: FloatBuffer
-    private val bCoord: FloatBuffer
+    private lateinit var bPos: FloatBuffer
+    private lateinit var bCoord: FloatBuffer
 
     private val sPos = floatArrayOf(-1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, -1.0f)
 
-    private val sCoord = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f)
+    private val sCoord_back = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f)
+    private val sCoord_front = floatArrayOf( 1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 0.0f,
+        0.0f, 1.0f)
 
     private val mTexRotateMatrix = floatArrayOf(1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f)
 
     var saturationF = 0.5f
 
-    init {
-        val bb = ByteBuffer.allocateDirect(sPos.size * 4)
-        bb.order(ByteOrder.nativeOrder())
-        bPos = bb.asFloatBuffer()
-        bPos.put(sPos)
-        bPos.position(0)
-        val cc = ByteBuffer.allocateDirect(sCoord.size * 4)
-        cc.order(ByteOrder.nativeOrder())
-        bCoord = cc.asFloatBuffer()
-        bCoord.put(sCoord)
-        bCoord.position(0)
-    }
-
-
     lateinit var vertexShaderSource: String
     lateinit var fragmentShaderSource: String
-
-
     lateinit var mSurfaceTexture: SurfaceTexture
     private var hTex = IntArray(1)
     private var mUpdateSurfaceTexture = false
@@ -74,6 +66,27 @@ class MyRenderer : GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListen
         GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE)
         GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST)
         GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST)
+    }
+
+    private var isFront = false
+
+    fun setFront(isFront: Boolean) {
+        this.isFront = isFront
+        initCoord()
+    }
+
+    fun initCoord(){
+        val bb = ByteBuffer.allocateDirect(sPos.size * 4)
+        bb.order(ByteOrder.nativeOrder())
+        bPos = bb.asFloatBuffer()
+        bPos.put(sPos)
+        bPos.position(0)
+        var sCoord = if(isFront) sCoord_front else sCoord_back
+        val cc = ByteBuffer.allocateDirect(sCoord.size * 4)
+        cc.order(ByteOrder.nativeOrder())
+        bCoord = cc.asFloatBuffer()
+        bCoord.put(sCoord)
+        bCoord.position(0)
     }
 
     fun checkGlError(op: String) {
@@ -175,13 +188,10 @@ class MyRenderer : GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListen
             }
         }
 
-
         GLES30.glVertexAttribPointer(vPosition, 2, GLES30.GL_FLOAT, false, 0, bPos)
         GLES30.glVertexAttribPointer(vCoordinate, 2, GLES30.GL_FLOAT, false, 0, bCoord)
         GLES30.glUniform1f(saturationLocation, saturationF)
         GLES20.glUniformMatrix4fv(matrixLocation, 1, false, mTexRotateMatrix, 0)
-
-
 
         GLES30.glUniform1i(vTexture, 0)
         checkGlError("glUniform1i")

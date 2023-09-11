@@ -36,14 +36,11 @@ public class EPlayerRenderer extends EFrameBufferObjectRenderer implements Surfa
 
     private int texName;
 
-
     private EFramebufferObject filterFramebufferObject;
     private GlPreviewFilter previewFilter;
-
     private GlFilter glFilter;
     private boolean isNewFilter;
     private final GLSurfaceView glPreview;
-
 
     private SimpleExoPlayer simpleExoPlayer;
 
@@ -93,7 +90,6 @@ public class EPlayerRenderer extends EFrameBufferObjectRenderer implements Surfa
         GLES20.glGenTextures(args.length, args, 0);
         texName = args[0];
 
-
         previewTexture = new ESurfaceTexture(texName);
         previewTexture.setOnFrameAvailableListener(this);
         if (callback != null) {
@@ -106,7 +102,6 @@ public class EPlayerRenderer extends EFrameBufferObjectRenderer implements Surfa
         EglUtil.setupSampler(GL_TEXTURE_EXTERNAL_OES, GL_NEAREST, GL_NEAREST);
         GLES20.glBindTexture(GL_TEXTURE_2D, 0);
 
-
         filterFramebufferObject = new EFramebufferObject();
         // GL_TEXTURE_EXTERNAL_OES
         if (previewFilter == null) {
@@ -114,13 +109,11 @@ public class EPlayerRenderer extends EFrameBufferObjectRenderer implements Surfa
             previewFilter.setup();
         }
 
-
         // 通过把previewTexture的对应的surface传给simpleExoPlayer, 那simpleExoPlayer播放的输出都会渲染到previewTexture对应的纹理texName上
         if (simpleExoPlayer != null) {
             Surface surface = new Surface(previewTexture.getSurfaceTexture());
             this.simpleExoPlayer.setVideoSurface(surface);
         }
-
 
         synchronized (this) {
             updateSurface = false;
@@ -131,15 +124,11 @@ public class EPlayerRenderer extends EFrameBufferObjectRenderer implements Surfa
         }
 
         GLES20.glGetIntegerv(GL_MAX_TEXTURE_SIZE, args, 0);
-
     }
 
     @Override
     public void onSurfaceChanged(final int width, final int height) {
         Log.d(TAG, "onSurfaceChanged width = " + width + "  height = " + height);
-
-
-
         //因为这里设置了FBO, 所以exoplayer的输出不再是屏幕, 而是帧缓冲区对象
         //不明白的是里面又创建了新的纹理作为 fbo , 那前面那个纹理  是什么用处?   -- 上面那个纹理texName是作为视频播放的输出的, 见下面的onDrawFrame()
         filterFramebufferObject.setup(width, height);
@@ -149,9 +138,7 @@ public class EPlayerRenderer extends EFrameBufferObjectRenderer implements Surfa
         }
 
         previewFilter.onSurfaceChanged(width, height);
-
     }
-
 
     @Override
     public void onDrawFrame(final EFramebufferObject fbo) {
@@ -172,13 +159,13 @@ public class EPlayerRenderer extends EFrameBufferObjectRenderer implements Surfa
             isNewFilter = false;
         }
 
+        // 先绘制到filterFramebufferObject中
         if (glFilter != null) {
             filterFramebufferObject.enable();
             glViewport(0, 0, filterFramebufferObject.getWidth(), filterFramebufferObject.getHeight());
         }
 
         GLES20.glClear(GL_COLOR_BUFFER_BIT);
-
 
         previewFilter.draw(texName);
         // 第一个管线输出到哪?  应该是framebuffer的颜色缓冲区吧.  -- 取决于framebuffer是否启用.filterFramebufferObject.enable();

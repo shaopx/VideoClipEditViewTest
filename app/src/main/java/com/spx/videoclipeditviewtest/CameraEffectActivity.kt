@@ -2,6 +2,7 @@ package com.spx.videoclipeditviewtest
 
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 
@@ -17,7 +18,6 @@ class CameraEffectActivity : AppCompatActivity() {
                     .replace(R.id.container, Camera2BasicFragment.newInstance())
                     .commit()
         }
+
     }
-
-
 }

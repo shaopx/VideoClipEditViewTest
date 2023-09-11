@@ -37,7 +37,7 @@
     <activity android:name=".VideoClipActivity"></activity>
     <activity android:name=".VideoEditActivity"></activity>
     <activity android:name=".VideoProgressActivity"></activity>
-    <activity android:name=".CameraEffectActivity"></activity>
+    <activity android:name=".CameraEffectActivity" android:screenOrientation="portrait"></activity>
   </application>
 
 </manifest>

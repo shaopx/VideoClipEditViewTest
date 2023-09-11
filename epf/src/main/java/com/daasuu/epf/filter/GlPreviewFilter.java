@@ -18,7 +18,6 @@ import static android.opengl.GLES20.GL_TRIANGLE_STRIP;
 /**
  * Created by sudamasayuki on 2017/05/16.
  */
-
 public class GlPreviewFilter extends GlFilter {
 
     public static final int GL_TEXTURE_EXTERNAL_OES = 0x8D65;
@@ -57,7 +56,6 @@ public class GlPreviewFilter extends GlFilter {
     public GlPreviewFilter(final String vertexShaderSource, final String fragmentShaderSource) {
         super(vertexShaderSource, fragmentShaderSource);
     }
-
 
     public void setup() {
         super.setup();
@@ -125,6 +123,4 @@ public class GlPreviewFilter extends GlFilter {
     public void updateTransform(SurfaceTexture previewTexture) {
         previewTexture.getTransformMatrix(STMatrix);
     }
-
-
 }
