@@ -1,26 +1,27 @@
 # VideoClipEditViewTest
 
-VideoClipEditViewTest 是一个 Android 原生视频编辑示例项目，目标是在不依赖 FFmpeg 的情况下，使用 Android 系统媒体能力和 OpenGL 完成本地视频播放、裁剪、滤镜、特效、帧预览和摄像头实时滤镜预览。
+VideoClipEditViewTest is an Android native video editing demo project. It shows how to build local video playback, trimming, filters, effects, frame thumbnail preview, and real-time camera preview filters without relying on FFmpeg. The project is built around Android media APIs and OpenGL.
 
-项目主要面向希望学习或实现 Android 视频编辑管线的开发者，尤其适合参考以下场景：
+This repository is useful for Android developers who want to learn or implement native mobile video editing pipelines, including:
 
-- 基于 `MediaExtractor` / `MediaCodec` / `MediaMuxer` 做本地视频解码、裁剪、转码和导出。
-- 使用 OpenGL ES / EGL 对视频帧做滤镜、美颜和特效处理。
-- 实现短视频编辑常见的时间轴、缩略图预览、裁剪区间选择和导出进度。
-- 在 Camera2 预览阶段实时切换滤镜效果。
+- Decoding, trimming, transcoding, and exporting local video with `MediaExtractor`, `MediaCodec`, and `MediaMuxer`.
+- Rendering video frames through OpenGL ES and EGL.
+- Building short-video editing UI patterns such as timelines, frame thumbnails, trim handles, preview seeking, and export progress.
+- Applying beauty filters, color filters, and time-based OpenGL effects to preview and exported videos.
+- Applying real-time filters to Camera2 preview frames.
 
 ## Features
 
-- 视频播放：支持从系统相册选择视频并播放，播放层可使用 ExoPlayer 或 MediaPlayer 封装。
-- 视频裁剪：通过时间轴选择裁剪开始和结束时间，并生成新视频文件。
-- 帧缩略图预览：从视频中抽取帧，生成横向时间轴缩略图。
-- 动态裁剪区间：支持拖动左右裁剪手柄，限制最短和最长裁剪时长。
-- 播放进度预览：支持拖动进度条在裁剪区间内预览不同时间点。
-- 视频滤镜：支持对本地视频应用滤镜，并将滤镜结果渲染到导出视频中。
-- 美颜处理：包含美颜、磨皮、高通、肤色调整等 OpenGL shader 示例。
-- OpenGL 特效：支持闪白、抖动、灵魂出窍、分屏、缩放等特效。
-- 分时段特效：通过 `GlFilterList` / `GlFilterPeriod` 在不同时间段应用不同特效。
-- Camera2 实时预览滤镜：支持摄像头预览时选择并切换滤镜，要求 Android Lollipop 及以上。
+- Video playback: select a local video from the system gallery and preview it in the demo app.
+- Video trimming: choose start and end times on a timeline and export a new video file.
+- Frame thumbnail timeline: extract frames from the source video and display them in a horizontal editing timeline.
+- Dynamic trim range selection: drag left and right trim handles with minimum and maximum duration constraints.
+- Playback preview: drag the progress indicator to preview different moments inside the selected range.
+- Video filters: apply filters to local videos and render the filtered output to a new MP4 file.
+- Beauty processing: includes OpenGL shader examples for beauty, blur, high-pass, and skin adjustment effects.
+- OpenGL effects: includes flash, shake, soul-out, split-screen, scale, and other motion-style effects.
+- Time-based effects: use `GlFilterList` and `GlFilterPeriod` to apply different effects to different time ranges.
+- Camera2 preview filters: switch filters during live camera preview on Android Lollipop and newer devices.
 
 ## Screenshots
 
@@ -79,7 +80,7 @@ Additional shader and native filter experiments:
 
 ## Technology Stack
 
-### Android media APIs
+### Android Media APIs
 
 - `MediaExtractor`: reads video/audio tracks and samples from local media files.
 - `MediaCodec`: decodes and encodes video frames through Android native codecs.
@@ -87,20 +88,20 @@ Additional shader and native filter experiments:
 - `MediaMetadataRetriever`: reads duration, resolution, rotation, and frame metadata.
 - `Surface` / `SurfaceTexture`: passes decoded frames into the rendering pipeline.
 
-### Rendering and image processing
+### Rendering and Image Processing
 
 - OpenGL ES 2.0 for video frame rendering and shader effects.
 - EGL for creating and managing rendering contexts and surfaces.
 - GLSL fragment and vertex shaders for filters, blur, mosaic, beauty, lookup-table color effects, and motion-style effects.
 - FBO-based processing for offscreen rendering during preview and export.
 
-### Camera and playback
+### Camera and Playback
 
 - Camera2 API for live camera preview and camera switching.
 - ExoPlayer 2.17.1 for playback and thumbnail preview support.
 - Android `MediaPlayer` wrapper for alternate playback paths.
 
-### App and build
+### App and Build
 
 - Kotlin and Java mixed Android project.
 - Android Gradle Plugin 7.0.4.
@@ -110,7 +111,7 @@ Additional shader and native filter experiments:
 
 ## Main Workflows
 
-### Video trimming
+### Video Trimming
 
 1. Select a local video from the system gallery.
 2. Load video duration and prepare the playback view.
@@ -119,7 +120,7 @@ Additional shader and native filter experiments:
 5. Use `Mp4Composer.clip(startMs, endMs)` to render the selected segment.
 6. Write the generated video to the configured output path.
 
-### Video filters and effects
+### Video Filters and Effects
 
 1. Select a local video and enter the edit screen.
 2. Pick a global filter, or press and hold an effect to apply it to a time range.
@@ -127,7 +128,7 @@ Additional shader and native filter experiments:
 4. Recreate the filter timeline in `VideoProgressActivity`.
 5. Use `Mp4Composer.filterList(...)` to render the result into a new MP4.
 
-### Camera preview filters
+### Camera Preview Filters
 
 1. Open the Camera2 preview screen on Android Lollipop or newer.
 2. Create a camera preview session.
@@ -143,7 +144,7 @@ Additional shader and native filter experiments:
 - Android device or emulator with API 21 or newer.
 - Camera preview filter mode requires Android 5.0+ and Camera2 support.
 
-### Run the demo
+### Run the Demo
 
 1. Clone the repository.
 
@@ -198,3 +199,7 @@ This path is defined in `Config.DEFAULT_TEMP_VIDEO_LOCATION`. If the output fail
 The author also wrote a related summary article about this video processing work:
 
 https://www.jianshu.com/p/cbebba28b12c
+
+## 中文简介
+
+VideoClipEditViewTest 是一个 Android 原生视频编辑示例项目。它不依赖 FFmpeg，而是使用 `MediaExtractor`、`MediaCodec`、`MediaMuxer`、OpenGL ES、EGL、Camera2 和 ExoPlayer 实现本地视频播放、裁剪、帧预览、滤镜、美颜、特效叠加、视频导出和摄像头实时滤镜预览。
