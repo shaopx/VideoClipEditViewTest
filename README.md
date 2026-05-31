@@ -199,7 +199,3 @@ This path is defined in `Config.DEFAULT_TEMP_VIDEO_LOCATION`. If the output fail
 The author also wrote a related summary article about this video processing work:
 
 https://www.jianshu.com/p/cbebba28b12c
-
-## 中文简介
-
-VideoClipEditViewTest 是一个 Android 原生视频编辑示例项目。它不依赖 FFmpeg，而是使用 `MediaExtractor`、`MediaCodec`、`MediaMuxer`、OpenGL ES、EGL、Camera2 和 ExoPlayer 实现本地视频播放、裁剪、帧预览、滤镜、美颜、特效叠加、视频导出和摄像头实时滤镜预览。
