@@ -1,10 +1,11 @@
 package com.spx.library.player
 
 import android.os.Handler
+import android.os.Looper
 
 class VideoPlayTimeController(val player: VideoPlayer) {
 
-  var handler: Handler = Handler()
+  var handler: Handler = Handler(Looper.getMainLooper())
   var startTime: Long = 0
   var endTime: Long = 0
 

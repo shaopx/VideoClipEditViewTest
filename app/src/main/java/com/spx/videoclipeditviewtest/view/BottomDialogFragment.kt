@@ -8,16 +8,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.spx.videoclipeditviewtest.R
 import com.spx.videoclipeditviewtest.ext.initBottomSettings
 import com.spx.videoclipeditviewtest.ext.putInt
-import kotlinx.android.synthetic.main.bottom_dialog_fragment_layout.*
 import java.io.Serializable
 import java.util.*
 
 class BottomDialogFragment : androidx.fragment.app.DialogFragment() {
 
+  // Views (替代已废弃的 kotlin-android-extensions synthetic)
+  private lateinit var tv_operate_title: TextView
+  private lateinit var ll_container: LinearLayout
+  private lateinit var iv_close: ImageView
 
   private var mType: Int = 0
   private var mTitle: String? = null
@@ -92,6 +96,10 @@ class BottomDialogFragment : androidx.fragment.app.DialogFragment() {
   }
 
   private fun initViews(rootView: View) {
+    tv_operate_title = rootView.findViewById(R.id.tv_operate_title)
+    ll_container = rootView.findViewById(R.id.ll_container)
+    iv_close = rootView.findViewById(R.id.iv_close)
+
     tv_operate_title.text = mTitle
     options.forEachIndexed { index, option ->
       val itemView =

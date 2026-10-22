@@ -3,6 +3,7 @@ package com.daasuu.epf
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
 
 import com.daasuu.epf.filter.GlFilter
@@ -12,7 +13,7 @@ import com.spx.library.player.mp.TextureSurfaceRenderer2
 class GlPlayerView : MPlayerView {
 
     var listener: ((Long) -> Unit)? = null
-    var uiHandler: Handler = Handler()
+    var uiHandler: Handler = Handler(Looper.getMainLooper())
 
     constructor(context: Context) : super(context) {}
 

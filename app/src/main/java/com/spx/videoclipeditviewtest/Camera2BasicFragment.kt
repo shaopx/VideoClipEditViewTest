@@ -31,6 +31,8 @@ import android.view.LayoutInflater
 import android.view.Surface
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import com.daasuu.epf.EPlayerRenderer
 import com.spx.opengleffectdemo.MyPreviewFilter
 import com.spx.opengleffectdemo.MyRenderer
@@ -39,7 +41,6 @@ import com.spx.videoclipeditviewtest.ext.createFilterOptions
 import com.spx.videoclipeditviewtest.ext.getFilterByName
 import com.spx.videoclipeditviewtest.ext.getInt
 import com.spx.videoclipeditviewtest.view.BottomDialogFragment
-import kotlinx.android.synthetic.main.fragment_camera2_basic.*
 
 import java.util.ArrayList
 import java.util.Arrays
@@ -58,6 +59,12 @@ class Camera2BasicFragment : androidx.fragment.app.Fragment(),
   MyRenderer.RenderCallback {
 
   val USE_MYRENDERER = false
+
+  // Views (替代已废弃的 kotlin-android-extensions synthetic)
+  private lateinit var glsurfaceview: GLSurfaceView
+  private lateinit var tv_filter: TextView
+  private lateinit var ll_switch_camera: View
+  private lateinit var iv_back: ImageView
 
   /**
    * ID of the current [CameraDevice].
@@ -169,6 +176,11 @@ class Camera2BasicFragment : androidx.fragment.app.Fragment(),
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    glsurfaceview = view.findViewById(R.id.glsurfaceview)
+    tv_filter = view.findViewById(R.id.tv_filter)
+    ll_switch_camera = view.findViewById(R.id.ll_switch_camera)
+    iv_back = view.findViewById(R.id.iv_back)
+
     glsurfaceview.setEGLContextClientVersion(3)
     if (USE_MYRENDERER) {
       myRenderer = MyRenderer()

@@ -1,19 +1,20 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+}
 
 android {
-    compileSdkVersion 31
+    namespace 'com.daasuu.epf'
+    compileSdk 34
 
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 31
-        versionCode 1
-        versionName "1.0"
+        minSdk 21
+        // 与本机 NDK 版本保持一致，避免构建时自动下载
+        ndkVersion '27.2.12479018'
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                cppFlags "-frtti -fexceptions"
+                cppFlags '-frtti -fexceptions'
             }
         }
     }
@@ -28,23 +29,31 @@ android {
     externalNativeBuild {
         cmake {
             path 'CMakeLists.txt'
+            // 使用 SDK Manager 已安装的 CMake 版本
+            version '3.18.1'
         }
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
-    lintOptions {
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    lint {
         abortOnError false
+    }
+
+    buildFeatures {
+        // EglUtil 引用了 BuildConfig.DEBUG
+        buildConfig true
     }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation project(path: ':library')
-//    implementation project(path: ':filterlibrary')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-}
-repositories {
-    mavenCentral()
+    implementation libs.androidx.appcompat
+    implementation project(':library')
 }

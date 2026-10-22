@@ -17,7 +17,6 @@ import android.widget.TextView
 import com.spx.videoclipeditviewtest.Config.Companion.maxSelection
 import com.spx.videoclipeditviewtest.Config.Companion.minSelection
 import com.spx.library.decodeFile
-import kotlinx.android.synthetic.main.activity_video_clip.view.*
 
 class ClipContainer : FrameLayout {
   companion object {
@@ -298,14 +297,14 @@ class ClipContainer : FrameLayout {
     playProgressBar.setOnTouchListener(progressBarTouchListener)
 
     adapter = MyAdapter()
-    recyclerview.adapter = adapter
-    recyclerview.layoutManager =
+    recyclerView.adapter = adapter
+    recyclerView.layoutManager =
       androidx.recyclerview.widget.LinearLayoutManager(context).apply {
         orientation =
           androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL
       }
 
-    recyclerview.addOnScrollListener(object :
+    recyclerView.addOnScrollListener(object :
       androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
       override fun onScrolled(
         recyclerView: androidx.recyclerview.widget.RecyclerView,
@@ -314,7 +313,7 @@ class ClipContainer : FrameLayout {
       ) {
         Log.d(TAG, "onScrolled  dx:$dx, dy:$dy")
         if (dx != 0) {
-          clipContainer.updateSelection()
+          updateSelection()
         }
       }
     })

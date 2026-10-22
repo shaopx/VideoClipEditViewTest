@@ -3,6 +3,7 @@ package com.spx.videoclipeditviewtest
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,18 +12,21 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import android.widget.HorizontalScrollView
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.spx.egl.GlFilterConfig
 import com.spx.egl.GlFilterList
 import com.spx.egl.GlFilterPeriod
 import com.spx.egl.VideoProcessConfig
+import com.daasuu.epf.GlPlayerView
+import com.spx.library.ThumbExoPlayerView
 import com.spx.library.getVideoDuration
 import com.spx.library.toTime
 import com.spx.videoclipeditviewtest.ext.*
 import com.spx.videoclipeditviewtest.util.ThumnaiAdapter
 import com.spx.videoclipeditviewtest.view.BottomDialogFragment
-import kotlinx.android.synthetic.main.activity_video_edit.*
 
 class VideoEditActivity : AppCompatActivity() {
 
@@ -51,6 +55,19 @@ class VideoEditActivity : AppCompatActivity() {
 
   var state = STATE_NORMAL
 
+  // Views (替代已废弃的 kotlin-android-extensions synthetic)
+  lateinit var player_view_mp: GlPlayerView
+  lateinit var tv_filter: TextView
+  lateinit var tv_effect: TextView
+  lateinit var tv_next: TextView
+  lateinit var recyclerview: RecyclerView
+  lateinit var iv_effect_framebar: ImageView
+  lateinit var hs_effect_list: HorizontalScrollView
+  lateinit var ll_container: LinearLayout
+  lateinit var player_view_exo_thumbnail: ThumbExoPlayerView
+  lateinit var tv_play_position: TextView
+  lateinit var iv_back: ImageView
+
   lateinit var videoProcessConfig: VideoProcessConfig
   lateinit var filterConfigList: MutableList<GlFilterConfig>
 
@@ -76,7 +93,7 @@ class VideoEditActivity : AppCompatActivity() {
     true
   }
 
-  var handler = object : Handler() {
+  var handler = object : Handler(Looper.getMainLooper()) {
     override fun handleMessage(msg: Message) {
       super.handleMessage(msg)
     }
@@ -87,6 +104,18 @@ class VideoEditActivity : AppCompatActivity() {
 
     setContentView(R.layout.activity_video_edit)
 
+    player_view_mp = findViewById(R.id.player_view_mp)
+    tv_filter = findViewById(R.id.tv_filter)
+    tv_effect = findViewById(R.id.tv_effect)
+    tv_next = findViewById(R.id.tv_next)
+    recyclerview = findViewById(R.id.recyclerview)
+    iv_effect_framebar = findViewById(R.id.iv_effect_framebar)
+    hs_effect_list = findViewById(R.id.hs_effect_list)
+    ll_container = findViewById(R.id.ll_container)
+    player_view_exo_thumbnail = findViewById(R.id.player_view_exo_thumbnail)
+    tv_play_position = findViewById(R.id.tv_play_position)
+    iv_back = findViewById(R.id.iv_back)
+
     mediaPath = intent.getStringExtra("video_path").toString()
 
     player_view_mp.setDataSource(mediaPath)
@@ -95,6 +124,7 @@ class VideoEditActivity : AppCompatActivity() {
     tv_filter.setOnClickListener { showFilterDialog() }
     tv_effect.setOnClickListener { switchToEffectEdit() }
     tv_next.setOnClickListener { generateVideo() }
+    iv_back.setOnClickListener { finish() }
 
     initEditInfo()
 

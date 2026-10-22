@@ -312,7 +312,11 @@ public class Mp4Composer {
         retriever.setDataSource(path);
         int width = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
         int height = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-        retriever.release();
+        try {
+            retriever.release();
+        } catch (IOException e) {
+            Log.e(TAG, "retriever release failed", e);
+        }
 
         return new Resolution(width, height);
     }

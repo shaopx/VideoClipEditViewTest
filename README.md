@@ -36,8 +36,9 @@ This repository is useful for Android developers who want to learn or implement 
 ├── app/             Demo app, activities, UI, video clip/edit flows
 ├── library/         Shared playback, thumbnail, utility, and video helper code
 ├── epf/             OpenGL video preview, filters, effects, EGL, and MP4 compose code
-├── filterlibrary/   Additional image/video filter implementations and shader assets
-└── mp4compose/      Legacy MP4 compose module kept for reference
+├── filterlibrary/   Early experimental filter module; sources are kept in the repo for
+│                   reference but excluded from the current Gradle build
+└── mp4compose/      Legacy MP4 compose module kept for reference (not part of the build)
 ```
 
 ### `app`
@@ -48,6 +49,7 @@ The demo application contains the main user flows:
 - `VideoClipActivity`: video trimming UI, thumbnail timeline, preview, and clip export.
 - `VideoEditActivity`: local video filter/effect editing.
 - `VideoProgressActivity`: video generation progress screen.
+- `Media3PlayerActivity`: standalone AndroidX Media3 playback demo (kept separate from the original ExoPlayer 2.x demo paths).
 - `CameraEffectActivity` / `Camera2BasicFragment`: Camera2 preview with OpenGL filters.
 - `ClipContainer`: custom timeline view for trim handles, shadows, and playback progress.
 
@@ -104,10 +106,12 @@ Additional shader and native filter experiments:
 ### App and Build
 
 - Kotlin and Java mixed Android project.
-- Android Gradle Plugin 7.0.4.
-- Kotlin 1.5.20.
-- `compileSdkVersion 31`, `targetSdkVersion 31`, `minSdkVersion 21`.
-- CMake / JNI are used by native filter modules.
+- Android Gradle Plugin 8.5.2 with Gradle 8.13 wrapper (version catalog in `gradle/libs.versions.toml`).
+- Kotlin 2.0.21.
+- `compileSdk 34`, `targetSdk 34`, `minSdk 21`.
+- CMake / JNI are used by the native filter module (`epf`).
+- `kotlin-android-extensions` synthetics have been migrated to explicit `findViewById` calls.
+- ExoPlayer 2.17.1 is kept as the original playback demo dependency.
 
 ## Main Workflows
 
@@ -139,10 +143,11 @@ Additional shader and native filter experiments:
 
 ### Requirements
 
-- Android Studio compatible with Android Gradle Plugin 7.0.x.
-- Android SDK 31.
+- Android Studio compatible with Android Gradle Plugin 8.5.x (2024.2 or newer).
+- Android SDK 34.
 - Android device or emulator with API 21 or newer.
 - Camera preview filter mode requires Android 5.0+ and Camera2 support.
+- The `epf` native build uses NDK and CMake; the Gradle file pins the installed NDK/CMake versions so no extra download is required.
 
 ### Run the Demo
 

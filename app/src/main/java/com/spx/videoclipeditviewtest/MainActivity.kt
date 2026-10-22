@@ -5,7 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.widget.TextView
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.spx.library.VideoItem
@@ -18,24 +18,31 @@ class MainActivity : AppCompatActivity() {
     const val PERMISSION_REQUEST_CODE = 1000
     const val REQUEST_PICK_CLIP_CODE = 1001
     const val REQUEST_PICK_EDIT_CODE = 1002
+    const val REQUEST_PICK_MEDIA3_CODE = 1003
   }
 
-  lateinit var tv_start_video_clip: TextView
-  lateinit var tv_local_video_edit: TextView
-  lateinit var tv_camera_preview: TextView
+  private lateinit var card_video_clip: View
+  private lateinit var card_video_edit: View
+  private lateinit var card_camera_preview: View
+  private lateinit var card_media3_player: View
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
 
-    tv_start_video_clip = findViewById(R.id.tv_start_video_clip)
-    tv_local_video_edit = findViewById(R.id.tv_local_video_edit)
-    tv_camera_preview = findViewById(R.id.tv_camera_preview)
-    // 裁剪视频
-    tv_start_video_clip.setOnClickListener { selectVideo(REQUEST_PICK_CLIP_CODE) }
-    // 编辑视频(特效 滤镜)
-    tv_local_video_edit.setOnClickListener { selectVideo(REQUEST_PICK_EDIT_CODE) }
+    card_video_clip = findViewById(R.id.card_video_clip)
+    card_video_edit = findViewById(R.id.card_video_edit)
+    card_camera_preview = findViewById(R.id.card_camera_preview)
+    card_media3_player = findViewById(R.id.card_media3_player)
 
-    tv_camera_preview.setOnClickListener {
+    // 裁剪视频
+    card_video_clip.setOnClickListener { selectVideo(REQUEST_PICK_CLIP_CODE) }
+    // 编辑视频(特效 滤镜)
+    card_video_edit.setOnClickListener { selectVideo(REQUEST_PICK_EDIT_CODE) }
+    // Media3 播放演示
+    card_media3_player.setOnClickListener { selectVideo(REQUEST_PICK_MEDIA3_CODE) }
+
+    card_camera_preview.setOnClickListener {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
         val intent = Intent(this, CameraEffectActivity::class.java)
         startActivity(intent)
@@ -76,18 +83,15 @@ class MainActivity : AppCompatActivity() {
       videoItem?.run {
         log("video title:$title, duration:${durationSec}, size:$size, path:$path")
         when (requestCode) {
-          REQUEST_PICK_CLIP_CODE -> startActivity(
-            this,
-            VideoClipActivity::class.java
-          )
-          REQUEST_PICK_EDIT_CODE -> startActivity(
-            this,
-            VideoEditActivity::class.java
-          )
+          REQUEST_PICK_CLIP_CODE ->
+            startActivity(this, VideoClipActivity::class.java)
+          REQUEST_PICK_EDIT_CODE ->
+            startActivity(this, VideoEditActivity::class.java)
+          REQUEST_PICK_MEDIA3_CODE ->
+            startActivity(this, Media3PlayerActivity::class.java)
           else -> {
           }
         }
-
       }
     }
 
@@ -107,22 +111,28 @@ class MainActivity : AppCompatActivity() {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
       return true
     }
-    // request permission if it has not been grunted.
-    if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-      requestPermissions(
-        arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-        PERMISSION_REQUEST_CODE
-      )
+    // 按系统版本确定所需权限:
+    // Android 13+ 使用细分媒体权限; Android 11-12 只需读权限;
+    // Android 10 及以下需要读写权限.
+    val needed = when {
+      Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+        arrayOf(Manifest.permission.READ_MEDIA_VIDEO)
+      Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
+        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+      else ->
+        arrayOf(
+          Manifest.permission.READ_EXTERNAL_STORAGE,
+          Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+    }
+
+    val toRequest = needed.filter {
+      checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED
+    }
+    if (toRequest.isNotEmpty()) {
+      requestPermissions(toRequest.toTypedArray(), PERMISSION_REQUEST_CODE)
       return false
     }
-      if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-          requestPermissions(
-              arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-              PERMISSION_REQUEST_CODE
-          )
-          return false
-      }
-
     return true
   }
 

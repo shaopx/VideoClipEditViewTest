@@ -151,7 +151,11 @@ public class VideoFrameExtractor {
             return Long.parseLong(duration);
         } catch (Exception ex) {
         } finally {
-            mmr.release();
+            try {
+                mmr.release();
+            } catch (IOException e) {
+                Log.w(TAG, "MediaMetadataRetriever release failed", e);
+            }
         }
 
         return 0;

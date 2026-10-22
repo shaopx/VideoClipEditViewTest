@@ -3,9 +3,11 @@ package com.spx.videoclipeditviewtest
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.util.Log
 import android.view.SurfaceView
+import android.widget.ImageView
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.ProgressBar
@@ -53,7 +55,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
   lateinit var finalVideoPath: String
   var videoPlayer: VideoPlayer? = null
 
-  var handler = object : Handler() {
+  var handler = object : Handler(Looper.getMainLooper()) {
     override fun handleMessage(msg: Message) {
       updatePlayPosition()
     }
@@ -77,6 +79,7 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
   lateinit var player_view_exo_thumbnail: ThumbExoPlayerView
   lateinit var player_view_mp: SurfaceView
   lateinit var player_view_exo: StyledPlayerView
+  lateinit var iv_back: ImageView
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -95,6 +98,9 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
     player_view_exo_thumbnail = findViewById(R.id.player_view_exo_thumbnail)
     player_view_mp = findViewById(R.id.player_view_mp)
     player_view_exo = findViewById(R.id.player_view_exo)
+    iv_back = findViewById(R.id.iv_back)
+
+    iv_back.setOnClickListener { finish() }
 
     initPlayer()
 
@@ -416,20 +422,17 @@ class VideoClipActivity : AppCompatActivity(), ClipContainer.Callback {
 
   private fun doClipUseGl() {
 
+    // 修复: 裁剪不应该默认附加演示特效(灵魂出窍/闪光/抖动),
+    // 否则裁剪出来的视频会被强制加上特效. 如需演示特效可通过 filterList 附加.
 //        var glFilterList = GlFilterList()
-//        glFilterList.putGlFilter(GlFilterPeriod(0, 3000, GlInvertFilter()))
-//        glFilterList.putGlFilter(GlFilterPeriod(3000, 6000, GLImageComplexionBeautyFilter(this)))
-//        glFilterList.putGlFilter(GlFilterPeriod(6000, 9000, GlInvertFilter()))
-
-    var glFilterList = GlFilterList()
-    glFilterList.putGlFilter(GlFilterPeriod(0, 2000, GlSoulOutFilter(this)))
-    glFilterList.putGlFilter(GlFilterPeriod(2000, 4000, GlFlashFliter(this)))
-    glFilterList.putGlFilter(GlFilterPeriod(4000, 6000, GlShakeFilter(this)))
+//        glFilterList.putGlFilter(GlFilterPeriod(0, 2000, GlSoulOutFilter(this)))
+//        glFilterList.putGlFilter(GlFilterPeriod(2000, 4000, GlFlashFliter(this)))
+//        glFilterList.putGlFilter(GlFilterPeriod(4000, 6000, GlShakeFilter(this)))
 
     Mp4Composer(videoPathInput, videoPlayUrl)
       .frameRate(8)
 //                .filter(GLImageComplexionBeautyFilter(this))
-      .filterList(glFilterList)
+//                .filterList(glFilterList)
       .size(540, 960)
       .clip(startMillSec, endMillSec)
       .listener(object : Mp4Composer.Listener {
