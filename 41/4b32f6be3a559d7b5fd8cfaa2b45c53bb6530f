@@ -1,0 +1,147 @@
+gradlew
+  s_114b34e2c2783a::t_a708752bed4cb2 1-251
+app/src/main/res/layout/activity_media3_player.xml
+  s_114b34e2c2783a::t_d10f21c0ae1d90 1-44
+gradle.properties
+  s_114b34e2c2783a::t_e5511a9edd064b 7-8
+  s_114b34e2c2783a::t_ebb19929e13ece 2-4,6,9
+epf/src/main/java/com/daasuu/epf/GlPlayerView.kt
+  s_114b34e2c2783a::t_0c992288075426 6,16
+settings.gradle
+  s_114b34e2c2783a::t_7e29f254f6973e 1-34
+gradle/wrapper/gradle-wrapper.properties
+  s_114b34e2c2783a::t_930edbb04a3462 1-7
+gradle/libs.versions.toml
+  s_114b34e2c2783a::t_4b18981420fe7c 18-19
+  s_114b34e2c2783a::t_dfa6d9085d774f 1-7,10-15,20-24
+  s_114b34e2c2783a::t_3c0a766e21b27b 8,16-17
+  s_114b34e2c2783a::t_4e0a7db9e03a06 9
+app/src/main/java/com/spx/videoclipeditviewtest/VideoProgressActivity.kt
+  s_114b34e2c2783a::t_ad67c25b302bf4 6,9-10,21,27-29,34-36,42-43,113-120,125,130-139,141,143-146,148
+  s_114b34e2c2783a::t_1049ebea82f5db 3,8,11,13,30-32,44-48,55,62-63,74-81,83-90,96-98,103,105-107
+  s_114b34e2c2783a::t_627027de0b7c7b 33
+app/src/main/res/drawable/ic_play.xml
+  s_114b34e2c2783a::t_d4fec1451c341d 1-10
+gradlew.bat
+  s_114b34e2c2783a::t_a708752bed4cb2 1-94
+.gitignore
+  s_114b34e2c2783a::t_d824bc3785ea7a 2,4,6-10
+epf/src/main/AndroidManifest.xml
+  s_114b34e2c2783a::t_b67b85a9c625f0 1
+app/src/main/res/layout/activity_video_clip.xml
+  s_114b34e2c2783a::t_ac74383c125007 198-207
+app/build.gradle
+  s_114b34e2c2783a::t_1bd5d760244e51 49-51
+  s_114b34e2c2783a::t_580bee0536e3e4 2-3,7-9,12-13,17,35,38,45-48
+  s_114b34e2c2783a::t_a207416387aba2 31-34
+library/src/main/java/com/spx/library/VideoFrameExtractor.java
+  s_114b34e2c2783a::t_58d958ad0c12c5 154-158
+library/src/main/java/com/spx/library/player/VideoPlayTimeController.kt
+  s_114b34e2c2783a::t_643fc0a6f9ddc2 4,8
+README.md
+  s_114b34e2c2783a::t_b129469e47a4f9 109-114
+  s_114b34e2c2783a::t_99fb854fbbc3b2 52
+  s_114b34e2c2783a::t_1055733a8a85f2 146-147,150
+  s_114b34e2c2783a::t_ed3c9f04639965 39-41
+app/src/main/res/layout/activity_main.xml
+  s_114b34e2c2783a::t_02ed42e39d96b6 2,6-8,11-12,14-218
+app/src/main/res/layout/video_process_activity_layout.xml
+  s_114b34e2c2783a::t_70f99e9475f04a 2,5,7,10-14,16-68
+app/src/main/res/drawable/bg_main_gradient.xml
+  s_114b34e2c2783a::t_91dae4fadb7296 1-7
+app/src/main/java/com/spx/videoclipeditviewtest/MainActivity.kt
+  s_114b34e2c2783a::t_ac0e576fbbd8a5 8,21,24-28,33-37,39,41-43,45,86-91,114-126,129-135
+epf/build.gradle
+  s_114b34e2c2783a::t_a3e334419c8ee2 37-44
+  s_114b34e2c2783a::t_b461fab2f3640c 1-4,7-8,11-13,17,32-33,46,57-58
+  s_114b34e2c2783a::t_bd8f347765a916 49-53
+app/src/main/java/com/spx/videoclipeditviewtest/VideoClipActivity.kt
+  s_114b34e2c2783a::t_1e7ebfd284347b 6
+  s_114b34e2c2783a::t_6dd473af4b76a7 58
+  s_114b34e2c2783a::t_cb2c686ea83463 10
+  s_114b34e2c2783a::t_b53c74703d2321 82
+  s_114b34e2c2783a::t_4306a9aa85f13d 425-426,428-430,435
+  s_114b34e2c2783a::t_cec3202786b368 101-103
+app/src/main/java/com/spx/videoclipeditviewtest/view/BottomDialogFragment.kt
+  s_114b34e2c2783a::t_1f011a9a5e567e 11
+  s_114b34e2c2783a::t_40a1fdfa1c4ef1 99-101
+  s_114b34e2c2783a::t_66eab51b2fb624 21-24
+  s_114b34e2c2783a::t_e76d1e9b82c2ec 102
+app/src/main/java/com/spx/videoclipeditviewtest/VideoEditActivity.kt
+  s_114b34e2c2783a::t_45d4d1d09150ac 96
+  s_114b34e2c2783a::t_c303f30d2ba469 67-68
+  s_114b34e2c2783a::t_49aa8e333dc5b7 115-116
+  s_114b34e2c2783a::t_d90c2843874651 58-66,70
+  s_114b34e2c2783a::t_3e26c604c53011 15,17
+  s_114b34e2c2783a::t_81f4b8e93d878b 6
+  s_114b34e2c2783a::t_88addb069d81ad 117
+  s_114b34e2c2783a::t_eeeb5ab3751f70 23-24
+  s_114b34e2c2783a::t_ffb6d35a00bd94 69
+  s_114b34e2c2783a::t_24a8e1d7dbaff1 127
+  s_114b34e2c2783a::t_bc91d949474425 107-114,118
+app/src/main/java/com/spx/videoclipeditviewtest/Camera2BasicFragment.kt
+  s_114b34e2c2783a::t_d096f445fb5122 34-35
+  s_114b34e2c2783a::t_82475fa27ee0a0 63-67
+  s_114b34e2c2783a::t_cc2b1f2d2ca001 68
+app/src/main/AndroidManifest.xml
+  s_114b34e2c2783a::t_f78f4f4287420c 44
+  s_114b34e2c2783a::t_8af8b69ae4d882 7-14
+  s_114b34e2c2783a::t_4db2ea80139853 2
+  s_114b34e2c2783a::t_dc3b5dcbf52e4b 45
+app/src/main/java/com/spx/videoclipeditviewtest/Media3PlayerActivity.kt
+  s_114b34e2c2783a::t_8e9e31fb87b5bb 1-63
+app/src/main/res/drawable/bg_top_bar.xml
+  s_114b34e2c2783a::t_230dce86e2c317 1-7
+app/src/main/java/com/spx/videoclipeditviewtest/ClipContainer.kt
+  s_114b34e2c2783a::t_3a7ed44997f5e9 300-301,307,316
+epf/src/main/java/com/daasuu/mp4compose/composer/Mp4Composer.java
+  s_114b34e2c2783a::t_b07f99d6dbf0e4 315-319
+build.gradle
+  s_114b34e2c2783a::t_41a9131bd37af0 2-5
+app/src/main/res/drawable/bg_entry_card.xml
+  s_114b34e2c2783a::t_fd59ee979fb471 1-13
+library/src/main/AndroidManifest.xml
+  s_114b34e2c2783a::t_2d7fe7629d72f6 1
+app/src/main/res/drawable/bg_btn_accent.xml
+  s_114b34e2c2783a::t_c7c3e9bf1b9961 1-5
+app/src/main/res/drawable/bg_icon_circle.xml
+  s_114b34e2c2783a::t_fe2964f9a66240 1-5
+library/build.gradle
+  s_114b34e2c2783a::t_213a1501af30ed 19-21,24-26
+  s_114b34e2c2783a::t_4915b07648cef8 30-32
+  s_114b34e2c2783a::t_73ed8f97d1423d 1-4,7-8,11-16,33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.2",
+  "base_commit_sha": "414b32f6be3a559d7b5fd8cfaa2b45c53bb6530f",
+  "prompts": {},
+  "humans": {
+    "h_664f63af7e305d": {
+      "author": "shaopx <shaopx@mail.com>"
+    }
+  },
+  "sessions": {
+    "s_114b34e2c2783a": {
+      "agent_id": {
+        "tool": "trae",
+        "id": "6ad9623fab7f9018bf55e4bd",
+        "model": "glm-5.3"
+      },
+      "human_author": "shaopx <shaopx@mail.com>",
+      "custom_attributes": {
+        "source_scene": "agent",
+        "edit_kind": "file_edit",
+        "tool_use_id": "6ad97070ab7f9018bf55e8d1",
+        "session_id": "6ad9623fab7f9018bf55e4bd",
+        "dedupe_key": "6ad9623fab7f9018bf55e4bd:6ad97070ab7f9018bf55e8d1:afterEdit:43716809",
+        "tool_type": "builtin",
+        "external_session_id": "6ad9623fab7f9018bf55e4bd",
+        "client_type": "ide",
+        "operation_id": "6ad97070ab7f9018bf55e8d1",
+        "runtime_client": "trae-tob-git-ai",
+        "tool_id": "icube:applyChatSnapshotPatch"
+      }
+    }
+  }
+}
